@@ -7,9 +7,6 @@ export class ProductReport {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'reportId', nullable: true })
-  reportId: number;
-
   @Column({ name: 'productName', nullable: true })
   productName: string;
 

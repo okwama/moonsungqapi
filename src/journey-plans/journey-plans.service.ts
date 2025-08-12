@@ -507,6 +507,11 @@ export class JourneyPlansService {
       throw new NotFoundException(`Journey plan with ID ${id} not found`);
     }
 
+    console.log('🔄 Journey Plan Update Request:');
+    console.log('📊 Journey Plan ID:', id);
+    console.log('📊 Update DTO:', JSON.stringify(updateJourneyPlanDto, null, 2));
+    console.log('📊 ImageUrl in DTO:', updateJourneyPlanDto.imageUrl);
+
     // Convert status string to number if provided
     let statusValue: number | undefined;
     if (updateJourneyPlanDto.status) {
@@ -532,8 +537,15 @@ export class JourneyPlansService {
       updateData.checkoutTime = new Date(updateData.checkoutTime);
     }
 
+    console.log('📊 Final Update Data:', JSON.stringify(updateData, null, 2));
+    console.log('📊 ImageUrl in Update Data:', updateData.imageUrl);
+
     await this.journeyPlanRepository.update(id, updateData);
-    return this.findOne(id);
+    
+    const updatedJourneyPlan = await this.findOne(id);
+    console.log('📊 Updated Journey Plan ImageUrl:', updatedJourneyPlan?.imageUrl);
+    
+    return updatedJourneyPlan;
   }
 
   async remove(id: number): Promise<void> {

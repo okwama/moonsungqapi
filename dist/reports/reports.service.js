@@ -41,8 +41,9 @@ let ReportsService = class ReportsService {
                 case 'FEEDBACK':
                     console.log('📋 ===== FEEDBACK REPORT CREATION =====');
                     const { reportId: feedbackReportId, ...feedbackDetails } = details || {};
+                    const { reportId: mainFeedbackReportId, ...mainDataWithoutFeedbackReportId } = mainData || {};
                     const feedbackDataToSave = {
-                        ...mainData,
+                        ...mainDataWithoutFeedbackReportId,
                         ...feedbackDetails,
                         userId: userId || salesRepId
                     };
@@ -65,8 +66,9 @@ let ReportsService = class ReportsService {
                             const productDetail = details[i];
                             console.log(`📋 Processing product ${i + 1}:`, JSON.stringify(productDetail, null, 2));
                             const { reportId: productReportId, ...productDetailsWithoutReportId } = productDetail;
+                            const { reportId: mainProductReportId, ...mainDataWithoutReportId } = mainData || {};
                             const productDataToSave = {
-                                ...mainData,
+                                ...mainDataWithoutReportId,
                                 ...productDetailsWithoutReportId,
                                 userId: userId || salesRepId
                             };
@@ -89,8 +91,9 @@ let ReportsService = class ReportsService {
                     else {
                         console.log('📋 Processing single product');
                         const { reportId: singleProductReportId, ...singleProductDetails } = details || {};
+                        const { reportId: mainProductReportId, ...mainDataWithoutReportId } = mainData || {};
                         const singleProductDataToSave = {
-                            ...mainData,
+                            ...mainDataWithoutReportId,
                             ...singleProductDetails,
                             userId: userId || salesRepId
                         };
@@ -110,8 +113,9 @@ let ReportsService = class ReportsService {
                 case 'VISIBILITY_ACTIVITY':
                     console.log('📋 ===== VISIBILITY ACTIVITY REPORT CREATION =====');
                     const { reportId: visibilityReportId, ...visibilityDetails } = details || {};
+                    const { reportId: mainReportId, ...mainDataWithoutReportId } = mainData || {};
                     const visibilityDataToSave = {
-                        ...mainData,
+                        ...mainDataWithoutReportId,
                         ...visibilityDetails,
                         userId: userId || salesRepId
                     };

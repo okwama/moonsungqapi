@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 11, 2025 at 04:51 PM
+-- Generation Time: Aug 12, 2025 at 03:50 PM
 -- Server version: 10.6.22-MariaDB-cll-lve
 -- PHP Version: 8.4.10
 
@@ -156,6 +156,14 @@ CREATE TABLE `Category` (
   `name` varchar(191) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `Category`
+--
+
+INSERT INTO `Category` (`id`, `name`) VALUES
+(1, 'Lipstick'),
+(2, 'Lashes');
+
 -- --------------------------------------------------------
 
 --
@@ -190,6 +198,154 @@ CREATE TABLE `chart_of_accounts` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `is_active` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `chart_of_accounts`
+--
+
+INSERT INTO `chart_of_accounts` (`id`, `account_name`, `account_code`, `account_type`, `parent_account_id`, `description`, `created_at`, `updated_at`, `is_active`) VALUES
+(3, 'Fixtures and Fittings', '003000', 4, 1, '', '2025-06-15 13:19:13', '2025-07-07 18:00:36', 1),
+(4, 'Land and Buildings', '004000', 4, 1, '', '2025-06-15 13:20:02', '2025-07-07 18:00:36', 1),
+(5, 'Motor Vehicles', '005000', 4, 1, '', '2025-06-15 13:21:08', '2025-07-07 18:00:36', 1),
+(6, 'Office equipment (inc computer equipment)\n', '006000', 4, 1, '', '2025-06-15 13:26:32', '2025-07-07 18:00:36', 1),
+(7, 'Plant and Machinery', '007000', 4, 1, '', '2025-06-15 13:27:13', '2025-07-07 18:00:36', 1),
+(8, 'Intangible Assets -ERP & Sales App', '008000', 5, 1, '', '2025-06-15 13:28:15', '2025-07-07 18:00:36', 1),
+(9, 'Biological Assets', '009000', 5, 1, '', '2025-06-15 13:28:54', '2025-07-07 18:00:36', 1),
+(10, 'Stock', '100001', 6, 1, '', '2025-06-15 13:30:13', '2025-07-07 18:00:36', 1),
+(11, 'Stock Interim (Received)', '100002', 6, 1, '', '2025-06-15 13:30:59', '2025-07-07 18:00:36', 1),
+(12, 'Debtors Control Account', '110000', 7, 1, ' | Last invoice: INV-3-1751913238102 | Last invoice: INV-2-1751918138904 | Last invoice: INV-3-1751996124894 | Last invoice: INV-2-1752309325399 | Last invoice: INV-2-1752320810962', '2025-06-15 13:32:13', '2025-07-07 18:00:36', 1),
+(13, 'Debtors Control Account (POS)', '110001', 7, 1, '', '2025-06-15 13:33:00', '2025-07-07 18:00:36', 1),
+(14, 'Other debtors', '110002', 7, 1, '', '2025-06-15 14:39:31', '2025-07-07 18:00:36', 1),
+(15, 'Prepayments', '110003', 8, 1, '', '2025-06-15 14:40:01', '2025-07-07 18:00:36', 1),
+(16, 'Purchase Tax Control Account', '110004', 6, 1, '', '2025-06-15 14:41:11', '2025-07-07 18:00:36', 1),
+(17, 'WithHolding Tax Advance on', '110005', 6, 1, '', '2025-06-15 14:41:56', '2025-07-07 18:00:36', 1),
+(18, 'Bank Suspense Account', '110006', 6, 1, '', '2025-06-15 14:42:24', '2025-07-07 18:00:36', 1),
+(19, 'Outstanding Receipts', '110007', 7, 1, '', '2025-06-15 14:42:57', '2025-07-07 18:00:36', 1),
+(20, 'Outstanding Payments', '110008', 6, 1, '', '2025-06-15 14:43:27', '2025-07-07 18:00:36', 1),
+(21, 'DTB KES', '120001', 9, 1, '', '2025-06-15 14:44:02', '2025-07-07 18:00:36', 1),
+(22, 'DTB USD', '120002', 9, 1, '', '2025-06-15 14:44:41', '2025-07-07 18:00:36', 1),
+(23, 'M-pesa', '120003', 9, 1, '', '2025-06-15 14:45:07', '2025-07-07 18:00:36', 1),
+(24, 'Cash', '120004', 9, 1, '', '2025-06-15 14:45:26', '2025-07-07 18:00:36', 1),
+(25, 'DTB-PICTURES PAYMENTS', '120005', 9, 1, '', '2025-06-15 14:46:11', '2025-07-07 18:00:36', 1),
+(26, 'ABSA', '120006', 9, 1, '', '2025-06-15 14:46:42', '2025-07-07 18:00:36', 1),
+(27, 'SANLAM MMF-USD', '120007', 9, 1, '', '2025-06-15 14:47:26', '2025-07-07 18:00:36', 1),
+(28, 'ABSA-USD', '120008', 9, 1, '', '2025-06-15 14:47:49', '2025-07-07 18:00:36', 1),
+(29, 'ECO BANK KES', '120009', 9, 1, '', '2025-06-15 14:48:23', '2025-07-07 18:00:36', 1),
+(30, 'Accounts Payables', '210000', 10, 2, '', '2025-06-15 14:50:18', '2025-07-07 18:00:36', 1),
+(31, 'Other Creditors', '210002', 11, 2, '', '2025-06-15 14:50:56', '2025-07-07 18:00:36', 1),
+(32, 'Accrued Liabilities', '210003', 11, 2, '', '2025-06-15 14:51:26', '2025-07-07 18:00:36', 1),
+(33, 'Company Credit Card', '210004', 12, 2, '', '2025-06-15 14:51:55', '2025-07-07 18:00:36', 1),
+(34, 'Bad debt provision', '210005', 11, 2, '', '2025-06-15 14:52:40', '2025-07-07 18:00:36', 1),
+(35, 'Sales Tax Control Account', '210006', 11, 2, '', '2025-06-15 14:53:12', '2025-07-07 18:00:36', 1),
+(36, 'Withholding Tax Payable', '210007', 11, 2, '', '2025-06-15 14:53:51', '2025-07-07 18:00:36', 1),
+(37, 'PAYE', '210008', 10, 2, '', '2025-06-15 14:54:27', '2025-07-07 18:00:36', 1),
+(38, 'Net Wages', '210009', 10, 2, '', '2025-06-15 14:55:05', '2025-07-07 18:00:36', 1),
+(39, 'NSSF', '210010', 10, 2, '', '2025-06-15 14:55:32', '2025-07-07 18:00:36', 1),
+(40, 'NHIF', '210011', 10, 2, '', '2025-06-15 14:56:11', '2025-07-07 18:00:36', 1),
+(41, 'AHL', '210012', 10, 2, '', '2025-06-15 14:56:42', '2025-07-07 18:00:36', 1),
+(42, 'Due To and From Directors', '210013', 11, 2, '', '2025-06-15 14:57:16', '2025-07-07 18:00:36', 1),
+(43, 'Due To and From Related Party- MSP', '210014', 11, 2, '', '2025-06-15 14:57:46', '2025-07-07 18:00:36', 1),
+(44, 'Due To Other Parties', '210015', 11, 2, '', '2025-06-15 14:58:11', '2025-07-07 18:00:36', 1),
+(45, 'Corporation Tax', '210016', 10, 2, '', '2025-06-15 14:58:35', '2025-07-07 18:00:36', 1),
+(46, 'Wage After Tax: Accrued Liabilities', '210022', 10, 2, '', '2025-06-15 14:58:59', '2025-07-07 18:00:36', 1),
+(47, 'Due To and From Related Party- GQ', '210024', 11, 2, '', '2025-06-15 14:59:52', '2025-07-07 18:00:36', 1),
+(48, 'Due To and From Woosh Intl- TZ', '210034', 11, 2, '', '2025-06-15 15:00:20', '2025-07-07 18:00:36', 1),
+(49, 'Share Capital', '300001', 13, 3, '', '2025-06-15 15:00:43', '2025-07-07 18:00:36', 1),
+(50, 'Retained Earnings', '300002', 13, 3, '', '2025-06-15 15:01:19', '2025-07-07 18:00:36', 1),
+(51, 'Other reserves', '300003', 13, 3, '', '2025-06-15 15:01:39', '2025-07-07 18:00:36', 1),
+(52, 'Capital', '300004', 13, 3, '', '2025-06-15 15:01:59', '2025-07-07 18:00:36', 1),
+(53, 'Sales Revenue', '400001', 14, 4, '', '2025-06-15 15:02:21', '2025-07-07 18:00:36', 1),
+(54, 'GOLD PUFF SALES', '400002', 14, 4, '', '2025-06-15 15:02:50', '2025-07-07 18:00:36', 1),
+(55, 'WILD LUCY SALES', '400003', 14, 4, '', '2025-06-15 15:03:15', '2025-07-07 18:00:36', 1),
+(56, 'Cash Discount Gain', '400004', 19, 0, '', '2025-06-15 15:04:54', '2025-07-07 18:00:36', 1),
+(57, 'Profits/Losses on disposals of assets', '400005', 14, 4, '', '2025-06-15 15:05:26', '2025-07-07 18:00:36', 1),
+(58, 'Other Income', '400006', 19, 0, '', '2025-06-15 15:05:48', '2025-07-07 18:00:36', 1),
+(59, 'GOLD PUFF RECHARGEABLE SALES', '400007', 14, 4, '', '2025-06-15 15:06:13', '2025-07-07 18:00:36', 1),
+(60, 'GOLD POUCH 5 DOT SALES', '400008', 14, 4, '', '2025-06-15 15:06:37', '2025-07-07 18:00:36', 1),
+(61, 'GOLD POUCH 3 DOT SALES', '400009', 14, 4, '', '2025-06-15 15:07:14', '2025-07-07 18:00:36', 1),
+(62, 'GOLD PUFF 3000 PUFFS RECHARGEABLE SALES', '400010', 14, 4, '', '2025-06-15 15:07:39', '2025-07-07 18:00:36', 1),
+(63, 'Cost of sales 1', '500000', 15, 5, '', '2025-06-15 15:08:06', '2025-07-07 18:00:36', 1),
+(64, 'Cost of sales 2', '500001', 15, 5, '', '2025-06-15 15:08:26', '2025-07-07 18:00:36', 1),
+(65, 'GOLD PUFF COST OF SALES', '500002', 15, 5, '', '2025-06-15 15:08:53', '2025-07-07 18:00:36', 1),
+(66, 'WILD LUCY COST OF SALES', '500003', 15, 5, '', '2025-06-15 15:09:13', '2025-07-07 18:00:36', 1),
+(67, 'Other costs of sales - Vapes Write Offs', '500004', 15, 5, '', '2025-06-15 15:09:36', '2025-07-07 18:00:36', 1),
+(68, 'Other costs of sales', '500005', 15, 5, '', '2025-06-15 15:09:59', '2025-07-07 18:00:36', 1),
+(69, 'Freight and delivery - COS E-Cigarette', '500006', 15, 5, '', '2025-06-15 15:10:25', '2025-07-07 18:00:36', 1),
+(70, 'Discounts given - COS', '500007', 15, 5, '', '2025-06-15 15:10:45', '2025-07-07 18:00:36', 1),
+(71, 'Direct labour - COS', '500008', 15, 5, '', '2025-06-15 15:11:07', '2025-07-07 18:00:36', 1),
+(72, 'Commissions and fees', '500009', 15, 5, '', '2025-06-15 15:11:30', '2025-07-07 18:00:36', 1),
+(73, 'Bar Codes/ Stickers', '500010', 15, 5, '', '2025-06-15 15:12:01', '2025-07-07 18:00:36', 1),
+(74, 'GOLD PUFF RECHARGEABLE COST OF SALES', '500011', 15, 5, '', '2025-06-15 15:12:35', '2025-07-07 18:00:36', 1),
+(75, 'Rebates,Price Diff & Discounts', '500012', 15, 5, '', '2025-06-15 15:12:55', '2025-07-07 18:00:36', 1),
+(76, 'GOLD POUCH 5 DOT COST OF SALES', '500013', 15, 5, '', '2025-06-15 15:13:17', '2025-07-07 18:00:36', 1),
+(77, 'GOLD POUCH 3 DOT COST OF SALES', '500014', 15, 5, '', '2025-06-15 15:13:38', '2025-07-07 18:00:36', 1),
+(78, 'GOLD PUFF 3000 PUFFS RECHARGEABLE COST OF SALES', '500015', 15, 5, '', '2025-06-15 15:14:02', '2025-07-07 18:00:36', 1),
+(79, 'Vehicle Washing', '510001', 16, 5, '', '2025-06-15 15:31:22', '2025-07-07 18:00:36', 1),
+(80, 'Vehicle R&M', '510002', 16, 5, '', '2025-06-15 15:31:49', '2025-07-07 18:00:36', 1),
+(81, 'Vehicle Parking Fee', '510003', 16, 5, '', '2025-06-15 15:32:15', '2025-07-07 18:00:36', 1),
+(82, 'Vehicle Insurance fee', '510004', 16, 5, '', '2025-06-15 15:32:47', '2025-07-07 18:00:36', 1),
+(83, 'Vehicle fuel cost', '510005', 16, 5, '', '2025-06-15 15:33:09', '2025-07-07 18:00:36', 1),
+(84, 'Driver Services', '510006', 16, 5, '', '2025-06-15 15:33:35', '2025-07-07 18:00:36', 1),
+(85, 'Travel expenses - selling expenses', '510007', 16, 5, '', '2025-06-15 15:34:04', '2025-07-07 18:00:36', 1),
+(86, 'Travel expenses - Sales Fuel Allowance', '510008', 16, 5, '', '2025-06-15 15:34:30', '2025-07-07 18:00:36', 1),
+(87, 'Travel expenses - Sales Car Lease', '510009', 16, 5, '', '2025-06-15 15:35:05', '2025-07-07 18:00:36', 1),
+(88, 'Travel expenses - Other Travel Expenses', '510010', 16, 5, '', '2025-06-15 15:35:55', '2025-07-07 18:00:36', 1),
+(89, 'Travel expenses- General Fuel Allowance', '510011', 16, 5, '', '2025-06-15 15:36:51', '2025-07-07 18:00:36', 1),
+(90, 'Travel expenses - General Car Lease', '510012', 16, 5, '', '2025-06-15 15:37:20', '2025-07-07 18:00:36', 1),
+(91, 'Travel Expense- General and admin expenses', '510013', 16, 5, '', '2025-06-15 15:37:46', '2025-07-07 18:00:36', 1),
+(92, 'Mpesa handling fee', '510014', 16, 5, '', '2025-06-15 15:38:09', '2025-07-07 18:00:36', 1),
+(93, 'Other Types of Expenses-Advertising Expenses', '510015', 16, 5, '', '2025-06-15 15:38:34', '2025-07-07 18:00:36', 1),
+(94, 'Merchandize', '510016', 16, 5, '', '2025-06-15 15:38:58', '2025-07-07 18:00:36', 1),
+(95, 'Influencer Payment', '510017', 16, 5, '', '2025-06-15 15:39:20', '2025-07-07 18:00:36', 1),
+(96, 'Advertizing Online', '510018', 16, 5, '', '2025-06-15 15:39:41', '2025-07-07 18:00:36', 1),
+(97, 'Trade Marketing Costs', '510019', 16, 5, '', '2025-06-15 15:40:05', '2025-07-07 18:00:36', 1),
+(98, 'Activation', '510020', 16, 5, '', '2025-06-15 15:40:25', '2025-07-07 18:00:36', 1),
+(99, 'Other selling expenses', '510021', 16, 5, '', '2025-06-15 15:40:47', '2025-07-07 18:00:36', 1),
+(100, 'Other general and administrative expenses', '510022', 16, 5, '', '2025-06-15 15:41:08', '2025-07-07 18:00:36', 1),
+(101, 'Rent or Lease of Apartments', '510023', 16, 5, '', '2025-06-15 15:41:30', '2025-07-07 18:00:36', 1),
+(102, 'Penalty & Interest Account', '510024', 16, 5, '', '2025-06-15 15:41:58', '2025-07-07 18:00:36', 1),
+(103, 'Dues and subscriptions', '510025', 16, 5, '', '2025-06-15 15:42:19', '2025-07-07 18:00:36', 1),
+(104, 'Utilities (Electricity and Water)', '510026', 16, 5, '', '2025-06-15 15:42:43', '2025-07-07 18:00:36', 1),
+(105, 'Telephone and postage', '510027', 16, 5, '', '2025-06-15 15:43:13', '2025-07-07 18:00:36', 1),
+(106, 'Stationery and printing', '510028', 16, 5, '', '2025-06-15 15:43:33', '2025-07-07 18:00:36', 1),
+(107, 'Service Fee', '510029', 16, 5, '', '2025-06-15 15:43:54', '2025-07-07 18:00:36', 1),
+(108, 'Repairs and Maintenance', '510030', 16, 5, '', '2025-06-15 15:44:15', '2025-07-07 18:00:36', 1),
+(109, 'Rent or lease payments', '510031', 16, 5, '', '2025-06-15 15:44:45', '2025-07-07 18:00:36', 1),
+(110, 'Office Internet', '510032', 16, 5, '', '2025-06-15 15:45:05', '2025-07-07 18:00:36', 1),
+(111, 'Office decoration Expense', '510033', 16, 5, '', '2025-06-15 15:45:26', '2025-07-07 18:00:36', 1),
+(112, 'Office Cleaning and Sanitation', '510034', 16, 5, '', '2025-06-15 15:45:51', '2025-07-07 18:00:36', 1),
+(113, 'IT Development', '510035', 16, 5, '', '2025-06-15 15:46:12', '2025-07-07 18:00:36', 1),
+(114, 'Insurance - Liability', '510036', 16, 5, '', '2025-06-15 15:46:34', '2025-07-07 18:00:36', 1),
+(115, 'Business license fee', '510037', 16, 5, '', '2025-06-15 15:46:58', '2025-07-07 18:00:36', 1),
+(116, 'Other Legal and Professional Fees', '510038', 16, 5, '', '2025-06-15 15:47:31', '2025-07-07 18:00:36', 1),
+(117, 'IT Expenses', '510039', 16, 5, '', '2025-06-15 15:47:51', '2025-07-07 18:00:36', 1),
+(118, 'Recruitment fee', '510040', 16, 5, '', '2025-06-15 15:48:18', '2025-07-07 18:00:36', 1),
+(119, 'Payroll Expenses(Before Tax)', '510041', 16, 5, '', '2025-06-15 15:48:44', '2025-07-07 18:00:36', 1),
+(120, 'Outsourced Labor Services', '510042', 16, 5, '', '2025-06-15 15:49:07', '2025-07-07 18:00:36', 1),
+(121, 'NSSF ( Company Paid)', '510043', 16, 5, '', '2025-06-15 15:49:34', '2025-07-07 18:00:36', 1),
+(122, 'Employee welfare', '510044', 16, 5, '', '2025-06-15 15:49:56', '2025-07-07 18:00:36', 1),
+(123, 'Bonus & Allowance', '510045', 16, 5, '', '2025-06-15 15:50:19', '2025-07-07 18:00:36', 1),
+(124, 'Affordable Housing Levy (AHL)', '510046', 16, 5, '', '2025-06-15 15:50:43', '2025-07-07 18:00:36', 1),
+(125, 'Income tax expense', '510047', 16, 5, '', '2025-06-15 15:51:05', '2025-07-07 18:00:36', 1),
+(126, 'Team Building', '510048', 16, 5, '', '2025-06-15 15:51:28', '2025-07-07 18:00:36', 1),
+(127, 'Meetings', '510049', 16, 5, '', '2025-06-15 15:51:55', '2025-07-07 18:00:36', 1),
+(128, 'Meals and entertainment', '510050', 16, 5, '', '2025-06-15 15:52:20', '2025-07-07 18:00:36', 1),
+(129, 'Interest expense', '510051', 16, 5, '', '2025-06-15 15:52:40', '2025-07-07 18:00:36', 1),
+(130, 'Bad debts', '510052', 17, 0, '', '2025-06-15 15:53:05', '2025-07-07 18:00:36', 1),
+(131, 'Bank handling fee', '510054', 16, 5, '', '2025-06-15 15:53:29', '2025-07-07 18:00:36', 1),
+(132, 'Patents & Trademarks Depreciation', '520001', 17, 0, '', '2025-06-15 15:54:02', '2025-07-07 18:00:36', 1),
+(133, 'Fixtures and fittings Depreciation', '520002', 16, 5, '', '2025-06-15 15:54:23', '2025-07-07 18:00:36', 1),
+(134, 'Land and buildings Depreciation', '520003', 17, 0, '', '2025-06-15 15:54:45', '2025-07-07 18:00:36', 1),
+(135, 'Motor vehicles Depreciation', '520004', 17, 0, '', '2025-06-15 15:55:09', '2025-07-07 18:00:36', 1),
+(136, 'Office equipment (inc computer equipment) Depreciation', '520005', 17, 0, '', '2025-06-15 15:55:35', '2025-07-07 18:00:36', 1),
+(137, 'Plant and machinery Depreciation', '520006', 17, 0, '', '2025-06-15 15:55:58', '2025-07-07 18:00:36', 1),
+(138, 'Undistributed Profits/Losses', '999999', 18, 3, '', '2025-06-15 15:56:19', '2025-07-07 18:00:36', 1),
+(139, 'Accumulated Depreciation', '520007', 17, 0, NULL, '2025-07-08 06:19:04', '2025-07-08 06:19:04', 1),
+(140, 'Accounts Receivable', '1100', 2, 0, 'Amounts owed by customers for goods or services provided | Last invoice: INV-2-1752321159077 | Last invoice: INV-2-1752397570019 | Last invoice: INV-2-1752649457669', '2025-07-12 09:40:18', '2025-07-12 09:40:18', 1),
+(141, 'PAYE Payable', '37', 2, 0, NULL, '2025-08-10 10:32:21', '2025-08-10 10:32:21', 1),
+(142, 'Net Wages', '38', 5, 0, NULL, '2025-08-10 10:32:21', '2025-08-10 10:32:21', 1),
+(143, 'NSSF Payable', '39', 2, 0, NULL, '2025-08-10 10:32:21', '2025-08-10 10:32:21', 1),
+(144, 'NHIF Payable', '40', 2, 0, NULL, '2025-08-10 10:32:21', '2025-08-10 10:32:21', 1);
 
 -- --------------------------------------------------------
 
@@ -288,7 +444,11 @@ INSERT INTO `ClientAssignment` (`id`, `outletId`, `salesRepId`, `assignedAt`, `s
 (17, 20, 78, '2025-06-25 15:16:10.375', 'active'),
 (18, 21, 77, '2025-06-25 15:16:10.375', 'active'),
 (19, 22, 75, '2025-06-25 15:16:10.375', 'active'),
-(20, 1, 3, '2025-06-25 15:16:10.359', 'active');
+(20, 1, 3, '2025-06-25 15:16:10.359', 'active'),
+(21, 19, 2, '2025-08-11 20:19:42.347', 'active'),
+(22, 22, 2, '2025-08-11 20:19:42.539', 'active'),
+(23, 20, 2, '2025-08-11 20:20:48.252', 'inactive'),
+(24, 7, 2, '2025-08-11 20:20:48.296', 'inactive');
 
 -- --------------------------------------------------------
 
@@ -328,7 +488,7 @@ CREATE TABLE `Clients` (
 --
 
 INSERT INTO `Clients` (`id`, `salesRepId`, `name`, `address`, `latitude`, `longitude`, `balance`, `email`, `region_id`, `region`, `outlet_account`, `route_id`, `route_name`, `route_id_update`, `route_name_update`, `contact`, `tax_pin`, `location`, `status`, `client_type`, `countryId`, `added_by`, `created_at`, `discountPercentage`) VALUES
-(1, 63, 'MINISO SARIT', 'Kenya', -1.2607772, 36.8016888, NULL, NULL, 0, '', 1, NULL, 'WESTLANDS', 44, 'DODOMA', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(1, 63, 'MINISO SARIT', 'Kenya', -1.2607772, 36.8016888, 0.00, NULL, 0, '', 1, NULL, 'WESTLANDS', 44, 'DODOMA', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
 (2, 79, 'MINISO WESTGATE', 'Kenya', -1.2570443, 36.803133, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
 (3, 82, 'MINISO HUB', 'Kenya', -1.3204357, 36.7038018, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
 (4, 67, 'MINISO JUNCTION', 'Kenya', NULL, NULL, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
@@ -346,11 +506,11 @@ INSERT INTO `Clients` (`id`, `salesRepId`, `name`, `address`, `latitude`, `longi
 (16, 68, 'MINISO LIKONI', 'Kenya', -4.1027192, 39.6454038, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
 (17, 65, 'MINISO CITY MALL', 'Kenya', -4.0195589, 39.7210391, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
 (18, 74, 'MINISO PROMINADE', 'Kenya', -4.0378888, 39.7064404, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
-(19, 63, 'GOODLIFE SARIT', 'Kenya', -1.2607772, 36.8016888, NULL, NULL, 0, '', 2, NULL, NULL, 16, 'PARKLANDS/RUAKA/LIMURU RD/BANANA/EASTLEIGH/PANGANI', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
+(19, 63, 'GOODLIFE SARIT', 'Kenya', -1.2607772, 36.8016888, NULL, NULL, 0, '', 2, 1, 'k', 1, 'k', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
 (20, 78, 'GOODLIFE VILLAGE MARKET', 'Kenya', -1.2293818, 36.8047495, NULL, NULL, 0, '', 2, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
 (21, 77, 'GOODLIFE GARDEN CITY', 'Kenya', -1.2327165, 36.8785436, NULL, NULL, 0, '', 2, NULL, NULL, 39, 'NAIROBI/MURANGA/KIRINYAGA', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
 (22, 75, 'GOODLIFE TRM', 'Kenya', -1.2196795, 36.8885403, NULL, NULL, 0, '', 2, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
-(23, NULL, 'AURORA CAPITAL CENTER', 'Kenya', -1.3164177, 36.8346625, 0.00, NULL, 0, '', 3, NULL, NULL, 5, 'COAST', 'notprovided', '123', NULL, 1, 2, 1, NULL, '2025-06-22 13:23:45.095', 40);
+(23, NULL, 'AURORA CAPITAL CENTER', 'Kenya', -1.3164177, 36.8346625, 4845.00, NULL, 0, '', 3, 1, 'k', 1, 'k', 'notprovided', '123', NULL, 1, 2, 1, NULL, '2025-06-22 13:23:45.095', 40);
 
 -- --------------------------------------------------------
 
@@ -385,6 +545,14 @@ CREATE TABLE `client_ledger` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `client_ledger`
+--
+
+INSERT INTO `client_ledger` (`id`, `client_id`, `date`, `description`, `reference_type`, `reference_id`, `debit`, `credit`, `running_balance`, `created_at`) VALUES
+(1, 23, '2025-08-12', 'Invoice - INV-6', 'sales_order', 6, 995.00, 0.00, 995.00, '2025-08-12 10:18:49'),
+(2, 23, '2025-08-12', 'Invoice - INV-7', 'sales_order', 7, 3850.00, 0.00, 4845.00, '2025-08-12 13:21:02');
+
 -- --------------------------------------------------------
 
 --
@@ -416,6 +584,13 @@ CREATE TABLE `Country` (
   `status` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `Country`
+--
+
+INSERT INTO `Country` (`id`, `name`, `status`) VALUES
+(1, 'Kenya', 0);
+
 -- --------------------------------------------------------
 
 --
@@ -426,14 +601,17 @@ CREATE TABLE `credit_notes` (
   `id` int(11) NOT NULL,
   `credit_note_number` varchar(50) NOT NULL,
   `client_id` int(11) NOT NULL,
-  `original_invoice_id` int(11) NOT NULL,
+  `original_invoice_id` int(11) DEFAULT NULL,
   `credit_note_date` date NOT NULL,
   `total_amount` decimal(15,2) DEFAULT 0.00,
+  `subtotal` decimal(11,2) NOT NULL,
+  `tax_amount` decimal(11,2) NOT NULL,
   `reason` text NOT NULL,
   `status` enum('draft','issued','cancelled') DEFAULT 'draft',
   `created_by` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `received_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
@@ -611,13 +789,19 @@ CREATE TABLE `faulty_products_reports` (
 --
 
 CREATE TABLE `FeedbackReport` (
-  `reportId` int(11) NOT NULL,
   `comment` varchar(191) DEFAULT NULL,
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
   `clientId` int(11) NOT NULL,
   `id` int(11) NOT NULL,
   `userId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `FeedbackReport`
+--
+
+INSERT INTO `FeedbackReport` (`comment`, `createdAt`, `clientId`, `id`, `userId`) VALUES
+('test', '2025-08-12 15:46:10.107', 23, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -638,6 +822,13 @@ CREATE TABLE `hr_calendar_tasks` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `hr_calendar_tasks`
+--
+
+INSERT INTO `hr_calendar_tasks` (`id`, `date`, `title`, `description`, `status`, `assigned_to`, `text`, `recurrence_type`, `recurrence_end`, `created_at`, `updated_at`) VALUES
+(1, '2025-08-12', 'testing', 'test here', 'Pending', 'Benjamin Okwama', '', 'none', NULL, '2025-08-11 18:42:13', '2025-08-12 11:25:10');
 
 -- --------------------------------------------------------
 
@@ -679,6 +870,37 @@ CREATE TABLE `inventory_transactions` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `inventory_transactions`
+--
+
+INSERT INTO `inventory_transactions` (`id`, `product_id`, `reference`, `amount_in`, `amount_out`, `balance`, `date_received`, `store_id`, `unit_cost`, `total_cost`, `staff_id`, `created_at`) VALUES
+(1, 2, 'Manual Stock Update', 5196.00, 0.00, 5196.00, '2025-08-12 14:39:43', 1, 0.00, 0.00, 1, '2025-08-12 12:39:43'),
+(2, 1, 'Manual Stock Update', 4508.00, 0.00, 4508.00, '2025-08-12 14:41:51', 1, 0.00, 0.00, 1, '2025-08-12 12:41:51'),
+(3, 27, 'Manual Stock Update', 104.00, 0.00, 104.00, '2025-08-12 14:43:41', 1, 0.00, 0.00, 1, '2025-08-12 12:43:41'),
+(4, 28, 'Manual Stock Update', 216.00, 0.00, 216.00, '2025-08-12 14:43:59', 1, 0.00, 0.00, 1, '2025-08-12 12:43:59'),
+(5, 19, 'Manual Stock Update', 348.00, 0.00, 348.00, '2025-08-12 14:44:18', 1, 0.00, 0.00, 1, '2025-08-12 12:44:18'),
+(6, 20, 'Manual Stock Update', 59.00, 0.00, 59.00, '2025-08-12 14:44:34', 1, 0.00, 0.00, 1, '2025-08-12 12:44:34'),
+(7, 25, 'Manual Stock Update', 105.00, 0.00, 105.00, '2025-08-12 14:45:00', 1, 0.00, 0.00, 1, '2025-08-12 12:45:00'),
+(8, 24, 'Manual Stock Update', 236.00, 0.00, 236.00, '2025-08-12 14:45:25', 1, 0.00, 0.00, 1, '2025-08-12 12:45:25'),
+(9, 23, 'Manual Stock Update', 348.00, 0.00, 348.00, '2025-08-12 14:45:49', 1, 0.00, 0.00, 1, '2025-08-12 12:45:49'),
+(10, 24, 'Manual Stock Update', 145.00, 0.00, 381.00, '2025-08-12 14:46:13', 1, 0.00, 0.00, 1, '2025-08-12 12:46:13'),
+(11, 21, 'Manual Stock Update', 293.00, 0.00, 293.00, '2025-08-12 14:46:35', 1, 0.00, 0.00, 1, '2025-08-12 12:46:35'),
+(12, 22, 'Manual Stock Update', 239.00, 0.00, 239.00, '2025-08-12 14:46:58', 1, 0.00, 0.00, 1, '2025-08-12 12:46:58'),
+(13, 11, 'Manual Stock Update', 1217.00, 0.00, 1217.00, '2025-08-12 15:13:20', 1, 0.00, 0.00, 1, '2025-08-12 13:13:20'),
+(14, 13, 'Manual Stock Update', 464.00, 0.00, 464.00, '2025-08-12 15:13:36', 1, 0.00, 0.00, 1, '2025-08-12 13:13:36'),
+(15, 10, 'Manual Stock Update', 1033.00, 0.00, 1033.00, '2025-08-12 15:13:52', 1, 0.00, 0.00, 1, '2025-08-12 13:13:52'),
+(16, 12, 'Manual Stock Update', 1614.00, 0.00, 1614.00, '2025-08-12 15:14:11', 1, 0.00, 0.00, 1, '2025-08-12 13:14:11'),
+(17, 14, 'Manual Stock Update', 1642.00, 0.00, 1642.00, '2025-08-12 15:14:36', 1, 0.00, 0.00, 1, '2025-08-12 13:14:36'),
+(18, 8, 'Manual Stock Update', 1575.00, 0.00, 1575.00, '2025-08-12 15:14:57', 1, 0.00, 0.00, 1, '2025-08-12 13:14:57'),
+(19, 7, 'Manual Stock Update', 1189.00, 0.00, 1189.00, '2025-08-12 15:15:14', 1, 0.00, 0.00, 1, '2025-08-12 13:15:14'),
+(20, 3, 'Manual Stock Update', 3916.00, 0.00, 3916.00, '2025-08-12 15:15:43', 1, 0.00, 0.00, 1, '2025-08-12 13:15:43'),
+(21, 15, 'Manual Stock Update', 2081.00, 0.00, 2081.00, '2025-08-12 15:16:07', 1, 0.00, 0.00, 1, '2025-08-12 13:16:07'),
+(22, 15, 'Manual Stock Update', 3410.00, 0.00, 5491.00, '2025-08-12 15:16:38', 1, 0.00, 0.00, 1, '2025-08-12 13:16:38'),
+(23, 5, 'Manual Stock Update', 2553.00, 0.00, 2553.00, '2025-08-12 15:17:41', 1, 0.00, 0.00, 1, '2025-08-12 13:17:41'),
+(24, 4, 'Manual Stock Update', 3034.00, 0.00, 3034.00, '2025-08-12 15:17:53', 1, 0.00, 0.00, 1, '2025-08-12 13:17:53'),
+(25, 6, 'Manual Stock Update', 3528.00, 0.00, 3528.00, '2025-08-12 15:18:27', 1, 0.00, 0.00, 1, '2025-08-12 13:18:27');
+
 -- --------------------------------------------------------
 
 --
@@ -718,6 +940,14 @@ CREATE TABLE `journal_entries` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `journal_entries`
+--
+
+INSERT INTO `journal_entries` (`id`, `entry_number`, `entry_date`, `reference`, `description`, `total_debit`, `total_credit`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'JE-INV-6-17549939307', '2025-08-12', 'INV-6', 'Invoice created from order - SO-000006', 995.00, 995.00, 'posted', 1, '2025-08-12 10:18:49', '2025-08-12 10:18:49'),
+(2, 'JE-INV-7-17550048632', '2025-08-12', 'INV-7', 'Invoice created from order - SO-000007', 3850.00, 3850.00, 'posted', 1, '2025-08-12 13:21:02', '2025-08-12 13:21:02');
+
 -- --------------------------------------------------------
 
 --
@@ -732,6 +962,16 @@ CREATE TABLE `journal_entry_lines` (
   `credit_amount` decimal(15,2) DEFAULT 0.00,
   `description` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `journal_entry_lines`
+--
+
+INSERT INTO `journal_entry_lines` (`id`, `journal_entry_id`, `account_id`, `debit_amount`, `credit_amount`, `description`) VALUES
+(1, 1, 140, 995.00, 0.00, 'Invoice INV-6'),
+(2, 1, 3, 0.00, 857.76, 'Sales revenue for invoice INV-6'),
+(3, 2, 140, 3850.00, 0.00, 'Invoice INV-7'),
+(4, 2, 3, 0.00, 3318.97, 'Sales revenue for invoice INV-7');
 
 -- --------------------------------------------------------
 
@@ -757,6 +997,15 @@ CREATE TABLE `JourneyPlan` (
   `showUpdateLocation` tinyint(1) NOT NULL DEFAULT 1,
   `routeId` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `JourneyPlan`
+--
+
+INSERT INTO `JourneyPlan` (`id`, `date`, `time`, `userId`, `clientId`, `status`, `checkInTime`, `latitude`, `longitude`, `imageUrl`, `notes`, `checkoutLatitude`, `checkoutLongitude`, `checkoutTime`, `showUpdateLocation`, `routeId`) VALUES
+(1, '2025-08-12 05:43:34.218', '05:43:34', 2, 23, 3, '2025-08-12 15:45:12.621', -1.3008978450663726, 36.777742416894895, NULL, NULL, -1.3008978450663726, 36.777742416894895, '2025-08-12 15:46:14.661', 1, 39),
+(2, '2025-08-12 16:03:43.654', '16:03:43', 2, 19, 3, '2025-08-12 16:04:34.669', -1.3008978450663726, 36.777742416894895, NULL, NULL, -1.3008978450663726, 36.777742416894895, '2025-08-12 16:05:21.699', 1, 32),
+(5, '2025-08-12 16:42:24.920', '16:42:24', 2, 19, 2, '2025-08-12 16:42:36.268', -1.3008978450663726, 36.777742416894895, NULL, NULL, NULL, NULL, NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -907,7 +1156,8 @@ CREATE TABLE `LoginHistory` (
 --
 
 INSERT INTO `LoginHistory` (`id`, `userId`, `timezone`, `duration`, `status`, `sessionEnd`, `sessionStart`) VALUES
-(2240, 2, 'Africa/Nairobi', 0, 1, NULL, '2025-08-11 08:43:51.000');
+(2240, 2, 'Africa/Nairobi', 816, 2, '2025-08-11 22:20:04.000', '2025-08-11 08:43:51.000'),
+(2241, 2, 'Africa/Nairobi', 0, 1, NULL, '2025-08-12 06:53:26.000');
 
 -- --------------------------------------------------------
 
@@ -1042,6 +1292,13 @@ CREATE TABLE `notices` (
   `status` tinyint(3) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `notices`
+--
+
+INSERT INTO `notices` (`id`, `title`, `content`, `country_id`, `created_at`, `status`) VALUES
+(1, 'test', 'testing', 1, '2025-08-11 18:41:51', 0);
+
 -- --------------------------------------------------------
 
 --
@@ -1116,7 +1373,6 @@ CREATE TABLE `payroll_history` (
 --
 
 CREATE TABLE `ProductReport` (
-  `reportId` int(11) NOT NULL,
   `productName` varchar(191) DEFAULT NULL,
   `quantity` int(11) DEFAULT NULL,
   `comment` varchar(191) DEFAULT NULL,
@@ -1126,6 +1382,14 @@ CREATE TABLE `ProductReport` (
   `userId` int(11) NOT NULL,
   `productId` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `ProductReport`
+--
+
+INSERT INTO `ProductReport` (`productName`, `quantity`, `comment`, `createdAt`, `clientId`, `id`, `userId`, `productId`) VALUES
+('GLAMAOUR QUEEN EYELASHES Rounded Volumizing', 10, '', '2025-08-12 15:45:19.761', 23, 1, 2, 26),
+('GLAMAOUR QUEEN EYEBROW PENCIL Black', 110, '', '2025-08-12 16:05:01.176', 19, 2, 2, 17);
 
 -- --------------------------------------------------------
 
@@ -1270,6 +1534,13 @@ CREATE TABLE `Regions` (
   `status` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `Regions`
+--
+
+INSERT INTO `Regions` (`id`, `name`, `countryId`, `status`) VALUES
+(1, 'Nairobi', 1, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -1308,6 +1579,13 @@ CREATE TABLE `Riders` (
   `device_status` varchar(191) DEFAULT NULL,
   `token` varchar(191) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `Riders`
+--
+
+INSERT INTO `Riders` (`id`, `name`, `contact`, `id_number`, `company_id`, `company`, `status`, `password`, `device_id`, `device_name`, `device_status`, `token`) VALUES
+(1, 'Rider 1', '0712345678', '12345678', 0, '', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1519,8 +1797,23 @@ CREATE TABLE `sales_orders` (
   `dispatched_by` int(11) DEFAULT NULL,
   `status` enum('draft','confirmed','shipped','delivered','cancelled','in payment','paid') DEFAULT 'draft',
   `my_status` tinyint(3) NOT NULL,
-  `delivered_at` timestamp NULL DEFAULT NULL
+  `delivered_at` timestamp NULL DEFAULT NULL,
+  `received_by` int(11) NOT NULL,
+  `received_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `sales_orders`
+--
+
+INSERT INTO `sales_orders` (`id`, `so_number`, `client_id`, `order_date`, `expected_delivery_date`, `subtotal`, `tax_amount`, `total_amount`, `net_price`, `notes`, `created_by`, `salesrep`, `created_at`, `updated_at`, `rider_id`, `assigned_at`, `recepients_name`, `recepients_contact`, `dispatched_by`, `status`, `my_status`, `delivered_at`, `received_by`, `received_at`) VALUES
+(1, 'INV-1', 23, '2025-08-10', NULL, 3318.97, 531.03, 3850.00, 0.00, '', 1, NULL, '2025-08-11 18:43:28', '2025-08-12 08:31:17', 1, '2025-08-12 03:52:23', NULL, NULL, 1, 'confirmed', 3, NULL, 0, '0000-00-00 00:00:00'),
+(2, 'INV-2', 21, '2025-08-12', NULL, 948.28, 151.72, 1100.00, 0.00, NULL, 1, NULL, '2025-08-12 08:32:37', '2025-08-12 08:32:58', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 3, NULL, 0, '0000-00-00 00:00:00'),
+(3, 'INV-3', 21, '2025-08-12', NULL, 948.28, 151.72, 1100.00, 0.00, NULL, 1, NULL, '2025-08-12 08:45:16', '2025-08-12 09:26:53', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
+(4, 'INV-4', 23, '2025-08-12', NULL, 3318.97, 531.03, 3850.00, 0.00, NULL, 1, NULL, '2025-08-12 09:53:35', '2025-08-12 10:14:55', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
+(5, 'INV-5', 23, '2025-08-12', NULL, 857.76, 137.24, 995.00, 0.00, NULL, 1, NULL, '2025-08-12 10:09:00', '2025-08-12 10:09:57', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
+(6, 'INV-6', 23, '2025-08-12', NULL, 857.76, 137.24, 995.00, 0.00, NULL, 1, NULL, '2025-08-12 10:18:40', '2025-08-12 10:18:49', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
+(7, 'INV-7', 23, '2025-08-12', NULL, 3318.97, 531.03, 3850.00, 0.00, NULL, 1, NULL, '2025-08-12 13:20:49', '2025-08-12 13:21:01', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -1540,6 +1833,19 @@ CREATE TABLE `sales_order_items` (
   `net_price` decimal(11,2) NOT NULL,
   `shipped_quantity` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `sales_order_items`
+--
+
+INSERT INTO `sales_order_items` (`id`, `sales_order_id`, `product_id`, `quantity`, `unit_price`, `tax_amount`, `total_price`, `tax_type`, `net_price`, `shipped_quantity`) VALUES
+(2, 1, 4, 1, 3850.00, 531.03, 3850.00, '16%', 3850.00, 0),
+(3, 2, 31, 1, 1100.00, 151.72, 1100.00, '16%', 1100.00, 0),
+(4, 3, 31, 1, 1100.00, 151.72, 1100.00, '16%', 1100.00, 0),
+(5, 4, 6, 1, 3850.00, 531.03, 3850.00, '16%', 3850.00, 0),
+(6, 5, 26, 1, 995.00, 137.24, 995.00, '16%', 995.00, 0),
+(7, 6, 23, 1, 995.00, 137.24, 995.00, '16%', 995.00, 0),
+(8, 7, 4, 1, 3850.00, 531.03, 3850.00, '16%', 3850.00, 0);
 
 -- --------------------------------------------------------
 
@@ -1597,7 +1903,10 @@ CREATE TABLE `staff` (
 --
 
 INSERT INTO `staff` (`id`, `name`, `photo_url`, `empl_no`, `id_no`, `role`, `phone_number`, `password`, `department`, `business_email`, `department_email`, `salary`, `employment_type`, `created_at`, `updated_at`, `is_active`) VALUES
-(1, 'Bryan', '', '', '', 'sales', NULL, '$2a$10$me0dzhAfGglEGPhcK/34BuWmhYW3USYy3SeMbe46CQop102Yq./1S', NULL, NULL, NULL, NULL, '', '2025-08-11 14:16:09', '2025-08-11 14:18:02', 0);
+(1, 'Bryan', '', '', '', 'sales', NULL, '$2a$10$me0dzhAfGglEGPhcK/34BuWmhYW3USYy3SeMbe46CQop102Yq./1S', NULL, NULL, NULL, NULL, '', '2025-08-11 14:16:09', '2025-08-11 14:18:02', 0),
+(2, 'admins', '', '', '', 'admin', NULL, '$2a$10$me0dzhAfGglEGPhcK/34BuWmhYW3USYy3SeMbe46CQop102Yq./1S', NULL, NULL, NULL, NULL, '', '2025-08-12 02:41:40', '2025-08-12 02:41:55', 0),
+(3, 'stock', '', '', '', 'stock', NULL, '$2a$10$me0dzhAfGglEGPhcK/34BuWmhYW3USYy3SeMbe46CQop102Yq./1S', NULL, NULL, NULL, NULL, '', '2025-08-12 02:42:55', '2025-08-12 02:43:13', 0),
+(4, 'Mariah Wanyoike', '', '', '', 'sales', NULL, '$2a$10$me0dzhAfGglEGPhcK/34BuWmhYW3USYy3SeMbe46CQop102Yq./1S', NULL, NULL, NULL, NULL, '', '2025-08-12 08:26:30', '2025-08-12 08:26:46', 0);
 
 -- --------------------------------------------------------
 
@@ -1666,6 +1975,13 @@ CREATE TABLE `stores` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `stores`
+--
+
+INSERT INTO `stores` (`id`, `store_code`, `store_name`, `address`, `country_id`, `is_active`, `created_at`) VALUES
+(1, '', 'Delta Corner', NULL, 0, 1, '2025-08-12 10:49:02');
+
 -- --------------------------------------------------------
 
 --
@@ -1679,6 +1995,35 @@ CREATE TABLE `store_inventory` (
   `quantity` int(11) DEFAULT 0,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `store_inventory`
+--
+
+INSERT INTO `store_inventory` (`id`, `store_id`, `product_id`, `quantity`, `updated_at`) VALUES
+(1, 1, 2, 5196, '2025-08-12 12:39:43'),
+(2, 1, 1, 4508, '2025-08-12 12:41:51'),
+(3, 1, 27, 104, '2025-08-12 12:43:41'),
+(4, 1, 28, 216, '2025-08-12 12:43:59'),
+(5, 1, 19, 348, '2025-08-12 12:44:18'),
+(6, 1, 20, 59, '2025-08-12 12:44:34'),
+(7, 1, 25, 105, '2025-08-12 12:45:00'),
+(8, 1, 24, 381, '2025-08-12 12:46:13'),
+(9, 1, 23, 348, '2025-08-12 12:45:49'),
+(10, 1, 21, 293, '2025-08-12 12:46:35'),
+(11, 1, 22, 239, '2025-08-12 12:46:58'),
+(12, 1, 11, 1217, '2025-08-12 13:13:20'),
+(13, 1, 13, 464, '2025-08-12 13:13:35'),
+(14, 1, 10, 1033, '2025-08-12 13:13:52'),
+(15, 1, 12, 1614, '2025-08-12 13:14:11'),
+(16, 1, 14, 1642, '2025-08-12 13:14:36'),
+(17, 1, 8, 1575, '2025-08-12 13:14:57'),
+(18, 1, 7, 1189, '2025-08-12 13:15:14'),
+(19, 1, 3, 3916, '2025-08-12 13:15:43'),
+(20, 1, 15, 5491, '2025-08-12 13:16:38'),
+(21, 1, 5, 2553, '2025-08-12 13:17:41'),
+(22, 1, 4, 3034, '2025-08-12 13:17:53'),
+(23, 1, 6, 3528, '2025-08-12 13:18:27');
 
 -- --------------------------------------------------------
 
@@ -1890,7 +2235,6 @@ CREATE TABLE `versions` (
 --
 
 CREATE TABLE `VisibilityReport` (
-  `reportId` int(11) NOT NULL,
   `comment` varchar(191) DEFAULT NULL,
   `imageUrl` varchar(191) DEFAULT NULL,
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
@@ -1898,6 +2242,13 @@ CREATE TABLE `VisibilityReport` (
   `id` int(11) NOT NULL,
   `userId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `VisibilityReport`
+--
+
+INSERT INTO `VisibilityReport` (`comment`, `imageUrl`, `createdAt`, `clientId`, `id`, `userId`) VALUES
+('hhh', NULL, '2025-08-12 15:45:29.007', 23, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -2079,7 +2430,6 @@ ALTER TABLE `Country`
 ALTER TABLE `credit_notes`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `credit_note_number` (`credit_note_number`),
-  ADD KEY `created_by` (`created_by`),
   ADD KEY `idx_client_id` (`client_id`),
   ADD KEY `idx_status` (`status`),
   ADD KEY `idx_credit_note_date` (`credit_note_date`),
@@ -2169,10 +2519,8 @@ ALTER TABLE `faulty_products_reports`
 --
 ALTER TABLE `FeedbackReport`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `FeedbackReport_reportId_key` (`reportId`),
   ADD KEY `FeedbackReport_userId_idx` (`userId`),
-  ADD KEY `FeedbackReport_clientId_idx` (`clientId`),
-  ADD KEY `FeedbackReport_reportId_idx` (`reportId`);
+  ADD KEY `FeedbackReport_clientId_idx` (`clientId`);
 
 --
 -- Indexes for table `hr_calendar_tasks`
@@ -2390,8 +2738,7 @@ ALTER TABLE `payroll_history`
 ALTER TABLE `ProductReport`
   ADD PRIMARY KEY (`id`),
   ADD KEY `ProductReport_userId_idx` (`userId`),
-  ADD KEY `ProductReport_clientId_idx` (`clientId`),
-  ADD KEY `ProductReport_reportId_idx` (`reportId`);
+  ADD KEY `ProductReport_clientId_idx` (`clientId`);
 
 --
 -- Indexes for table `products`
@@ -2655,10 +3002,8 @@ ALTER TABLE `versions`
 --
 ALTER TABLE `VisibilityReport`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `VisibilityReport_reportId_key` (`reportId`),
   ADD KEY `VisibilityReport_userId_idx` (`userId`),
-  ADD KEY `VisibilityReport_clientId_idx` (`clientId`),
-  ADD KEY `VisibilityReport_reportId_idx` (`reportId`);
+  ADD KEY `VisibilityReport_clientId_idx` (`clientId`);
 
 --
 -- Indexes for table `warning_letters`
@@ -2717,7 +3062,7 @@ ALTER TABLE `attendance`
 -- AUTO_INCREMENT for table `Category`
 --
 ALTER TABLE `Category`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `CategoryPriceOption`
@@ -2729,7 +3074,7 @@ ALTER TABLE `CategoryPriceOption`
 -- AUTO_INCREMENT for table `chart_of_accounts`
 --
 ALTER TABLE `chart_of_accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
 
 --
 -- AUTO_INCREMENT for table `chart_of_accounts1`
@@ -2759,13 +3104,13 @@ ALTER TABLE `chat_room_members`
 -- AUTO_INCREMENT for table `ClientAssignment`
 --
 ALTER TABLE `ClientAssignment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `Clients`
 --
 ALTER TABLE `Clients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `ClientStock`
@@ -2777,7 +3122,7 @@ ALTER TABLE `ClientStock`
 -- AUTO_INCREMENT for table `client_ledger`
 --
 ALTER TABLE `client_ledger`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `client_payments`
@@ -2789,13 +3134,13 @@ ALTER TABLE `client_payments`
 -- AUTO_INCREMENT for table `Country`
 --
 ALTER TABLE `Country`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `credit_notes`
 --
 ALTER TABLE `credit_notes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `credit_note_items`
@@ -2861,13 +3206,13 @@ ALTER TABLE `faulty_products_reports`
 -- AUTO_INCREMENT for table `FeedbackReport`
 --
 ALTER TABLE `FeedbackReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `hr_calendar_tasks`
 --
 ALTER TABLE `hr_calendar_tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `inventory_receipts`
@@ -2879,7 +3224,7 @@ ALTER TABLE `inventory_receipts`
 -- AUTO_INCREMENT for table `inventory_transactions`
 --
 ALTER TABLE `inventory_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `inventory_transfers`
@@ -2891,19 +3236,19 @@ ALTER TABLE `inventory_transfers`
 -- AUTO_INCREMENT for table `journal_entries`
 --
 ALTER TABLE `journal_entries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `journal_entry_lines`
 --
 ALTER TABLE `journal_entry_lines`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `JourneyPlan`
 --
 ALTER TABLE `JourneyPlan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `key_account_targets`
@@ -2939,7 +3284,7 @@ ALTER TABLE `leave_types`
 -- AUTO_INCREMENT for table `LoginHistory`
 --
 ALTER TABLE `LoginHistory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2241;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2242;
 
 --
 -- AUTO_INCREMENT for table `managers`
@@ -2981,7 +3326,7 @@ ALTER TABLE `NoticeBoard`
 -- AUTO_INCREMENT for table `notices`
 --
 ALTER TABLE `notices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `outlet_categories`
@@ -3011,7 +3356,7 @@ ALTER TABLE `payroll_history`
 -- AUTO_INCREMENT for table `ProductReport`
 --
 ALTER TABLE `ProductReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -3041,7 +3386,7 @@ ALTER TABLE `receipts`
 -- AUTO_INCREMENT for table `Regions`
 --
 ALTER TABLE `Regions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `retail_targets`
@@ -3053,7 +3398,7 @@ ALTER TABLE `retail_targets`
 -- AUTO_INCREMENT for table `Riders`
 --
 ALTER TABLE `Riders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `role`
@@ -3083,13 +3428,13 @@ ALTER TABLE `SalesRep`
 -- AUTO_INCREMENT for table `sales_orders`
 --
 ALTER TABLE `sales_orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `sales_order_items`
 --
 ALTER TABLE `sales_order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `sales_rep_managers`
@@ -3107,7 +3452,7 @@ ALTER TABLE `sales_rep_manager_assignments`
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `staff_tasks`
@@ -3131,13 +3476,13 @@ ALTER TABLE `stock_take_items`
 -- AUTO_INCREMENT for table `stores`
 --
 ALTER TABLE `stores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `store_inventory`
 --
 ALTER TABLE `store_inventory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `suppliers`
@@ -3209,7 +3554,7 @@ ALTER TABLE `versions`
 -- AUTO_INCREMENT for table `VisibilityReport`
 --
 ALTER TABLE `VisibilityReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `warning_letters`

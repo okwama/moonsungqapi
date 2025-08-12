@@ -2,7 +2,6 @@ import { SalesRep } from './sales-rep.entity';
 import { Clients } from './clients.entity';
 export declare class ProductReport {
     id: number;
-    reportId: number;
     productName: string;
     quantity: number;
     comment: string;

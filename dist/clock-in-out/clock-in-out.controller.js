@@ -16,6 +16,7 @@ exports.ClockInOutController = void 0;
 const common_1 = require("@nestjs/common");
 const clock_in_out_service_1 = require("./clock-in-out.service");
 const dto_1 = require("./dto");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let ClockInOutController = class ClockInOutController {
     constructor(clockInOutService) {
         this.clockInOutService = clockInOutService;
@@ -26,14 +27,17 @@ let ClockInOutController = class ClockInOutController {
     async clockOut(clockOutDto) {
         return await this.clockInOutService.clockOut(clockOutDto);
     }
-    async getCurrentStatus(userId, clientTime) {
-        return await this.clockInOutService.getCurrentStatus(parseInt(userId), clientTime);
+    async getCurrentStatus(req, clientTime) {
+        const userId = req.user?.id;
+        return await this.clockInOutService.getCurrentStatus(userId, clientTime);
     }
-    async getTodaySessions(userId, clientTime) {
-        return await this.clockInOutService.getTodaySessions(parseInt(userId), clientTime);
+    async getTodaySessions(req, clientTime) {
+        const userId = req.user?.id;
+        return await this.clockInOutService.getTodaySessions(userId, clientTime);
     }
-    async getClockHistory(userId, startDate, endDate) {
-        return await this.clockInOutService.getClockSessionsWithProcedure(parseInt(userId), startDate, endDate);
+    async getClockHistory(req, startDate, endDate) {
+        const userId = req.user?.id;
+        return await this.clockInOutService.getClockSessionsWithProcedure(userId, startDate, endDate);
     }
 };
 exports.ClockInOutController = ClockInOutController;
@@ -54,32 +58,33 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ClockInOutController.prototype, "clockOut", null);
 __decorate([
-    (0, common_1.Get)('status/:userId'),
-    __param(0, (0, common_1.Param)('userId')),
+    (0, common_1.Get)('status'),
+    __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Query)('clientTime')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ClockInOutController.prototype, "getCurrentStatus", null);
 __decorate([
-    (0, common_1.Get)('today/:userId'),
-    __param(0, (0, common_1.Param)('userId')),
+    (0, common_1.Get)('today'),
+    __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Query)('clientTime')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ClockInOutController.prototype, "getTodaySessions", null);
 __decorate([
-    (0, common_1.Get)('history/:userId'),
-    __param(0, (0, common_1.Param)('userId')),
+    (0, common_1.Get)('history'),
+    __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Query)('startDate')),
     __param(2, (0, common_1.Query)('endDate')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], ClockInOutController.prototype, "getClockHistory", null);
 exports.ClockInOutController = ClockInOutController = __decorate([
     (0, common_1.Controller)('clock-in-out'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [clock_in_out_service_1.ClockInOutService])
 ], ClockInOutController);
 //# sourceMappingURL=clock-in-out.controller.js.map

@@ -66,11 +66,11 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
   console.log('🔧 Development environment - using MySQL database');
   return {
     type: 'mysql',
-    host: configService.get<string>('DB_HOST', 'localhost'),
-    port: configService.get<number>('DB_PORT', 3306),
-    username: configService.get<string>('DB_USERNAME', 'root'),
-    password: configService.get<string>('DB_PASSWORD', ''),
-    database: configService.get<string>('DB_DATABASE', 'citlogis_finance'),
+    host: configService.get<string>('DB_HOST'),
+    port: configService.get<number>('DB_PORT'),
+    username: configService.get<string>('DB_USERNAME'),
+    password: configService.get<string>('DB_PASSWORD'),
+    database: configService.get<string>('DB_DATABASE'),
     entities: [
       SalesRep, Clients, Product, JourneyPlan, LoginHistory, UpliftSale, UpliftSaleItem,
       Task, Leave, Store, StoreInventory, Category, CategoryPriceOption, Order, OrderItem, Users, Notice, LeaveType,

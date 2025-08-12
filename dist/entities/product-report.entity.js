@@ -21,10 +21,6 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductReport.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'reportId', nullable: true }),
-    __metadata("design:type", Number)
-], ProductReport.prototype, "reportId", void 0);
-__decorate([
     (0, typeorm_1.Column)({ name: 'productName', nullable: true }),
     __metadata("design:type", String)
 ], ProductReport.prototype, "productName", void 0);

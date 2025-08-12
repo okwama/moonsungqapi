@@ -7,9 +7,6 @@ export class FeedbackReport {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'reportId', nullable: true })
-  reportId: number;
-
   @Column({ name: 'comment', nullable: true })
   comment: string;
 

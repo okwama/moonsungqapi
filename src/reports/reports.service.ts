@@ -38,9 +38,12 @@ export class ReportsService {
           // Extract reportId from details and exclude it to avoid duplicate key errors
           const { reportId: feedbackReportId, ...feedbackDetails } = details || {};
           
+          // Also exclude reportId from mainData if it exists
+          const { reportId: mainFeedbackReportId, ...mainDataWithoutFeedbackReportId } = mainData || {};
+          
           // Combine main data with details and map userId/salesRepId properly
           const feedbackDataToSave = {
-            ...mainData,
+            ...mainDataWithoutFeedbackReportId,
             ...feedbackDetails,
             userId: userId || salesRepId // Use userId if provided, otherwise use salesRepId
           };
@@ -73,9 +76,12 @@ export class ReportsService {
               // Extract reportId from product detail and exclude it
               const { reportId: productReportId, ...productDetailsWithoutReportId } = productDetail;
               
+              // Also exclude reportId from mainData if it exists
+              const { reportId: mainProductReportId, ...mainDataWithoutReportId } = mainData || {};
+              
               // Combine main data with product details
               const productDataToSave = {
-                ...mainData,
+                ...mainDataWithoutReportId,
                 ...productDetailsWithoutReportId,
                 userId: userId || salesRepId // Use userId if provided, otherwise use salesRepId
               };
@@ -107,9 +113,12 @@ export class ReportsService {
             // Extract reportId from details and exclude it to avoid duplicate key errors
             const { reportId: singleProductReportId, ...singleProductDetails } = details || {};
             
+            // Also exclude reportId from mainData if it exists
+            const { reportId: mainProductReportId, ...mainDataWithoutReportId } = mainData || {};
+            
             // Combine main data with details and map userId/salesRepId properly
             const singleProductDataToSave = {
-              ...mainData,
+              ...mainDataWithoutReportId,
               ...singleProductDetails,
               userId: userId || salesRepId // Use userId if provided, otherwise use salesRepId
             };
@@ -133,9 +142,12 @@ export class ReportsService {
           // Extract reportId from details and exclude it to avoid duplicate key errors
           const { reportId: visibilityReportId, ...visibilityDetails } = details || {};
           
+          // Also exclude reportId from mainData if it exists
+          const { reportId: mainReportId, ...mainDataWithoutReportId } = mainData || {};
+          
           // Combine main data with details and map userId/salesRepId properly
           const visibilityDataToSave = {
-            ...mainData,
+            ...mainDataWithoutReportId,
             ...visibilityDetails,
             userId: userId || salesRepId // Use userId if provided, otherwise use salesRepId
           };

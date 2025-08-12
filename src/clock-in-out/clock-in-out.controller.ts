@@ -1,8 +1,10 @@
-import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus, Query, UseGuards, Request } from '@nestjs/common';
 import { ClockInOutService } from './clock-in-out.service';
 import { ClockInDto, ClockOutDto } from './dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('clock-in-out')
+@UseGuards(JwtAuthGuard)
 export class ClockInOutController {
   constructor(private readonly clockInOutService: ClockInOutService) {}
 
@@ -27,36 +29,39 @@ export class ClockInOutController {
   /**
    * Get current clock status
    */
-  @Get('status/:userId')
+  @Get('status')
   async getCurrentStatus(
-    @Param('userId') userId: string,
+    @Request() req,
     @Query('clientTime') clientTime?: string
   ) {
-    return await this.clockInOutService.getCurrentStatus(parseInt(userId), clientTime);
+    const userId = req.user?.id;
+    return await this.clockInOutService.getCurrentStatus(userId, clientTime);
   }
 
   /**
    * Get today's sessions
    */
-  @Get('today/:userId')
+  @Get('today')
   async getTodaySessions(
-    @Param('userId') userId: string,
+    @Request() req,
     @Query('clientTime') clientTime?: string
   ) {
-    return await this.clockInOutService.getTodaySessions(parseInt(userId), clientTime);
+    const userId = req.user?.id;
+    return await this.clockInOutService.getTodaySessions(userId, clientTime);
   }
 
   /**
    * Get clock history with optional date range
    */
-  @Get('history/:userId')
+  @Get('history')
   async getClockHistory(
-    @Param('userId') userId: string,
+    @Request() req,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
+    const userId = req.user?.id;
     return await this.clockInOutService.getClockSessionsWithProcedure(
-      parseInt(userId),
+      userId,
       startDate,
       endDate,
     );

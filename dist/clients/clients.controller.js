@@ -28,27 +28,39 @@ let ClientsController = class ClientsController {
     }
     async findAll(req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findAll(userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findAll(userCountryId, userRole, userId);
     }
     async findAllBasic(req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findAll(userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findAll(userCountryId, userRole, userId);
     }
     async search(searchDto, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.search(searchDto, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.search(searchDto, userCountryId, userRole, userId);
     }
     async searchBasic(searchDto, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.search(searchDto, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.search(searchDto, userCountryId, userRole, userId);
     }
     async findOne(id, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findOne(+id, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findOne(+id, userCountryId, userRole, userId);
     }
     async findOneBasic(id, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findOneBasic(+id, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findOneBasic(+id, userCountryId, userRole, userId);
     }
     async update(id, updateClientDto, req) {
         const userCountryId = req.user.countryId;
@@ -56,19 +68,27 @@ let ClientsController = class ClientsController {
     }
     async findByCountry(countryId, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findByCountry(+countryId, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findByCountry(+countryId, userCountryId, userRole, userId);
     }
     async findByRegion(regionId, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findByRegion(+regionId, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findByRegion(+regionId, userCountryId, userRole, userId);
     }
     async findByRoute(routeId, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findByRoute(+routeId, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findByRoute(+routeId, userCountryId, userRole, userId);
     }
     async findByLocation(latitude, longitude, radius, req) {
         const userCountryId = req.user.countryId;
-        return this.clientsService.findByLocation(+latitude, +longitude, radius ? +radius : 10, userCountryId);
+        const userRole = req.user.role;
+        const userId = req.user.id;
+        return this.clientsService.findByLocation(+latitude, +longitude, radius ? +radius : 10, userCountryId, userRole, userId);
     }
     async getClientStats(regionId, req) {
         const userCountryId = req.user.countryId;

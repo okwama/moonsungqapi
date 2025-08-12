@@ -13,16 +13,16 @@ export declare class ClockInOutController {
         message: string;
         duration?: number;
     }>;
-    getCurrentStatus(userId: string, clientTime?: string): Promise<{
+    getCurrentStatus(req: any, clientTime?: string): Promise<{
         isClockedIn: boolean;
         sessionStart?: string;
         duration?: number;
         sessionId?: number;
     }>;
-    getTodaySessions(userId: string, clientTime?: string): Promise<{
+    getTodaySessions(req: any, clientTime?: string): Promise<{
         sessions: any[];
     }>;
-    getClockHistory(userId: string, startDate?: string, endDate?: string): Promise<{
+    getClockHistory(req: any, startDate?: string, endDate?: string): Promise<{
         sessions: any[];
     }>;
 }

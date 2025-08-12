@@ -21,10 +21,6 @@ __decorate([
     __metadata("design:type", Number)
 ], FeedbackReport.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'reportId', nullable: true }),
-    __metadata("design:type", Number)
-], FeedbackReport.prototype, "reportId", void 0);
-__decorate([
     (0, typeorm_1.Column)({ name: 'comment', nullable: true }),
     __metadata("design:type", String)
 ], FeedbackReport.prototype, "comment", void 0);

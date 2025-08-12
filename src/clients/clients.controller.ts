@@ -18,37 +18,49 @@ export class ClientsController {
   @Get()
   async findAll(@Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.findAll(userCountryId);
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.findAll(userCountryId, userRole, userId);
   }
 
   @Get('basic')
   async findAllBasic(@Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.findAll(userCountryId); // Uses select fields
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.findAll(userCountryId, userRole, userId); // Uses select fields
   }
 
   @Get('search')
   async search(@Query() searchDto: SearchClientsDto, @Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.search(searchDto, userCountryId);
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.search(searchDto, userCountryId, userRole, userId);
   }
 
   @Get('search/basic')
   async searchBasic(@Query() searchDto: SearchClientsDto, @Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.search(searchDto, userCountryId); // Uses select fields
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.search(searchDto, userCountryId, userRole, userId); // Uses select fields
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string, @Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.findOne(+id, userCountryId);
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.findOne(+id, userCountryId, userRole, userId);
   }
 
   @Get(':id/basic')
   async findOneBasic(@Param('id') id: string, @Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.findOneBasic(+id, userCountryId);
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.findOneBasic(+id, userCountryId, userRole, userId);
   }
 
   @Patch(':id')
@@ -66,19 +78,25 @@ export class ClientsController {
   @Get('country/:countryId')
   async findByCountry(@Param('countryId') countryId: string, @Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.findByCountry(+countryId, userCountryId);
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.findByCountry(+countryId, userCountryId, userRole, userId);
   }
 
   @Get('region/:regionId')
   async findByRegion(@Param('regionId') regionId: string, @Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.findByRegion(+regionId, userCountryId);
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.findByRegion(+regionId, userCountryId, userRole, userId);
   }
 
   @Get('route/:routeId')
   async findByRoute(@Param('routeId') routeId: string, @Request() req) {
     const userCountryId = req.user.countryId;
-    return this.clientsService.findByRoute(+routeId, userCountryId);
+    const userRole = req.user.role;
+    const userId = req.user.id;
+    return this.clientsService.findByRoute(+routeId, userCountryId, userRole, userId);
   }
 
   @Get('location/nearby')
@@ -89,11 +107,15 @@ export class ClientsController {
     @Request() req
   ) {
     const userCountryId = req.user.countryId;
+    const userRole = req.user.role;
+    const userId = req.user.id;
     return this.clientsService.findByLocation(
       +latitude,
       +longitude,
       radius ? +radius : 10,
-      userCountryId
+      userCountryId,
+      userRole,
+      userId
     );
   }
 

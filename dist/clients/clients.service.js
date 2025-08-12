@@ -17,9 +17,11 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const clients_entity_1 = require("../entities/clients.entity");
+const client_assignment_service_1 = require("../client-assignment/client-assignment.service");
 let ClientsService = class ClientsService {
-    constructor(clientRepository) {
+    constructor(clientRepository, clientAssignmentService) {
         this.clientRepository = clientRepository;
+        this.clientAssignmentService = clientAssignmentService;
     }
     async create(createClientDto, userCountryId) {
         const clientData = {
@@ -30,25 +32,40 @@ let ClientsService = class ClientsService {
         const client = this.clientRepository.create(clientData);
         return this.clientRepository.save(client);
     }
-    async findAll(userCountryId) {
-        console.log(`🔍 ClientsService.findAll - Looking for clients with countryId: ${userCountryId}, status: 1`);
-        const allClients = await this.clientRepository.find({
-            select: ['id', 'name', 'countryId', 'status']
-        });
-        console.log(`📊 Total clients in database: ${allClients.length}`);
-        console.log(`📊 Clients by country:`, allClients.reduce((acc, client) => {
-            acc[client.countryId] = (acc[client.countryId] || 0) + 1;
-            return acc;
-        }, {}));
-        console.log(`📊 Clients by status:`, allClients.reduce((acc, client) => {
-            acc[client.status] = (acc[client.status] || 0) + 1;
-            return acc;
-        }, {}));
+    async findAll(userCountryId, userRole, userId) {
+        console.log(`🔍 ClientsService.findAll - Looking for clients with countryId: ${userCountryId}, role: ${userRole}, userId: ${userId}`);
+        const baseConditions = {
+            status: 1,
+            countryId: userCountryId,
+        };
+        if (userRole === 'SALES_REP') {
+            console.log(`👤 User is SALES_REP - checking assigned clients for userId: ${userId}`);
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (assignedClientIds.length === 0) {
+                console.log(`❌ No assigned clients found for SALES_REP ${userId}`);
+                return [];
+            }
+            baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+            console.log(`✅ SALES_REP ${userId} has ${assignedClientIds.length} assigned clients`);
+        }
+        else if (userRole === 'RELIEVER') {
+            console.log(`👤 User is RELIEVER - checking if they have assignments for userId: ${userId}`);
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+                baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+                console.log(`✅ RELIEVER ${userId} has assignments - showing ${assignedClientIds.length} assigned clients`);
+            }
+            else {
+                console.log(`✅ RELIEVER ${userId} has no assignments - showing all clients in country`);
+            }
+        }
+        else {
+            console.log(`⚠️ Unknown role: ${userRole} - showing all clients`);
+        }
         const clients = await this.clientRepository.find({
-            where: {
-                status: 1,
-                countryId: userCountryId,
-            },
+            where: baseConditions,
             select: [
                 'id',
                 'name',
@@ -60,7 +77,7 @@ let ClientsService = class ClientsService {
             ],
             order: { name: 'ASC' },
         });
-        console.log(`✅ Found ${clients.length} clients for country ${userCountryId} with status 1`);
+        console.log(`✅ Found ${clients.length} clients for user (role: ${userRole}, userId: ${userId})`);
         return clients;
     }
     async findAllForAdmin(userCountryId) {
@@ -83,22 +100,60 @@ let ClientsService = class ClientsService {
         console.log(`✅ Found ${clients.length} clients for country ${userCountryId} (all statuses)`);
         return clients;
     }
-    async findOne(id, userCountryId) {
+    async findOne(id, userCountryId, userRole, userId) {
+        const baseConditions = {
+            id,
+            status: 1,
+            countryId: userCountryId,
+        };
+        if (userRole === 'SALES_REP') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (!assignedClientIds.includes(id)) {
+                console.log(`❌ SALES_REP ${userId} not authorized to access client ${id}`);
+                return null;
+            }
+        }
+        else if (userRole === 'RELIEVER') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+                if (!assignedClientIds.includes(id)) {
+                    console.log(`❌ RELIEVER ${userId} not authorized to access client ${id} (has assignments)`);
+                    return null;
+                }
+            }
+        }
         return this.clientRepository.findOne({
-            where: {
-                id,
-                status: 1,
-                countryId: userCountryId,
-            },
+            where: baseConditions,
         });
     }
-    async findOneBasic(id, userCountryId) {
+    async findOneBasic(id, userCountryId, userRole, userId) {
+        const baseConditions = {
+            id,
+            status: 1,
+            countryId: userCountryId,
+        };
+        if (userRole === 'SALES_REP') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (!assignedClientIds.includes(id)) {
+                console.log(`❌ SALES_REP ${userId} not authorized to access client ${id}`);
+                return null;
+            }
+        }
+        else if (userRole === 'RELIEVER') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+                if (!assignedClientIds.includes(id)) {
+                    console.log(`❌ RELIEVER ${userId} not authorized to access client ${id} (has assignments)`);
+                    return null;
+                }
+            }
+        }
         return this.clientRepository.findOne({
-            where: {
-                id,
-                status: 1,
-                countryId: userCountryId,
-            },
+            where: baseConditions,
             select: [
                 'id',
                 'name',
@@ -118,7 +173,7 @@ let ClientsService = class ClientsService {
         await this.clientRepository.update(id, updateClientDto);
         return this.findOne(id, userCountryId);
     }
-    async search(searchDto, userCountryId) {
+    async search(searchDto, userCountryId, userRole, userId) {
         const { query, regionId, routeId, status } = searchDto;
         const whereConditions = {
             countryId: userCountryId,
@@ -133,6 +188,21 @@ let ClientsService = class ClientsService {
         Object.keys(whereConditions).forEach(key => {
             queryBuilder.andWhere(`client.${key} = :${key}`, { [key]: whereConditions[key] });
         });
+        if (userRole === 'SALES_REP') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (assignedClientIds.length === 0) {
+                return [];
+            }
+            queryBuilder.andWhere('client.id IN (:...assignedIds)', { assignedIds: assignedClientIds });
+        }
+        else if (userRole === 'RELIEVER') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+                queryBuilder.andWhere('client.id IN (:...assignedIds)', { assignedIds: assignedClientIds });
+            }
+        }
         if (query) {
             queryBuilder.andWhere('(client.name LIKE :query OR client.contact LIKE :query OR client.email LIKE :query OR client.address LIKE :query)', { query: `%${query}%` });
         }
@@ -149,12 +219,31 @@ let ClientsService = class ClientsService {
             .orderBy('client.name', 'ASC')
             .getMany();
     }
-    async findByCountry(countryId, userCountryId) {
+    async findByCountry(countryId, userCountryId, userRole, userId) {
         if (countryId !== userCountryId) {
             return [];
         }
+        const baseConditions = {
+            countryId,
+            status: 1
+        };
+        if (userRole === 'SALES_REP') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (assignedClientIds.length === 0) {
+                return [];
+            }
+            baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+        }
+        else if (userRole === 'RELIEVER') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+                baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+            }
+        }
         return this.clientRepository.find({
-            where: { countryId, status: 1 },
+            where: baseConditions,
             select: [
                 'id',
                 'name',
@@ -167,13 +256,29 @@ let ClientsService = class ClientsService {
             order: { name: 'ASC' },
         });
     }
-    async findByRegion(regionId, userCountryId) {
+    async findByRegion(regionId, userCountryId, userRole, userId) {
+        const baseConditions = {
+            region_id: regionId,
+            status: 1,
+            countryId: userCountryId,
+        };
+        if (userRole === 'SALES_REP') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (assignedClientIds.length === 0) {
+                return [];
+            }
+            baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+        }
+        else if (userRole === 'RELIEVER') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+                baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+            }
+        }
         return this.clientRepository.find({
-            where: {
-                region_id: regionId,
-                status: 1,
-                countryId: userCountryId,
-            },
+            where: baseConditions,
             select: [
                 'id',
                 'name',
@@ -186,13 +291,29 @@ let ClientsService = class ClientsService {
             order: { name: 'ASC' },
         });
     }
-    async findByRoute(routeId, userCountryId) {
+    async findByRoute(routeId, userCountryId, userRole, userId) {
+        const baseConditions = {
+            route_id: routeId,
+            status: 1,
+            countryId: userCountryId,
+        };
+        if (userRole === 'SALES_REP') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (assignedClientIds.length === 0) {
+                return [];
+            }
+            baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+        }
+        else if (userRole === 'RELIEVER') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+                baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
+            }
+        }
         return this.clientRepository.find({
-            where: {
-                route_id: routeId,
-                status: 1,
-                countryId: userCountryId,
-            },
+            where: baseConditions,
             select: [
                 'id',
                 'name',
@@ -205,16 +326,35 @@ let ClientsService = class ClientsService {
             order: { name: 'ASC' },
         });
     }
-    async findByLocation(latitude, longitude, radius = 10, userCountryId) {
-        const query = `
+    async findByLocation(latitude, longitude, radius = 10, userCountryId, userRole, userId) {
+        let assignedClientIds = [];
+        if (userRole === 'SALES_REP') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            if (assignedClientIds.length === 0) {
+                return [];
+            }
+        }
+        else if (userRole === 'RELIEVER') {
+            const assignedOutlets = await this.clientAssignmentService.getAssignedOutlets(userId, userCountryId);
+            if (assignedOutlets.length > 0) {
+                assignedClientIds = assignedOutlets.map(outlet => outlet.id);
+            }
+        }
+        let query = `
       SELECT *, 
         (6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance
       FROM Clients 
       WHERE status = 1 AND countryId = ?
-      HAVING distance <= ?
-      ORDER BY distance
     `;
-        return this.clientRepository.query(query, [latitude, longitude, latitude, userCountryId, radius]);
+        const queryParams = [latitude, longitude, latitude, userCountryId];
+        if (assignedClientIds.length > 0) {
+            query += ` AND id IN (${assignedClientIds.map(() => '?').join(',')})`;
+            queryParams.push(...assignedClientIds);
+        }
+        query += ` HAVING distance <= ? ORDER BY distance`;
+        queryParams.push(radius);
+        return this.clientRepository.query(query, queryParams);
     }
     async getClientStats(userCountryId, regionId) {
         const queryBuilder = this.clientRepository.createQueryBuilder('client');
@@ -281,6 +421,7 @@ exports.ClientsService = ClientsService;
 exports.ClientsService = ClientsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(clients_entity_1.Clients)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        client_assignment_service_1.ClientAssignmentService])
 ], ClientsService);
 //# sourceMappingURL=clients.service.js.map

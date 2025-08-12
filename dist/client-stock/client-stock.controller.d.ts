@@ -3,6 +3,10 @@ export declare class ClientStockController {
     private readonly clientStockService;
     private readonly logger;
     constructor(clientStockService: ClientStockService);
+    getFeatureStatus(): Promise<{
+        enabled: boolean;
+        message: string;
+    }>;
     getClientStock(clientId: string, req: any): Promise<{
         success: boolean;
         message: string;
@@ -40,9 +44,5 @@ export declare class ClientStockController {
         success: boolean;
         message: string;
         data: any;
-    }>;
-    getFeatureStatus(): Promise<{
-        enabled: boolean;
-        message: string;
     }>;
 }

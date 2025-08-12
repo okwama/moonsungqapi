@@ -21,10 +21,6 @@ __decorate([
     __metadata("design:type", Number)
 ], VisibilityReport.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'reportId', nullable: true }),
-    __metadata("design:type", Number)
-], VisibilityReport.prototype, "reportId", void 0);
-__decorate([
     (0, typeorm_1.Column)({ name: 'comment', nullable: true }),
     __metadata("design:type", String)
 ], VisibilityReport.prototype, "comment", void 0);

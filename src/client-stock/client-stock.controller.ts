@@ -1,12 +1,22 @@
-import { Controller, Get, Post, Param, Body, Request, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Request, Delete, UseGuards } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 import { ClientStockService } from './client-stock.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('client-stock')
+@UseGuards(JwtAuthGuard)
 export class ClientStockController {
   private readonly logger = new Logger(ClientStockController.name);
 
   constructor(private readonly clientStockService: ClientStockService) {}
+
+  @Get('status')
+  async getFeatureStatus() {
+    return {
+      enabled: true,
+      message: 'Client stock feature is enabled'
+    };
+  }
 
   @Get(':clientId')
   async getClientStock(@Param('clientId') clientId: string, @Request() req) {
@@ -14,8 +24,19 @@ export class ClientStockController {
     const userRole = req.user?.role || 'unknown';
     this.logger.log(`🔍 GET /client-stock/${clientId} - User: ${userId}, Role: ${userRole}`);
     
+    // Validate clientId parameter
+    const clientIdNum = +clientId;
+    if (isNaN(clientIdNum) || clientIdNum <= 0) {
+      this.logger.error(`❌ Invalid clientId parameter: ${clientId}`);
+      return {
+        success: false,
+        message: 'Invalid client ID',
+        data: []
+      };
+    }
+    
     try {
-      const stock = await this.clientStockService.getClientStock(+clientId);
+      const stock = await this.clientStockService.getClientStock(clientIdNum);
       
       // Transform the response to match Flutter's expected format
       const transformedStock = stock.map(item => ({
@@ -91,8 +112,20 @@ export class ClientStockController {
     const userRole = req.user?.role || 'unknown';
     this.logger.log(`🗑️ DELETE /client-stock/${clientId}/${productId} - User: ${userId}, Role: ${userRole}`);
     
+    // Validate parameters
+    const clientIdNum = +clientId;
+    const productIdNum = +productId;
+    if (isNaN(clientIdNum) || clientIdNum <= 0 || isNaN(productIdNum) || productIdNum <= 0) {
+      this.logger.error(`❌ Invalid parameters: clientId=${clientId}, productId=${productId}`);
+      return {
+        success: false,
+        message: 'Invalid client ID or product ID',
+        data: null
+      };
+    }
+    
     try {
-      await this.clientStockService.deleteStock(+clientId, +productId);
+      await this.clientStockService.deleteStock(clientIdNum, productIdNum);
       
       return {
         success: true,
@@ -109,11 +142,4 @@ export class ClientStockController {
     }
   }
 
-  @Get('status')
-  async getFeatureStatus() {
-    return {
-      enabled: true,
-      message: 'Client stock feature is enabled'
-    };
-  }
 }

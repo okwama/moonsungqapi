@@ -17,17 +17,33 @@ exports.ClientStockController = void 0;
 const common_1 = require("@nestjs/common");
 const common_2 = require("@nestjs/common");
 const client_stock_service_1 = require("./client-stock.service");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let ClientStockController = ClientStockController_1 = class ClientStockController {
     constructor(clientStockService) {
         this.clientStockService = clientStockService;
         this.logger = new common_2.Logger(ClientStockController_1.name);
     }
+    async getFeatureStatus() {
+        return {
+            enabled: true,
+            message: 'Client stock feature is enabled'
+        };
+    }
     async getClientStock(clientId, req) {
         const userId = req.user?.id || 'unknown';
         const userRole = req.user?.role || 'unknown';
         this.logger.log(`🔍 GET /client-stock/${clientId} - User: ${userId}, Role: ${userRole}`);
+        const clientIdNum = +clientId;
+        if (isNaN(clientIdNum) || clientIdNum <= 0) {
+            this.logger.error(`❌ Invalid clientId parameter: ${clientId}`);
+            return {
+                success: false,
+                message: 'Invalid client ID',
+                data: []
+            };
+        }
         try {
-            const stock = await this.clientStockService.getClientStock(+clientId);
+            const stock = await this.clientStockService.getClientStock(clientIdNum);
             const transformedStock = stock.map(item => ({
                 id: item.id,
                 clientId: item.clientId,
@@ -93,8 +109,18 @@ let ClientStockController = ClientStockController_1 = class ClientStockControlle
         const userId = req.user?.id || 'unknown';
         const userRole = req.user?.role || 'unknown';
         this.logger.log(`🗑️ DELETE /client-stock/${clientId}/${productId} - User: ${userId}, Role: ${userRole}`);
+        const clientIdNum = +clientId;
+        const productIdNum = +productId;
+        if (isNaN(clientIdNum) || clientIdNum <= 0 || isNaN(productIdNum) || productIdNum <= 0) {
+            this.logger.error(`❌ Invalid parameters: clientId=${clientId}, productId=${productId}`);
+            return {
+                success: false,
+                message: 'Invalid client ID or product ID',
+                data: null
+            };
+        }
         try {
-            await this.clientStockService.deleteStock(+clientId, +productId);
+            await this.clientStockService.deleteStock(clientIdNum, productIdNum);
             return {
                 success: true,
                 message: 'Client stock deleted successfully',
@@ -110,14 +136,14 @@ let ClientStockController = ClientStockController_1 = class ClientStockControlle
             };
         }
     }
-    async getFeatureStatus() {
-        return {
-            enabled: true,
-            message: 'Client stock feature is enabled'
-        };
-    }
 };
 exports.ClientStockController = ClientStockController;
+__decorate([
+    (0, common_1.Get)('status'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ClientStockController.prototype, "getFeatureStatus", null);
 __decorate([
     (0, common_1.Get)(':clientId'),
     __param(0, (0, common_1.Param)('clientId')),
@@ -143,14 +169,9 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], ClientStockController.prototype, "deleteStock", null);
-__decorate([
-    (0, common_1.Get)('status'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], ClientStockController.prototype, "getFeatureStatus", null);
 exports.ClientStockController = ClientStockController = ClientStockController_1 = __decorate([
     (0, common_1.Controller)('client-stock'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [client_stock_service_1.ClientStockService])
 ], ClientStockController);
 //# sourceMappingURL=client-stock.controller.js.map

@@ -37,17 +37,21 @@ __decorate([
     __metadata("design:type", String)
 ], OutletQuantityTransaction.prototype, "transactionType", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'quantity', type: 'decimal', precision: 10, scale: 2 }),
+    (0, typeorm_1.Column)({ name: 'quantityIn', type: 'decimal', precision: 10, scale: 2, default: 0 }),
     __metadata("design:type", Number)
-], OutletQuantityTransaction.prototype, "quantity", void 0);
+], OutletQuantityTransaction.prototype, "quantityIn", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'previousStock', type: 'decimal', precision: 10, scale: 2, default: 0 }),
+    (0, typeorm_1.Column)({ name: 'quantityOut', type: 'decimal', precision: 10, scale: 2, default: 0 }),
     __metadata("design:type", Number)
-], OutletQuantityTransaction.prototype, "previousStock", void 0);
+], OutletQuantityTransaction.prototype, "quantityOut", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'newStock', type: 'decimal', precision: 10, scale: 2, default: 0 }),
+    (0, typeorm_1.Column)({ name: 'previousBalance', type: 'decimal', precision: 10, scale: 2, default: 0 }),
     __metadata("design:type", Number)
-], OutletQuantityTransaction.prototype, "newStock", void 0);
+], OutletQuantityTransaction.prototype, "previousBalance", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'newBalance', type: 'decimal', precision: 10, scale: 2, default: 0 }),
+    __metadata("design:type", Number)
+], OutletQuantityTransaction.prototype, "newBalance", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: 'referenceId', type: 'int', nullable: true }),
     __metadata("design:type", Number)

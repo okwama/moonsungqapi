@@ -25,14 +25,17 @@ export class OutletQuantityTransaction {
   })
   transactionType: 'sale' | 'return' | 'stock_adjustment' | 'void';
 
-  @Column({ name: 'quantity', type: 'decimal', precision: 10, scale: 2 })
-  quantity: number;
+  @Column({ name: 'quantityIn', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  quantityIn: number;
 
-  @Column({ name: 'previousStock', type: 'decimal', precision: 10, scale: 2, default: 0 })
-  previousStock: number;
+  @Column({ name: 'quantityOut', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  quantityOut: number;
 
-  @Column({ name: 'newStock', type: 'decimal', precision: 10, scale: 2, default: 0 })
-  newStock: number;
+  @Column({ name: 'previousBalance', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  previousBalance: number;
+
+  @Column({ name: 'newBalance', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  newBalance: number;
 
   @Column({ name: 'referenceId', type: 'int', nullable: true })
   referenceId: number;

@@ -7,9 +7,10 @@ export interface CreateTransactionDto {
   clientId: number;
   productId: number;
   transactionType: 'sale' | 'return' | 'stock_adjustment' | 'void';
-  quantity: number;
-  previousStock: number;
-  newStock: number;
+  quantityIn: number;
+  quantityOut: number;
+  previousBalance: number;
+  newBalance: number;
   referenceId?: number;
   referenceType?: string;
   userId: number;
@@ -36,8 +37,8 @@ export class OutletQuantityTransactionsService {
     clientId: number,
     productId: number,
     quantity: number,
-    previousStock: number,
-    newStock: number,
+    previousBalance: number,
+    newBalance: number,
     referenceId: number,
     userId: number,
     notes?: string,
@@ -46,9 +47,10 @@ export class OutletQuantityTransactionsService {
       clientId,
       productId,
       transactionType: 'sale',
-      quantity: -Math.abs(quantity), // Negative for sales
-      previousStock,
-      newStock,
+      quantityIn: 0,
+      quantityOut: Math.abs(quantity), // Positive for quantity out
+      previousBalance,
+      newBalance,
       referenceId,
       referenceType: 'uplift_sale',
       userId,
@@ -60,8 +62,8 @@ export class OutletQuantityTransactionsService {
     clientId: number,
     productId: number,
     quantity: number,
-    previousStock: number,
-    newStock: number,
+    previousBalance: number,
+    newBalance: number,
     referenceId: number,
     userId: number,
     notes?: string,
@@ -70,9 +72,10 @@ export class OutletQuantityTransactionsService {
       clientId,
       productId,
       transactionType: 'void',
-      quantity: Math.abs(quantity), // Positive for voids (stock restored)
-      previousStock,
-      newStock,
+      quantityIn: Math.abs(quantity), // Positive for quantity in (stock restored)
+      quantityOut: 0,
+      previousBalance,
+      newBalance,
       referenceId,
       referenceType: 'uplift_sale',
       userId,
@@ -84,19 +87,23 @@ export class OutletQuantityTransactionsService {
     clientId: number,
     productId: number,
     quantity: number,
-    previousStock: number,
-    newStock: number,
+    previousBalance: number,
+    newBalance: number,
     referenceId: number,
     userId: number,
     notes?: string,
   ): Promise<OutletQuantityTransaction> {
+    const quantityIn = quantity > 0 ? quantity : 0;
+    const quantityOut = quantity < 0 ? Math.abs(quantity) : 0;
+    
     return this.logTransaction({
       clientId,
       productId,
       transactionType: 'stock_adjustment',
-      quantity, // Can be positive or negative
-      previousStock,
-      newStock,
+      quantityIn,
+      quantityOut,
+      previousBalance,
+      newBalance,
       referenceId,
       referenceType: 'client_stock',
       userId,
@@ -151,6 +158,6 @@ export class OutletQuantityTransactionsService {
       .addOrderBy('transaction.id', 'DESC')
       .getOne();
 
-    return transactions ? transactions.newStock : 0;
+    return transactions ? transactions.newBalance : 0;
   }
 }

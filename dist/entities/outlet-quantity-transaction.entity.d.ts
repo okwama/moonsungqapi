@@ -5,9 +5,10 @@ export declare class OutletQuantityTransaction {
     clientId: number;
     productId: number;
     transactionType: 'sale' | 'return' | 'stock_adjustment' | 'void';
-    quantity: number;
-    previousStock: number;
-    newStock: number;
+    quantityIn: number;
+    quantityOut: number;
+    previousBalance: number;
+    newBalance: number;
     referenceId: number;
     referenceType: string;
     transactionDate: Date;

@@ -28,42 +28,47 @@ let OutletQuantityTransactionsService = class OutletQuantityTransactionsService 
         });
         return this.outletQuantityTransactionRepository.save(transaction);
     }
-    async logSaleTransaction(clientId, productId, quantity, previousStock, newStock, referenceId, userId, notes) {
+    async logSaleTransaction(clientId, productId, quantity, previousBalance, newBalance, referenceId, userId, notes) {
         return this.logTransaction({
             clientId,
             productId,
             transactionType: 'sale',
-            quantity: -Math.abs(quantity),
-            previousStock,
-            newStock,
+            quantityIn: 0,
+            quantityOut: Math.abs(quantity),
+            previousBalance,
+            newBalance,
             referenceId,
             referenceType: 'uplift_sale',
             userId,
             notes: notes || 'Sale made',
         });
     }
-    async logVoidTransaction(clientId, productId, quantity, previousStock, newStock, referenceId, userId, notes) {
+    async logVoidTransaction(clientId, productId, quantity, previousBalance, newBalance, referenceId, userId, notes) {
         return this.logTransaction({
             clientId,
             productId,
             transactionType: 'void',
-            quantity: Math.abs(quantity),
-            previousStock,
-            newStock,
+            quantityIn: Math.abs(quantity),
+            quantityOut: 0,
+            previousBalance,
+            newBalance,
             referenceId,
             referenceType: 'uplift_sale',
             userId,
             notes: notes || 'Sale voided',
         });
     }
-    async logStockAdjustment(clientId, productId, quantity, previousStock, newStock, referenceId, userId, notes) {
+    async logStockAdjustment(clientId, productId, quantity, previousBalance, newBalance, referenceId, userId, notes) {
+        const quantityIn = quantity > 0 ? quantity : 0;
+        const quantityOut = quantity < 0 ? Math.abs(quantity) : 0;
         return this.logTransaction({
             clientId,
             productId,
             transactionType: 'stock_adjustment',
-            quantity,
-            previousStock,
-            newStock,
+            quantityIn,
+            quantityOut,
+            previousBalance,
+            newBalance,
             referenceId,
             referenceType: 'client_stock',
             userId,
@@ -112,7 +117,7 @@ let OutletQuantityTransactionsService = class OutletQuantityTransactionsService 
             .orderBy('transaction.transactionDate', 'DESC')
             .addOrderBy('transaction.id', 'DESC')
             .getOne();
-        return transactions ? transactions.newStock : 0;
+        return transactions ? transactions.newBalance : 0;
     }
 };
 exports.OutletQuantityTransactionsService = OutletQuantityTransactionsService;

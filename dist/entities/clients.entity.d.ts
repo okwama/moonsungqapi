@@ -1,5 +1,6 @@
 import { JourneyPlan } from '../journey-plans/entities/journey-plan.entity';
 import { UpliftSale } from './uplift-sale.entity';
+import { SampleRequest } from './sample-request.entity';
 import { SalesRep } from './sales-rep.entity';
 export declare class Clients {
     id: number;
@@ -29,4 +30,5 @@ export declare class Clients {
     created_at: Date;
     journeyPlans: JourneyPlan[];
     upliftSales: UpliftSale[];
+    sampleRequests: SampleRequest[];
 }

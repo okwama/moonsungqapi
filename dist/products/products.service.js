@@ -47,6 +47,12 @@ let ProductsService = class ProductsService {
                     .where('product.isActive = :isActive', { isActive: true })
                     .orderBy('product.productName', 'ASC')
                     .getMany();
+                for (const product of products) {
+                    const stockInfo = await this.calculateProductStock(product.id, 0);
+                    product['availableStock'] = stockInfo.availableStock;
+                    product['isOutOfStock'] = stockInfo.isOutOfStock;
+                    product['stockSource'] = stockInfo.stockSource;
+                }
                 console.log(`✅ Found ${products.length} active products with inventory and price options data`);
                 return products;
             }
@@ -75,23 +81,25 @@ let ProductsService = class ProductsService {
                 .orderBy('product.productName', 'ASC')
                 .getMany();
             console.log(`📦 Found ${allProducts.length} total active products with inventory and price options`);
-            const countryProducts = [];
+            const processedProducts = [];
             for (const product of allProducts) {
-                const isAvailableInCountry = await this.isProductAvailableInCountry(product.id, userCountryId);
-                if (isAvailableInCountry) {
+                const stockInfo = await this.calculateProductStock(product.id, userCountryId);
+                if (stockInfo.isAvailable) {
+                    product['availableStock'] = stockInfo.availableStock;
+                    product['isOutOfStock'] = stockInfo.isOutOfStock;
+                    product['stockSource'] = stockInfo.stockSource;
                     if (product.storeInventory) {
                         product.storeInventory = product.storeInventory.filter(inventory => {
                             return inventory.store &&
-                                inventory.store.countryId === userCountryId &&
                                 inventory.store.isActive === true &&
                                 inventory.quantity > 0;
                         });
                     }
-                    countryProducts.push(product);
+                    processedProducts.push(product);
                 }
             }
-            console.log(`✅ Found ${countryProducts.length} products available in country ${userCountryId}`);
-            return countryProducts;
+            console.log(`✅ Found ${processedProducts.length} products available in country ${userCountryId}`);
+            return processedProducts;
         }
         catch (error) {
             console.error('❌ Error in findProductsByCountry:', error);
@@ -99,37 +107,104 @@ let ProductsService = class ProductsService {
             return this.findAll();
         }
     }
-    async isProductAvailableInCountry(productId, countryId) {
+    async calculateProductStock(productId, userCountryId) {
         try {
-            const result = await this.dataSource
+            console.log(`📊 Calculating stock for product ${productId} in country ${userCountryId}`);
+            if (userCountryId > 0) {
+                const countryStock = await this.dataSource
+                    .createQueryBuilder()
+                    .select('SUM(si.quantity)', 'totalStock')
+                    .addSelect('MAX(si.quantity)', 'maxStock')
+                    .from('store_inventory', 'si')
+                    .innerJoin('stores', 's', 's.id = si.store_id')
+                    .where('si.product_id = :productId', { productId })
+                    .andWhere('s.country_id = :countryId', { countryId: userCountryId })
+                    .andWhere('s.is_active = :isActive', { isActive: true })
+                    .andWhere('si.quantity > 0')
+                    .getRawOne();
+                if (countryStock && countryStock.totalStock > 0) {
+                    const availableStock = parseInt(countryStock.maxStock) || 0;
+                    console.log(`✅ Product ${productId}: Found ${availableStock} stock in country ${userCountryId}`);
+                    return {
+                        isAvailable: true,
+                        availableStock,
+                        isOutOfStock: availableStock <= 0,
+                        stockSource: `country_${userCountryId}`
+                    };
+                }
+            }
+            console.log(`🔄 Product ${productId}: Falling back to store 1`);
+            const store1Stock = await this.dataSource
                 .createQueryBuilder()
-                .select('si.quantity')
+                .select('si.quantity', 'stock')
                 .from('store_inventory', 'si')
-                .innerJoin('stores', 's', 's.id = si.store_id')
                 .where('si.product_id = :productId', { productId })
-                .andWhere('s.country_id = :countryId', { countryId })
-                .andWhere('s.is_active = :isActive', { isActive: true })
+                .andWhere('si.store_id = 1')
                 .andWhere('si.quantity > 0')
                 .getRawOne();
-            return !!result;
+            if (store1Stock && store1Stock.stock > 0) {
+                const availableStock = parseInt(store1Stock.stock) || 0;
+                console.log(`✅ Product ${productId}: Found ${availableStock} stock in store 1 (fallback)`);
+                return {
+                    isAvailable: true,
+                    availableStock,
+                    isOutOfStock: availableStock <= 0,
+                    stockSource: 'store_1_fallback'
+                };
+            }
+            console.log(`🔄 Product ${productId}: Checking any available store`);
+            const anyStock = await this.dataSource
+                .createQueryBuilder()
+                .select('MAX(si.quantity)', 'maxStock')
+                .from('store_inventory', 'si')
+                .where('si.product_id = :productId', { productId })
+                .andWhere('si.quantity > 0')
+                .getRawOne();
+            if (anyStock && anyStock.maxStock > 0) {
+                const availableStock = parseInt(anyStock.maxStock) || 0;
+                console.log(`✅ Product ${productId}: Found ${availableStock} stock in any store`);
+                return {
+                    isAvailable: true,
+                    availableStock,
+                    isOutOfStock: availableStock <= 0,
+                    stockSource: 'any_store'
+                };
+            }
+            console.log(`❌ Product ${productId}: No stock available anywhere`);
+            return {
+                isAvailable: false,
+                availableStock: 0,
+                isOutOfStock: true,
+                stockSource: 'none'
+            };
         }
         catch (error) {
-            console.error(`❌ Error checking product ${productId} availability in country ${countryId}:`, error);
+            console.error(`❌ Error calculating stock for product ${productId}:`, error);
             try {
-                const fallbackResult = await this.dataSource
+                const emergencyStock = await this.dataSource
                     .createQueryBuilder()
-                    .select('si.quantity')
+                    .select('si.quantity', 'stock')
                     .from('store_inventory', 'si')
                     .where('si.product_id = :productId', { productId })
                     .andWhere('si.store_id = 1')
-                    .andWhere('si.quantity > 0')
                     .getRawOne();
-                console.log(`🔄 Product ${productId} fallback to store 1: ${!!fallbackResult}`);
-                return !!fallbackResult;
+                const availableStock = emergencyStock ? parseInt(emergencyStock.stock) || 0 : 0;
+                console.log(`🚨 Product ${productId}: Emergency fallback to store 1, stock: ${availableStock}`);
+                return {
+                    isAvailable: availableStock > 0,
+                    availableStock,
+                    isOutOfStock: availableStock <= 0,
+                    stockSource: 'store_1_emergency'
+                };
             }
-            catch (fallbackError) {
-                console.error(`❌ Fallback check failed for product ${productId}:`, fallbackError);
-                return false;
+            catch (emergencyError) {
+                console.error(`❌ Emergency fallback failed for product ${productId}:`, emergencyError);
+                return {
+                    isAvailable: false,
+                    availableStock: 0,
+                    isOutOfStock: true,
+                    stockSource: 'error'
+                };
             }
         }
     }

@@ -41,6 +41,8 @@ const client_assignment_module_1 = require("./client-assignment/client-assignmen
 const client_stock_module_1 = require("./client-stock/client-stock.module");
 const notice_board_module_1 = require("./notice-board/notice-board.module");
 const roles_module_1 = require("./roles/roles.module");
+const sample_requests_module_1 = require("./sample-requests/sample-requests.module");
+const outlet_quantity_transactions_module_1 = require("./outlet-quantity-transactions/outlet-quantity-transactions.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -92,6 +94,8 @@ exports.AppModule = AppModule = __decorate([
             client_stock_module_1.ClientStockModule,
             notice_board_module_1.NoticeBoardModule,
             roles_module_1.RolesModule,
+            sample_requests_module_1.SampleRequestsModule,
+            outlet_quantity_transactions_module_1.OutletQuantityTransactionsModule,
         ],
         providers: [database_health_service_1.DatabaseHealthService],
     })

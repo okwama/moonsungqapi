@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const uplift_sale_item_entity_1 = require("../../entities/uplift-sale-item.entity");
 const store_inventory_entity_1 = require("../../entities/store-inventory.entity");
 const category_entity_1 = require("../../entities/category.entity");
+const sample_request_item_entity_1 = require("../../entities/sample-request-item.entity");
 let Product = class Product {
     get categoryPriceOptions() {
         return this.categoryEntity?.categoryPriceOptions || [];
@@ -112,6 +113,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => store_inventory_entity_1.StoreInventory, storeInventory => storeInventory.product),
     __metadata("design:type", Array)
 ], Product.prototype, "storeInventory", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => sample_request_item_entity_1.SampleRequestItem, sampleRequestItem => sampleRequestItem.product),
+    __metadata("design:type", Array)
+], Product.prototype, "sampleRequestItems", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => category_entity_1.Category, category => category.categoryPriceOptions),
     (0, typeorm_1.JoinColumn)({ name: 'category_id' }),

@@ -507,10 +507,27 @@ export class JourneyPlansService {
       throw new NotFoundException(`Journey plan with ID ${id} not found`);
     }
 
+    // Test database connection and table structure
+    try {
+      const tableInfo = await this.dataSource.query('DESCRIBE JourneyPlan');
+      console.log('📊 JourneyPlan table structure:', tableInfo);
+    } catch (error) {
+      console.log('📊 Error checking table structure:', error);
+    }
+
     console.log('🔄 Journey Plan Update Request:');
     console.log('📊 Journey Plan ID:', id);
     console.log('📊 Update DTO:', JSON.stringify(updateJourneyPlanDto, null, 2));
     console.log('📊 ImageUrl in DTO:', updateJourneyPlanDto.imageUrl);
+    
+    // Determine operation type
+    const isCheckInOperation = updateJourneyPlanDto.checkInTime !== undefined;
+    const isCheckoutOperation = updateJourneyPlanDto.checkoutTime !== undefined;
+    console.log('📊 Operation Type:', {
+      isCheckIn: isCheckInOperation,
+      isCheckout: isCheckoutOperation,
+      hasImageUrl: updateJourneyPlanDto.imageUrl !== undefined
+    });
 
     // Convert status string to number if provided
     let statusValue: number | undefined;
@@ -536,14 +553,68 @@ export class JourneyPlansService {
     if (updateData.checkoutTime) {
       updateData.checkoutTime = new Date(updateData.checkoutTime);
     }
+    
+    // Only include imageUrl if this is a check-in operation (when checkInTime is being set)
+    const isCheckIn = updateData.checkInTime !== undefined;
+    if (!isCheckIn) {
+      // Remove imageUrl from update data if this is not a check-in
+      delete updateData.imageUrl;
+      console.log('📊 Not a check-in operation - removing imageUrl from update');
+    } else {
+      // This is a check-in operation
+      console.log('📊 Check-in operation detected - processing imageUrl');
+      if (updateData.imageUrl !== undefined) {
+        console.log('📊 Check-in operation - ImageUrl type:', typeof updateData.imageUrl);
+        console.log('📊 Check-in operation - ImageUrl value:', updateData.imageUrl);
+        // Ensure it's a string or null
+        updateData.imageUrl = updateData.imageUrl || null;
+        console.log('📊 Check-in operation - Final ImageUrl value:', updateData.imageUrl);
+      } else {
+        console.log('📊 Check-in operation - No imageUrl provided, keeping existing value');
+      }
+    }
 
     console.log('📊 Final Update Data:', JSON.stringify(updateData, null, 2));
     console.log('📊 ImageUrl in Update Data:', updateData.imageUrl);
 
-    await this.journeyPlanRepository.update(id, updateData);
+    // Debug: Check if the journey plan exists before update
+    const existingPlan = await this.journeyPlanRepository.findOne({ where: { id } });
+    console.log('📊 Existing Journey Plan before update:', {
+      id: existingPlan?.id,
+      imageUrl: existingPlan?.imageUrl,
+      status: existingPlan?.status
+    });
+
+    // Perform the update using query builder for more control
+    const queryBuilder = this.journeyPlanRepository
+      .createQueryBuilder()
+      .update(JourneyPlan)
+      .set(updateData)
+      .where('id = :id', { id });
     
+    // Log the generated SQL
+    const sql = queryBuilder.getSql();
+    console.log('📊 Generated SQL:', sql);
+    console.log('📊 SQL Parameters:', queryBuilder.getParameters());
+    
+    const updateResult = await queryBuilder.execute();
+    console.log('📊 Update Result:', updateResult);
+
+    // Verify the update by querying the database directly
     const updatedJourneyPlan = await this.findOne(id);
     console.log('📊 Updated Journey Plan ImageUrl:', updatedJourneyPlan?.imageUrl);
+    
+    // Additional verification - query directly from repository
+    const directQuery = await this.journeyPlanRepository.findOne({ 
+      where: { id },
+      select: ['id', 'imageUrl', 'status', 'checkInTime']
+    });
+    console.log('📊 Direct Query Result:', {
+      id: directQuery?.id,
+      imageUrl: directQuery?.imageUrl,
+      status: directQuery?.status,
+      checkInTime: directQuery?.checkInTime
+    });
     
     return updatedJourneyPlan;
   }
@@ -556,6 +627,10 @@ export class JourneyPlansService {
     await this.journeyPlanRepository.delete(id);
   }
 
+  /**
+   * Checkout a journey plan - this method should NEVER include imageUrl
+   * ImageUrl is only for check-in operations
+   */
   async checkout(
     id: number,
     checkoutDto: {
@@ -581,6 +656,9 @@ export class JourneyPlansService {
       updateData.checkoutLongitude = checkoutDto.checkoutLongitude;
     }
 
+    // Explicitly ensure imageUrl is not included in checkout updates
+    console.log('📊 Checkout operation - ensuring imageUrl is not included');
+    
     await this.journeyPlanRepository.update(id, updateData);
     return this.findOne(id);
   }

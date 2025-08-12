@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 12, 2025 at 03:50 PM
+-- Generation Time: Aug 12, 2025 at 06:53 PM
 -- Server version: 10.6.22-MariaDB-cll-lve
 -- PHP Version: 8.4.10
 
@@ -526,6 +526,16 @@ CREATE TABLE `ClientStock` (
   `salesrepId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `ClientStock`
+--
+
+INSERT INTO `ClientStock` (`id`, `quantity`, `clientId`, `productId`, `salesrepId`) VALUES
+(1, 10, 22, 17, 2),
+(2, 10, 22, 18, 2),
+(3, 10, 22, 21, 2),
+(4, 10, 22, 22, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -801,7 +811,12 @@ CREATE TABLE `FeedbackReport` (
 --
 
 INSERT INTO `FeedbackReport` (`comment`, `createdAt`, `clientId`, `id`, `userId`) VALUES
-('test', '2025-08-12 15:46:10.107', 23, 1, 2);
+('test', '2025-08-12 15:46:10.107', 23, 1, 2),
+('c', '2025-08-12 16:57:39.958', 19, 3, 2),
+('test', '2025-08-12 17:03:49.249', 19, 4, 2),
+('test', '2025-08-12 18:42:45.961', 19, 5, 2),
+('ggg', '2025-08-12 18:46:13.963', 19, 6, 2),
+('d', '2025-08-12 18:53:30.418', 19, 7, 2);
 
 -- --------------------------------------------------------
 
@@ -1003,9 +1018,8 @@ CREATE TABLE `JourneyPlan` (
 --
 
 INSERT INTO `JourneyPlan` (`id`, `date`, `time`, `userId`, `clientId`, `status`, `checkInTime`, `latitude`, `longitude`, `imageUrl`, `notes`, `checkoutLatitude`, `checkoutLongitude`, `checkoutTime`, `showUpdateLocation`, `routeId`) VALUES
-(1, '2025-08-12 05:43:34.218', '05:43:34', 2, 23, 3, '2025-08-12 15:45:12.621', -1.3008978450663726, 36.777742416894895, NULL, NULL, -1.3008978450663726, 36.777742416894895, '2025-08-12 15:46:14.661', 1, 39),
-(2, '2025-08-12 16:03:43.654', '16:03:43', 2, 19, 3, '2025-08-12 16:04:34.669', -1.3008978450663726, 36.777742416894895, NULL, NULL, -1.3008978450663726, 36.777742416894895, '2025-08-12 16:05:21.699', 1, 32),
-(5, '2025-08-12 16:42:24.920', '16:42:24', 2, 19, 2, '2025-08-12 16:42:36.268', -1.3008978450663726, 36.777742416894895, NULL, NULL, NULL, NULL, NULL, 1, NULL);
+(9, '2025-08-12 18:45:46.120', '18:45:46', 2, 19, 3, '2025-08-12 18:45:54.846', -1.3008978450663726, 36.777742416894895, 'https://res.cloudinary.com/otienobryan/image/upload/v1755013556/whoosh/uploads/upload_1755013554757_2.jpg', NULL, -1.3008978450663726, 36.777742416894895, '2025-08-12 18:46:34.026', 1, NULL),
+(10, '2025-08-12 18:52:38.746', '18:52:38', 2, 19, 3, '2025-08-12 18:52:51.646', -1.3008978450663726, 36.777742416894895, 'https://res.cloudinary.com/otienobryan/image/upload/v1755013973/whoosh/uploads/upload_1755013969744_2.jpg', NULL, -1.3008978450663726, 36.777742416894895, '2025-08-12 18:53:33.385', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -1075,6 +1089,13 @@ CREATE TABLE `leaves` (
   `updatedAt` datetime(3) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `leaves`
+--
+
+INSERT INTO `leaves` (`id`, `userId`, `leaveType`, `startDate`, `endDate`, `reason`, `attachment`, `status`, `createdAt`, `updatedAt`) VALUES
+(1, 2, 'Annual Leave', '2025-08-12 00:00:00.000', '2025-08-22 00:00:00.000', 'just a round test', NULL, 'PENDING', '2025-08-12 17:06:36.471', '0000-00-00 00:00:00.000');
+
 -- --------------------------------------------------------
 
 --
@@ -1093,6 +1114,20 @@ CREATE TABLE `leave_balances` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `leave_balances`
+--
+
+INSERT INTO `leave_balances` (`id`, `employee_id`, `leave_type_id`, `year`, `total_days`, `used_days`, `remaining_days`, `carried_over_days`, `created_at`, `updated_at`) VALUES
+(1, 8, 1, 2025, 21, 0, 21, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34'),
+(2, 8, 2, 2025, 14, 0, 14, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34'),
+(3, 8, 3, 2025, 90, 0, 90, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34'),
+(4, 8, 4, 2025, 14, 0, 14, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34'),
+(5, 8, 5, 2025, 5, 0, 5, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34'),
+(6, 8, 6, 2025, 10, 0, 10, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34'),
+(7, 8, 7, 2025, 0, 0, 0, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34'),
+(8, 8, 8, 2025, 0, 0, 0, 0, '2025-07-18 13:54:34', '2025-07-18 13:54:34');
 
 -- --------------------------------------------------------
 
@@ -1119,6 +1154,13 @@ CREATE TABLE `leave_requests` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `leave_requests`
+--
+
+INSERT INTO `leave_requests` (`id`, `employee_id`, `leave_type_id`, `start_date`, `end_date`, `is_half_day`, `reason`, `attachment_url`, `status`, `approved_by`, `employee_type_id`, `salesrep`, `notes`, `applied_at`, `created_at`, `updated_at`) VALUES
+(1, NULL, 1, '2025-08-12', '2025-08-22', 0, 'just a round test', NULL, 'pending', NULL, NULL, 2, NULL, '2025-08-12 17:06:37', '2025-08-12 15:06:37', '2025-08-12 15:06:37');
+
 -- --------------------------------------------------------
 
 --
@@ -1134,6 +1176,20 @@ CREATE TABLE `leave_types` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `leave_types`
+--
+
+INSERT INTO `leave_types` (`id`, `name`, `description`, `default_days`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Annual Leave', 'Regular annual leave entitlement', 21, 1, '2025-07-18 13:39:49', '2025-07-18 13:39:49'),
+(2, 'Sick Leave', 'Medical and health-related leave', 14, 1, '2025-07-18 13:39:49', '2025-07-18 13:39:49'),
+(3, 'Maternity Leave', 'Leave for expecting mothers', 90, 1, '2025-07-18 13:39:49', '2025-07-18 13:39:49'),
+(4, 'Paternity Leave', 'Leave for new fathers', 14, 1, '2025-07-18 13:39:49', '2025-07-18 13:39:49'),
+(5, 'Bereavement Leave', 'Leave for family bereavement', 5, 0, '2025-07-18 13:39:49', '2025-08-12 15:04:55'),
+(6, 'Study Leave', 'Leave for educational purposes', 10, 0, '2025-07-18 13:39:49', '2025-08-12 15:04:59'),
+(7, 'Unpaid Leave', 'Leave without pay', 0, 0, '2025-07-18 13:39:49', '2025-08-12 15:05:02'),
+(8, 'Public Holiday', 'Official public holidays', 0, 0, '2025-07-18 13:39:49', '2025-08-12 15:05:06');
 
 -- --------------------------------------------------------
 
@@ -1156,8 +1212,7 @@ CREATE TABLE `LoginHistory` (
 --
 
 INSERT INTO `LoginHistory` (`id`, `userId`, `timezone`, `duration`, `status`, `sessionEnd`, `sessionStart`) VALUES
-(2240, 2, 'Africa/Nairobi', 816, 2, '2025-08-11 22:20:04.000', '2025-08-11 08:43:51.000'),
-(2241, 2, 'Africa/Nairobi', 0, 1, NULL, '2025-08-12 06:53:26.000');
+(2242, 2, 'Africa/Nairobi', 0, 1, NULL, '2025-08-12 17:20:50.000');
 
 -- --------------------------------------------------------
 
@@ -1197,50 +1252,6 @@ CREATE TABLE `my_assets` (
   `document_url` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `my_order`
---
-
-CREATE TABLE `my_order` (
-  `id` int(11) NOT NULL,
-  `so_number` varchar(20) NOT NULL,
-  `client_id` int(11) NOT NULL,
-  `order_date` date NOT NULL,
-  `expected_delivery_date` date DEFAULT NULL,
-  `subtotal` decimal(15,2) DEFAULT 0.00,
-  `tax_amount` decimal(15,2) DEFAULT 0.00,
-  `total_amount` decimal(15,2) DEFAULT 0.00,
-  `net_price` decimal(11,2) NOT NULL,
-  `notes` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `rider_id` int(11) NOT NULL,
-  `assigned_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `status` enum('draft','confirmed','shipped','delivered','cancelled','in payment','paid') DEFAULT 'draft',
-  `my_status` tinyint(3) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `my_order_items`
---
-
-CREATE TABLE `my_order_items` (
-  `id` int(11) NOT NULL,
-  `my_order_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `unit_price` decimal(10,2) NOT NULL,
-  `tax_amount` decimal(11,2) NOT NULL,
-  `total_price` decimal(15,2) NOT NULL,
-  `net_price` decimal(11,2) NOT NULL,
-  `shipped_quantity` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 -- --------------------------------------------------------
@@ -1389,7 +1400,13 @@ CREATE TABLE `ProductReport` (
 
 INSERT INTO `ProductReport` (`productName`, `quantity`, `comment`, `createdAt`, `clientId`, `id`, `userId`, `productId`) VALUES
 ('GLAMAOUR QUEEN EYELASHES Rounded Volumizing', 10, '', '2025-08-12 15:45:19.761', 23, 1, 2, 26),
-('GLAMAOUR QUEEN EYEBROW PENCIL Black', 110, '', '2025-08-12 16:05:01.176', 19, 2, 2, 17);
+('GLAMAOUR QUEEN EYEBROW PENCIL Black', 110, '', '2025-08-12 16:05:01.176', 19, 2, 2, 17),
+('GLAMAOUR QUEEN LIQUID LIPSTICK Wildnight', 10, 'test\n', '2025-08-12 17:03:25.496', 19, 4, 2, 9),
+('GLAMAOUR QUEEN EYEBROW PENCIL Black', 10, '', '2025-08-12 18:42:31.562', 19, 5, 2, 17),
+('GLAMAOUR QUEEN EYELASHES Naked Sexy', 10, '', '2025-08-12 18:42:31.562', 19, 6, 2, 19),
+('GLAMAOUR QUEEN LIQUID LIPSTICK No limit', 10, '', '2025-08-12 18:42:31.562', 19, 7, 2, 14),
+('GLAMAOUR QUEEN EYEBROW PENCIL Black', 20, '', '2025-08-12 18:46:01.478', 19, 8, 2, 17),
+(NULL, NULL, NULL, '2025-08-12 17:53:20.970', 19, 9, 2, NULL);
 
 -- --------------------------------------------------------
 
@@ -1813,7 +1830,8 @@ INSERT INTO `sales_orders` (`id`, `so_number`, `client_id`, `order_date`, `expec
 (4, 'INV-4', 23, '2025-08-12', NULL, 3318.97, 531.03, 3850.00, 0.00, NULL, 1, NULL, '2025-08-12 09:53:35', '2025-08-12 10:14:55', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
 (5, 'INV-5', 23, '2025-08-12', NULL, 857.76, 137.24, 995.00, 0.00, NULL, 1, NULL, '2025-08-12 10:09:00', '2025-08-12 10:09:57', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
 (6, 'INV-6', 23, '2025-08-12', NULL, 857.76, 137.24, 995.00, 0.00, NULL, 1, NULL, '2025-08-12 10:18:40', '2025-08-12 10:18:49', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
-(7, 'INV-7', 23, '2025-08-12', NULL, 3318.97, 531.03, 3850.00, 0.00, NULL, 1, NULL, '2025-08-12 13:20:49', '2025-08-12 13:21:01', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00');
+(7, 'INV-7', 23, '2025-08-12', NULL, 3318.97, 531.03, 3850.00, 0.00, NULL, 1, NULL, '2025-08-12 13:20:49', '2025-08-12 13:21:01', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'confirmed', 1, NULL, 0, '0000-00-00 00:00:00'),
+(8, 'SO-2025-0001', 22, '2025-08-12', NULL, 857.76, 137.24, 995.00, 995.00, NULL, NULL, 2, '2025-08-12 14:59:21', '2025-08-12 14:59:21', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, 'draft', 0, NULL, 0, '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -1845,7 +1863,8 @@ INSERT INTO `sales_order_items` (`id`, `sales_order_id`, `product_id`, `quantity
 (5, 4, 6, 1, 3850.00, 531.03, 3850.00, '16%', 3850.00, 0),
 (6, 5, 26, 1, 995.00, 137.24, 995.00, '16%', 995.00, 0),
 (7, 6, 23, 1, 995.00, 137.24, 995.00, '16%', 995.00, 0),
-(8, 7, 4, 1, 3850.00, 531.03, 3850.00, '16%', 3850.00, 0);
+(8, 7, 4, 1, 3850.00, 531.03, 3850.00, '16%', 3850.00, 0),
+(9, 8, 21, 1, 995.00, 137.24, 995.00, '', 995.00, 0);
 
 -- --------------------------------------------------------
 
@@ -2148,11 +2167,22 @@ CREATE TABLE `UpliftSale` (
   `id` int(11) NOT NULL,
   `clientId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
-  `status` varchar(191) NOT NULL DEFAULT 'pending',
+  `status` int(2) NOT NULL,
   `totalAmount` double NOT NULL DEFAULT 0,
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
-  `updatedAt` datetime(3) NOT NULL
+  `updatedAt` datetime(3) NOT NULL,
+  `comment` varchar(119) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `UpliftSale`
+--
+
+INSERT INTO `UpliftSale` (`id`, `clientId`, `userId`, `status`, `totalAmount`, `createdAt`, `updatedAt`, `comment`) VALUES
+(1, 19, 2, 0, 0, '2025-08-12 17:54:03.892', '0000-00-00 00:00:00.000', ''),
+(2, 19, 2, 0, 10000, '2025-08-12 18:04:01.610', '0000-00-00 00:00:00.000', ''),
+(3, 22, 2, 0, 100, '2025-08-12 18:06:50.689', '0000-00-00 00:00:00.000', ''),
+(4, 19, 2, 0, 202, '2025-08-12 18:16:21.597', '0000-00-00 00:00:00.000', '');
 
 -- --------------------------------------------------------
 
@@ -2169,6 +2199,15 @@ CREATE TABLE `UpliftSaleItem` (
   `total` double NOT NULL,
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `UpliftSaleItem`
+--
+
+INSERT INTO `UpliftSaleItem` (`id`, `upliftSaleId`, `productId`, `quantity`, `unitPrice`, `total`, `createdAt`) VALUES
+(1, 3, 22, 1, 100, 100, '2025-08-12 18:06:50.931'),
+(2, 4, 22, 1, 2, 2, '2025-08-12 18:16:21.868'),
+(3, 4, 21, 1, 200, 200, '2025-08-12 18:16:22.128');
 
 -- --------------------------------------------------------
 
@@ -2248,7 +2287,11 @@ CREATE TABLE `VisibilityReport` (
 --
 
 INSERT INTO `VisibilityReport` (`comment`, `imageUrl`, `createdAt`, `clientId`, `id`, `userId`) VALUES
-('hhh', NULL, '2025-08-12 15:45:29.007', 23, 1, 2);
+('', 'https://res.cloudinary.com/otienobryan/image/upload/v1755006952/whoosh/uploads/upload_1755006950886_2.jpg', '2025-08-12 16:55:53.375', 19, 8, 2),
+('', 'https://res.cloudinary.com/otienobryan/image/upload/v1755007423/whoosh/uploads/upload_1755007421239_2.jpg', '2025-08-12 17:03:43.712', 19, 9, 2),
+('', 'https://res.cloudinary.com/otienobryan/image/upload/v1755013361/whoosh/uploads/upload_1755013359398_2.jpg', '2025-08-12 18:42:42.136', 19, 10, 2),
+('', 'https://res.cloudinary.com/otienobryan/image/upload/v1755013569/whoosh/uploads/upload_1755013567532_2.jpg', '2025-08-12 18:46:09.810', 19, 11, 2),
+('d', NULL, '2025-08-12 18:53:25.574', 19, 12, 2);
 
 -- --------------------------------------------------------
 
@@ -2664,23 +2707,6 @@ ALTER TABLE `my_assets`
   ADD KEY `idx_supplier_id` (`supplier_id`),
   ADD KEY `idx_purchase_date` (`purchase_date`),
   ADD KEY `idx_location` (`location`);
-
---
--- Indexes for table `my_order`
---
-ALTER TABLE `my_order`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `so_number` (`so_number`),
-  ADD KEY `created_by` (`created_by`),
-  ADD KEY `fk_sales_orders_client` (`client_id`);
-
---
--- Indexes for table `my_order_items`
---
-ALTER TABLE `my_order_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sales_order_id` (`my_order_id`),
-  ADD KEY `product_id` (`product_id`);
 
 --
 -- Indexes for table `my_receipts`
@@ -3116,7 +3142,7 @@ ALTER TABLE `Clients`
 -- AUTO_INCREMENT for table `ClientStock`
 --
 ALTER TABLE `ClientStock`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `client_ledger`
@@ -3206,7 +3232,7 @@ ALTER TABLE `faulty_products_reports`
 -- AUTO_INCREMENT for table `FeedbackReport`
 --
 ALTER TABLE `FeedbackReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `hr_calendar_tasks`
@@ -3248,7 +3274,7 @@ ALTER TABLE `journal_entry_lines`
 -- AUTO_INCREMENT for table `JourneyPlan`
 --
 ALTER TABLE `JourneyPlan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `key_account_targets`
@@ -3260,31 +3286,31 @@ ALTER TABLE `key_account_targets`
 -- AUTO_INCREMENT for table `leaves`
 --
 ALTER TABLE `leaves`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `leave_balances`
 --
 ALTER TABLE `leave_balances`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `leave_requests`
 --
 ALTER TABLE `leave_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `leave_types`
 --
 ALTER TABLE `leave_types`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `LoginHistory`
 --
 ALTER TABLE `LoginHistory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2242;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2243;
 
 --
 -- AUTO_INCREMENT for table `managers`
@@ -3296,18 +3322,6 @@ ALTER TABLE `managers`
 -- AUTO_INCREMENT for table `my_assets`
 --
 ALTER TABLE `my_assets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `my_order`
---
-ALTER TABLE `my_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `my_order_items`
---
-ALTER TABLE `my_order_items`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -3356,7 +3370,7 @@ ALTER TABLE `payroll_history`
 -- AUTO_INCREMENT for table `ProductReport`
 --
 ALTER TABLE `ProductReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -3428,13 +3442,13 @@ ALTER TABLE `SalesRep`
 -- AUTO_INCREMENT for table `sales_orders`
 --
 ALTER TABLE `sales_orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `sales_order_items`
 --
 ALTER TABLE `sales_order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `sales_rep_managers`
@@ -3524,13 +3538,13 @@ ALTER TABLE `Token`
 -- AUTO_INCREMENT for table `UpliftSale`
 --
 ALTER TABLE `UpliftSale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `UpliftSaleItem`
 --
 ALTER TABLE `UpliftSaleItem`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -3554,7 +3568,7 @@ ALTER TABLE `versions`
 -- AUTO_INCREMENT for table `VisibilityReport`
 --
 ALTER TABLE `VisibilityReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `warning_letters`
@@ -3606,6 +3620,12 @@ ALTER TABLE `SalesRep`
 ALTER TABLE `staff_tasks`
   ADD CONSTRAINT `fk_staff_tasks_assigned_by` FOREIGN KEY (`assigned_by_id`) REFERENCES `staff` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_staff_tasks_staff` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `store_inventory`
+--
+ALTER TABLE `store_inventory`
+  ADD CONSTRAINT `store_rel` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

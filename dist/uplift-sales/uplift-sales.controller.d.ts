@@ -9,4 +9,7 @@ export declare class UpliftSalesController {
     remove(id: string): Promise<{
         message: string;
     }>;
+    voidSale(id: string, body: {
+        reason: string;
+    }): Promise<import("../entities").UpliftSale>;
 }

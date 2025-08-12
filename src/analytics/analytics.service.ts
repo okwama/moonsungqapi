@@ -226,8 +226,8 @@ export class AnalyticsService {
       totalSales: sales.length,
       totalAmount: sales.reduce((sum, sale) => sum + sale.totalAmount, 0),
       averageAmount: sales.length > 0 ? sales.reduce((sum, sale) => sum + sale.totalAmount, 0) / sales.length : 0,
-      completedSales: sales.filter(s => s.status === 'completed').length,
-      pendingSales: sales.filter(s => s.status === 'pending').length,
+      completedSales: sales.filter(s => s.status === 1).length, // 1 = active/completed
+      pendingSales: sales.filter(s => s.status === 0).length,   // 0 = voided
     };
   }
 

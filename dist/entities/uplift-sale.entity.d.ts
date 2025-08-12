@@ -5,10 +5,11 @@ export declare class UpliftSale {
     id: number;
     clientId: number;
     userId: number;
-    status: string;
+    status: number;
     totalAmount: number;
     createdAt: Date;
     updatedAt: Date;
+    comment: string;
     client: Clients;
     user: SalesRep;
     upliftSaleItems: UpliftSaleItem[];

@@ -2,6 +2,7 @@ import { UpliftSaleItem } from '../../entities/uplift-sale-item.entity';
 import { StoreInventory } from '../../entities/store-inventory.entity';
 import { Category } from '../../entities/category.entity';
 import { CategoryPriceOption } from '../../entities/category-price-option.entity';
+import { SampleRequestItem } from '../../entities/sample-request-item.entity';
 export declare class Product {
     id: number;
     productCode: string;
@@ -21,6 +22,10 @@ export declare class Product {
     updatedAt: Date;
     upliftSaleItems: UpliftSaleItem[];
     storeInventory: StoreInventory[];
+    sampleRequestItems: SampleRequestItem[];
     categoryEntity: Category;
     get categoryPriceOptions(): CategoryPriceOption[];
+    availableStock?: number;
+    isOutOfStock?: boolean;
+    stockSource?: string;
 }

@@ -12,12 +12,16 @@ const typeorm_1 = require("@nestjs/typeorm");
 const uplift_sales_controller_1 = require("./uplift-sales.controller");
 const uplift_sales_service_1 = require("./uplift-sales.service");
 const entities_1 = require("../entities");
+const outlet_quantity_transactions_module_1 = require("../outlet-quantity-transactions/outlet-quantity-transactions.module");
 let UpliftSalesModule = class UpliftSalesModule {
 };
 exports.UpliftSalesModule = UpliftSalesModule;
 exports.UpliftSalesModule = UpliftSalesModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([entities_1.UpliftSale, entities_1.UpliftSaleItem])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([entities_1.UpliftSale, entities_1.UpliftSaleItem, entities_1.ClientStock]),
+            outlet_quantity_transactions_module_1.OutletQuantityTransactionsModule,
+        ],
         controllers: [uplift_sales_controller_1.UpliftSalesController],
         providers: [uplift_sales_service_1.UpliftSalesService],
         exports: [uplift_sales_service_1.UpliftSalesService],

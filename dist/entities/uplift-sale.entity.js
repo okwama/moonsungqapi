@@ -30,8 +30,8 @@ __decorate([
     __metadata("design:type", Number)
 ], UpliftSale.prototype, "userId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: 'pending' }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ type: 'int', default: 1 }),
+    __metadata("design:type", Number)
 ], UpliftSale.prototype, "status", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'float', default: 0 }),
@@ -45,6 +45,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' }),
     __metadata("design:type", Date)
 ], UpliftSale.prototype, "updatedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 119, default: '' }),
+    __metadata("design:type", String)
+], UpliftSale.prototype, "comment", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => clients_entity_1.Clients, clients => clients.upliftSales, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'clientId' }),

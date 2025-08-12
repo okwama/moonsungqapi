@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Request } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -24,15 +24,19 @@ export class ProductsController {
     }
   }
 
-  @Get('country/:countryId')
+  @Get('user')
   @UseGuards(JwtAuthGuard)
-  async findProductsByCountry(@Param('countryId') countryId: string) {
+  async findProductsForUser(@Request() req) {
     try {
-      console.log(`🌍 Products API: GET /products/country/${countryId} called`);
-      const userCountryId = parseInt(countryId);
+      console.log('🌍 Products API: GET /products/user called');
+      const userCountryId = req.user?.countryId || req.user?.country_id;
       
-      if (isNaN(userCountryId)) {
-        throw new Error('Invalid country ID');
+      if (!userCountryId || isNaN(userCountryId)) {
+        console.log('⚠️ No valid country ID found in user data, using fallback');
+        // Use fallback (store 1) if no country ID
+        const products = await this.productsService.findProductsByCountry(0);
+        console.log(`🌍 Products API: Returning ${products.length} products using fallback`);
+        return products;
       }
 
       const products = await this.productsService.findProductsByCountry(userCountryId);

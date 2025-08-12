@@ -12,6 +12,7 @@ import { UpliftSaleItem } from '../../entities/uplift-sale-item.entity';
 import { StoreInventory } from '../../entities/store-inventory.entity';
 import { Category } from '../../entities/category.entity';
 import { CategoryPriceOption } from '../../entities/category-price-option.entity';
+import { SampleRequestItem } from '../../entities/sample-request-item.entity';
 
 @Entity('products')
 export class Product {
@@ -89,6 +90,9 @@ export class Product {
   @OneToMany(() => StoreInventory, storeInventory => storeInventory.product)
   storeInventory: StoreInventory[];
 
+  @OneToMany(() => SampleRequestItem, sampleRequestItem => sampleRequestItem.product)
+  sampleRequestItems: SampleRequestItem[];
+
   @ManyToOne(() => Category, category => category.categoryPriceOptions)
   @JoinColumn({ name: 'category_id' })
   categoryEntity: Category;
@@ -97,4 +101,9 @@ export class Product {
   get categoryPriceOptions(): CategoryPriceOption[] {
     return this.categoryEntity?.categoryPriceOptions || [];
   }
+
+  // Stock information (calculated by backend)
+  availableStock?: number;
+  isOutOfStock?: boolean;
+  stockSource?: string;
 } 

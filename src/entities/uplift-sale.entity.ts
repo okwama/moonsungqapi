@@ -16,8 +16,8 @@ export class UpliftSale {
   @Column()
   userId: number;
 
-  @Column({ default: 'pending' })
-  status: string;
+  @Column({ type: 'int', default: 1 }) // 0=voided, 1=active
+  status: number;
 
   @Column({ type: 'float', default: 0 })
   totalAmount: number;
@@ -27,6 +27,9 @@ export class UpliftSale {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @Column({ type: 'varchar', length: 119, default: '' })
+  comment: string;
 
   @ManyToOne(() => Clients, clients => clients.upliftSales, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'clientId' })

@@ -389,10 +389,24 @@ let JourneyPlansService = class JourneyPlansService {
         if (!journeyPlan) {
             throw new common_1.NotFoundException(`Journey plan with ID ${id} not found`);
         }
+        try {
+            const tableInfo = await this.dataSource.query('DESCRIBE JourneyPlan');
+            console.log('📊 JourneyPlan table structure:', tableInfo);
+        }
+        catch (error) {
+            console.log('📊 Error checking table structure:', error);
+        }
         console.log('🔄 Journey Plan Update Request:');
         console.log('📊 Journey Plan ID:', id);
         console.log('📊 Update DTO:', JSON.stringify(updateJourneyPlanDto, null, 2));
         console.log('📊 ImageUrl in DTO:', updateJourneyPlanDto.imageUrl);
+        const isCheckInOperation = updateJourneyPlanDto.checkInTime !== undefined;
+        const isCheckoutOperation = updateJourneyPlanDto.checkoutTime !== undefined;
+        console.log('📊 Operation Type:', {
+            isCheckIn: isCheckInOperation,
+            isCheckout: isCheckoutOperation,
+            hasImageUrl: updateJourneyPlanDto.imageUrl !== undefined
+        });
         let statusValue;
         if (updateJourneyPlanDto.status) {
             const statusMap = {
@@ -414,11 +428,53 @@ let JourneyPlansService = class JourneyPlansService {
         if (updateData.checkoutTime) {
             updateData.checkoutTime = new Date(updateData.checkoutTime);
         }
+        const isCheckIn = updateData.checkInTime !== undefined;
+        if (!isCheckIn) {
+            delete updateData.imageUrl;
+            console.log('📊 Not a check-in operation - removing imageUrl from update');
+        }
+        else {
+            console.log('📊 Check-in operation detected - processing imageUrl');
+            if (updateData.imageUrl !== undefined) {
+                console.log('📊 Check-in operation - ImageUrl type:', typeof updateData.imageUrl);
+                console.log('📊 Check-in operation - ImageUrl value:', updateData.imageUrl);
+                updateData.imageUrl = updateData.imageUrl || null;
+                console.log('📊 Check-in operation - Final ImageUrl value:', updateData.imageUrl);
+            }
+            else {
+                console.log('📊 Check-in operation - No imageUrl provided, keeping existing value');
+            }
+        }
         console.log('📊 Final Update Data:', JSON.stringify(updateData, null, 2));
         console.log('📊 ImageUrl in Update Data:', updateData.imageUrl);
-        await this.journeyPlanRepository.update(id, updateData);
+        const existingPlan = await this.journeyPlanRepository.findOne({ where: { id } });
+        console.log('📊 Existing Journey Plan before update:', {
+            id: existingPlan?.id,
+            imageUrl: existingPlan?.imageUrl,
+            status: existingPlan?.status
+        });
+        const queryBuilder = this.journeyPlanRepository
+            .createQueryBuilder()
+            .update(journey_plan_entity_1.JourneyPlan)
+            .set(updateData)
+            .where('id = :id', { id });
+        const sql = queryBuilder.getSql();
+        console.log('📊 Generated SQL:', sql);
+        console.log('📊 SQL Parameters:', queryBuilder.getParameters());
+        const updateResult = await queryBuilder.execute();
+        console.log('📊 Update Result:', updateResult);
         const updatedJourneyPlan = await this.findOne(id);
         console.log('📊 Updated Journey Plan ImageUrl:', updatedJourneyPlan?.imageUrl);
+        const directQuery = await this.journeyPlanRepository.findOne({
+            where: { id },
+            select: ['id', 'imageUrl', 'status', 'checkInTime']
+        });
+        console.log('📊 Direct Query Result:', {
+            id: directQuery?.id,
+            imageUrl: directQuery?.imageUrl,
+            status: directQuery?.status,
+            checkInTime: directQuery?.checkInTime
+        });
         return updatedJourneyPlan;
     }
     async remove(id) {
@@ -443,6 +499,7 @@ let JourneyPlansService = class JourneyPlansService {
         if (checkoutDto.checkoutLongitude !== undefined) {
             updateData.checkoutLongitude = checkoutDto.checkoutLongitude;
         }
+        console.log('📊 Checkout operation - ensuring imageUrl is not included');
         await this.journeyPlanRepository.update(id, updateData);
         return this.findOne(id);
     }

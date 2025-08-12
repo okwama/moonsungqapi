@@ -10,6 +10,6 @@ export declare class ProductsService {
     constructor(productRepository: Repository<Product>, storeRepository: Repository<Store>, storeInventoryRepository: Repository<StoreInventory>, dataSource: DataSource);
     findAll(): Promise<Product[]>;
     findProductsByCountry(userCountryId: number): Promise<Product[]>;
-    private isProductAvailableInCountry;
+    private calculateProductStock;
     findOne(id: number): Promise<Product>;
 }

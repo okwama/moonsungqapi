@@ -33,6 +33,9 @@ import { ClientAssignmentModule } from './client-assignment/client-assignment.mo
 import { ClientStockModule } from './client-stock/client-stock.module';
 import { NoticeBoardModule } from './notice-board/notice-board.module';
 import { RolesModule } from './roles/roles.module';
+import { SampleRequestsModule } from './sample-requests/sample-requests.module';
+import { OutletQuantityTransactionsModule } from './outlet-quantity-transactions/outlet-quantity-transactions.module';
+
 
 @Module({
   imports: [
@@ -81,6 +84,8 @@ import { RolesModule } from './roles/roles.module';
     ClientStockModule,
     NoticeBoardModule,
     RolesModule,
+    SampleRequestsModule,
+    OutletQuantityTransactionsModule,
   ],
   providers: [DatabaseHealthService],
 })

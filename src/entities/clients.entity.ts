@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { JourneyPlan } from '../journey-plans/entities/journey-plan.entity';
 import { UpliftSale } from './uplift-sale.entity';
+import { SampleRequest } from './sample-request.entity';
 import { SalesRep } from './sales-rep.entity';
 
 @Entity('Clients')
@@ -90,4 +91,7 @@ export class Clients {
 
   @OneToMany(() => UpliftSale, upliftSale => upliftSale.client)
   upliftSales: UpliftSale[];
+
+  @OneToMany(() => SampleRequest, sampleRequest => sampleRequest.client)
+  sampleRequests: SampleRequest[];
 } 

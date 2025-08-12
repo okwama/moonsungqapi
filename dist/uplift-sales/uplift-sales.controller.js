@@ -27,6 +27,8 @@ let UpliftSalesController = class UpliftSalesController {
         return this.upliftSalesService.findOne(+id);
     }
     async create(createUpliftSaleDto) {
+        console.log('📥 Received uplift sale creation request:');
+        console.log('📊 Request body:', JSON.stringify(createUpliftSaleDto, null, 2));
         return this.upliftSalesService.create(createUpliftSaleDto);
     }
     async update(id, updateUpliftSaleDto) {
@@ -34,6 +36,11 @@ let UpliftSalesController = class UpliftSalesController {
     }
     async remove(id) {
         return this.upliftSalesService.remove(+id);
+    }
+    async voidSale(id, body) {
+        console.log(`📥 Received void sale request for ID ${id}:`);
+        console.log('📊 Void reason:', body.reason);
+        return this.upliftSalesService.voidSale(+id, body.reason);
     }
 };
 exports.UpliftSalesController = UpliftSalesController;
@@ -73,6 +80,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UpliftSalesController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)(':id/void'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UpliftSalesController.prototype, "voidSale", null);
 exports.UpliftSalesController = UpliftSalesController = __decorate([
     (0, common_1.Controller)('uplift-sales'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

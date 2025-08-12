@@ -13,6 +13,7 @@ exports.Clients = void 0;
 const typeorm_1 = require("typeorm");
 const journey_plan_entity_1 = require("../journey-plans/entities/journey-plan.entity");
 const uplift_sale_entity_1 = require("./uplift-sale.entity");
+const sample_request_entity_1 = require("./sample-request.entity");
 const sales_rep_entity_1 = require("./sales-rep.entity");
 let Clients = class Clients {
 };
@@ -127,6 +128,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => uplift_sale_entity_1.UpliftSale, upliftSale => upliftSale.client),
     __metadata("design:type", Array)
 ], Clients.prototype, "upliftSales", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => sample_request_entity_1.SampleRequest, sampleRequest => sampleRequest.client),
+    __metadata("design:type", Array)
+], Clients.prototype, "sampleRequests", void 0);
 exports.Clients = Clients = __decorate([
     (0, typeorm_1.Entity)('Clients'),
     (0, typeorm_1.Index)('Clients_countryId_fkey', ['countryId']),

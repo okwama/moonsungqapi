@@ -19,6 +19,8 @@ export class UpliftSalesController {
 
   @Post()
   async create(@Body() createUpliftSaleDto: any) {
+    console.log('📥 Received uplift sale creation request:');
+    console.log('📊 Request body:', JSON.stringify(createUpliftSaleDto, null, 2));
     return this.upliftSalesService.create(createUpliftSaleDto);
   }
 
@@ -30,5 +32,12 @@ export class UpliftSalesController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.upliftSalesService.remove(+id);
+  }
+
+  @Post(':id/void')
+  async voidSale(@Param('id') id: string, @Body() body: { reason: string }) {
+    console.log(`📥 Received void sale request for ID ${id}:`);
+    console.log('📊 Void reason:', body.reason);
+    return this.upliftSalesService.voidSale(+id, body.reason);
   }
 } 

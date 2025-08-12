@@ -35,12 +35,15 @@ let ProductsController = class ProductsController {
             throw error;
         }
     }
-    async findProductsByCountry(countryId) {
+    async findProductsForUser(req) {
         try {
-            console.log(`🌍 Products API: GET /products/country/${countryId} called`);
-            const userCountryId = parseInt(countryId);
-            if (isNaN(userCountryId)) {
-                throw new Error('Invalid country ID');
+            console.log('🌍 Products API: GET /products/user called');
+            const userCountryId = req.user?.countryId || req.user?.country_id;
+            if (!userCountryId || isNaN(userCountryId)) {
+                console.log('⚠️ No valid country ID found in user data, using fallback');
+                const products = await this.productsService.findProductsByCountry(0);
+                console.log(`🌍 Products API: Returning ${products.length} products using fallback`);
+                return products;
             }
             const products = await this.productsService.findProductsByCountry(userCountryId);
             console.log(`🌍 Products API: Returning ${products.length} products for country ${userCountryId}`);
@@ -63,13 +66,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)('country/:countryId'),
+    (0, common_1.Get)('user'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('countryId')),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], ProductsController.prototype, "findProductsByCountry", null);
+], ProductsController.prototype, "findProductsForUser", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

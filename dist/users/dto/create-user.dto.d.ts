@@ -15,7 +15,7 @@ export declare class CreateUserDto {
     newClients?: number;
     vapesTargets?: number;
     pouchesTargets?: number;
-    role?: string;
+    roleId?: number;
     managerType: number;
     status?: number;
     retailManager: number;

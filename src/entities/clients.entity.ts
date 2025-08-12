@@ -6,6 +6,7 @@ import { SalesRep } from './sales-rep.entity';
 @Entity('Clients')
 @Index('Clients_countryId_fkey', ['countryId'])
 @Index('idx_country_status_route', ['countryId', 'status', 'route_id'])
+@Index('idx_salesRepId', ['salesRepId'])
 export class Clients {
   @PrimaryGeneratedColumn()
   id: number;
@@ -70,9 +71,16 @@ export class Clients {
   @Column({ nullable: true })
   added_by: number;
 
+  @Column({ nullable: true })
+  salesRepId: number;
+
   @ManyToOne(() => SalesRep, { nullable: true })
   @JoinColumn({ name: 'added_by' })
   addedByUser: SalesRep;
+
+  @ManyToOne(() => SalesRep, { nullable: true })
+  @JoinColumn({ name: 'salesRepId' })
+  salesRep: SalesRep;
 
   @Column({ type: 'timestamp', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

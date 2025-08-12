@@ -27,6 +27,12 @@ import { ReportsModule } from './reports/reports.module';
 import { RoutesModule } from './routes/routes.module';
 import { VersionModule } from './version/version.module';
 import { PaymentsModule } from './payments/payments.module';
+import { OutletQuantityModule } from './outlet-quantity/outlet-quantity.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { ClientAssignmentModule } from './client-assignment/client-assignment.module';
+import { ClientStockModule } from './client-stock/client-stock.module';
+import { NoticeBoardModule } from './notice-board/notice-board.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -69,6 +75,12 @@ import { PaymentsModule } from './payments/payments.module';
     RoutesModule,
     VersionModule,
     PaymentsModule,
+    OutletQuantityModule,
+    CloudinaryModule,
+    ClientAssignmentModule,
+    ClientStockModule,
+    NoticeBoardModule,
+    RolesModule,
   ],
   providers: [DatabaseHealthService],
 })

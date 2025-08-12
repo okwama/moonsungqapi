@@ -12,6 +12,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const profile_controller_1 = require("./profile.controller");
 const profile_service_1 = require("./profile.service");
 const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
+const clock_in_out_module_1 = require("../clock-in-out/clock-in-out.module");
 const sales_rep_entity_1 = require("../entities/sales-rep.entity");
 const platform_express_1 = require("@nestjs/platform-express");
 let ProfileModule = class ProfileModule {
@@ -21,6 +22,7 @@ exports.ProfileModule = ProfileModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([sales_rep_entity_1.SalesRep]),
+            clock_in_out_module_1.ClockInOutModule,
             platform_express_1.MulterModule.register({
                 storage: require('multer').memoryStorage(),
                 limits: {

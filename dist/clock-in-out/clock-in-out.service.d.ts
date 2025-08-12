@@ -1,6 +1,7 @@
 import { Repository, DataSource } from 'typeorm';
 import { LoginHistory } from '../entities/login-history.entity';
-import { ClockInDto, ClockOutDto } from './dto';
+import { ClockInDto } from './dto/clock-in.dto';
+import { ClockOutDto } from './dto/clock-out.dto';
 export declare class ClockInOutService {
     private loginHistoryRepository;
     private dataSource;
@@ -16,12 +17,13 @@ export declare class ClockInOutService {
         message: string;
         duration?: number;
     }>;
-    getCurrentStatus(userId: number): Promise<{
+    getCurrentStatus(userId: number, clientTime?: string): Promise<{
         isClockedIn: boolean;
         sessionStart?: string;
         duration?: number;
+        sessionId?: number;
     }>;
-    getTodaySessions(userId: number): Promise<{
+    getTodaySessions(userId: number, clientTime?: string): Promise<{
         sessions: any[];
     }>;
     getClockHistory(userId: number, startDate?: string, endDate?: string): Promise<{

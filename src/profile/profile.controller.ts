@@ -10,7 +10,9 @@ import {
   BadRequestException,
   Logger,
   HttpCode,
-  HttpStatus
+  HttpStatus,
+  Query,
+  Delete
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -43,7 +45,7 @@ export class ProfileController {
           email: user.email,
           phoneNumber: user.phoneNumber,
           photoUrl: user.photoUrl,
-          role: user.role,
+          role: user.role?.name || 'SALES_REP', // Get role name from relation, fallback to default
           region: user.region,
           region_id: user.region_id,
           country: user.country,
@@ -114,6 +116,72 @@ export class ProfileController {
       return { photoUrl };
     } catch (error) {
       this.logger.error(`❌ Photo update failed for user ${req.user.id}:`, error.stack);
+      throw error;
+    }
+  }
+
+  @Get('session-history')
+  async getSessionHistory(
+    @Request() req,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('period') period?: string,
+  ) {
+    this.logger.log(`📊 Session history request for user: ${req.user?.name || 'Unknown'}`);
+    
+    try {
+      const sessions = await this.profileService.getSessionHistory(
+        req.user.id,
+        startDate,
+        endDate,
+        period,
+      );
+      
+      this.logger.log(`✅ Session history retrieved for user: ${req.user?.name}`);
+      return { sessions };
+    } catch (error) {
+      this.logger.error(`❌ Session history failed for user ${req.user.id}:`, error.stack);
+      throw error;
+    }
+  }
+
+  @Get('user-stats')
+  async getUserStats(
+    @Request() req,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('month') month?: string,
+  ) {
+    this.logger.log(`📈 User stats request for user: ${req.user?.name || 'Unknown'}`);
+    
+    try {
+      const stats = await this.profileService.getUserStats(
+        req.user.id,
+        startDate,
+        endDate,
+        month,
+      );
+      
+      this.logger.log(`✅ User stats retrieved for user: ${req.user?.name}`);
+      return { stats };
+    } catch (error) {
+      this.logger.error(`❌ User stats failed for user ${req.user.id}:`, error.stack);
+      throw error;
+    }
+  }
+
+  @Delete('account')
+  @HttpCode(HttpStatus.OK)
+  async deleteAccount(@Request() req) {
+    this.logger.log(`🗑️ Account deletion request for user: ${req.user?.name || 'Unknown'}`);
+    
+    try {
+      const result = await this.profileService.deleteAccount(req.user.id);
+      
+      this.logger.log(`✅ Account deleted successfully for user: ${req.user?.name}`);
+      return result;
+    } catch (error) {
+      this.logger.error(`❌ Account deletion failed for user ${req.user.id}:`, error.stack);
       throw error;
     }
   }

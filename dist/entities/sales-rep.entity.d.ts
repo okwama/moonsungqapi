@@ -1,5 +1,6 @@
 import { JourneyPlan } from '../journey-plans/entities/journey-plan.entity';
 import { LoginHistory } from './login-history.entity';
+import { Role } from './role.entity';
 export declare class SalesRep {
     id: number;
     name: string;
@@ -16,9 +17,8 @@ export declare class SalesRep {
     route_name_update: string;
     visits_targets: number;
     new_clients: number;
-    vapes_targets: number;
-    pouches_targets: number;
-    role: string;
+    roleId: number;
+    role: Role;
     manager_type: number;
     status: number;
     createdAt: Date;

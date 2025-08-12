@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const journey_plan_entity_1 = require("../journey-plans/entities/journey-plan.entity");
 const login_history_entity_1 = require("./login-history.entity");
 const bcrypt = require("bcryptjs");
+const role_entity_1 = require("./role.entity");
 let SalesRep = class SalesRep {
     async validatePassword(password) {
         return bcrypt.compare(password, this.password);
@@ -81,16 +82,13 @@ __decorate([
     __metadata("design:type", Number)
 ], SalesRep.prototype, "new_clients", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: 'role_id', nullable: true }),
     __metadata("design:type", Number)
-], SalesRep.prototype, "vapes_targets", void 0);
+], SalesRep.prototype, "roleId", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], SalesRep.prototype, "pouches_targets", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true, default: 'USER' }),
-    __metadata("design:type", String)
+    (0, typeorm_1.ManyToOne)(() => role_entity_1.Role, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'role_id' }),
+    __metadata("design:type", role_entity_1.Role)
 ], SalesRep.prototype, "role", void 0);
 __decorate([
     (0, typeorm_1.Column)(),

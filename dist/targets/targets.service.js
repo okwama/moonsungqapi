@@ -313,8 +313,8 @@ let TargetsService = class TargetsService {
     }
     async getProductSalesProgress(userId, startDate, endDate) {
         const salesRep = await this.salesRepRepository.findOne({ where: { id: userId } });
-        const vapesTarget = salesRep?.vapes_targets || 0;
-        const pouchesTarget = salesRep?.pouches_targets || 0;
+        const vapesTarget = 0;
+        const pouchesTarget = 0;
         const queryBuilder = this.upliftSaleRepository.createQueryBuilder('sale');
         queryBuilder
             .leftJoinAndSelect('sale.upliftSaleItems', 'items')

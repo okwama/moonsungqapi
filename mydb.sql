@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 10, 2025 at 09:19 PM
+-- Generation Time: Aug 11, 2025 at 04:51 PM
 -- Server version: 10.6.22-MariaDB-cll-lve
--- PHP Version: 8.3.23
+-- PHP Version: 8.4.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `impulsep_moonsun`
+-- Database: `impulsep_gq`
 --
 
 -- --------------------------------------------------------
@@ -253,11 +253,52 @@ CREATE TABLE `chat_room_members` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `ClientAssignment`
+--
+
+CREATE TABLE `ClientAssignment` (
+  `id` int(11) NOT NULL,
+  `outletId` int(11) NOT NULL,
+  `salesRepId` int(11) NOT NULL,
+  `assignedAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `status` varchar(191) NOT NULL DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `ClientAssignment`
+--
+
+INSERT INTO `ClientAssignment` (`id`, `outletId`, `salesRepId`, `assignedAt`, `status`) VALUES
+(1, 1, 63, '2025-06-25 15:16:10.359', 'active'),
+(2, 19, 63, '2025-06-25 15:16:10.375', 'active'),
+(3, 2, 79, '2025-06-25 15:16:10.375', 'active'),
+(4, 3, 82, '2025-06-25 15:16:10.375', 'active'),
+(5, 4, 67, '2025-06-25 15:16:10.375', 'active'),
+(6, 6, 86, '2025-06-25 15:16:10.375', 'active'),
+(7, 7, 81, '2025-06-25 15:16:10.375', 'active'),
+(8, 8, 64, '2025-06-25 15:16:10.375', 'active'),
+(9, 9, 71, '2025-06-25 15:16:10.375', 'active'),
+(10, 11, 84, '2025-06-25 15:16:10.375', 'active'),
+(11, 12, 72, '2025-06-25 15:16:10.375', 'active'),
+(12, 13, 73, '2025-06-25 15:16:10.375', 'active'),
+(13, 15, 70, '2025-06-25 15:16:10.375', 'active'),
+(14, 16, 68, '2025-06-25 15:16:10.375', 'active'),
+(15, 17, 65, '2025-06-25 15:16:10.375', 'active'),
+(16, 18, 74, '2025-06-25 15:16:10.375', 'active'),
+(17, 20, 78, '2025-06-25 15:16:10.375', 'active'),
+(18, 21, 77, '2025-06-25 15:16:10.375', 'active'),
+(19, 22, 75, '2025-06-25 15:16:10.375', 'active'),
+(20, 1, 3, '2025-06-25 15:16:10.359', 'active');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `Clients`
 --
 
 CREATE TABLE `Clients` (
   `id` int(11) NOT NULL,
+  `salesRepId` int(11) DEFAULT NULL,
   `name` varchar(191) NOT NULL,
   `address` varchar(191) DEFAULT NULL,
   `latitude` double DEFAULT NULL,
@@ -266,6 +307,7 @@ CREATE TABLE `Clients` (
   `email` varchar(191) DEFAULT NULL,
   `region_id` int(11) NOT NULL,
   `region` varchar(191) NOT NULL,
+  `outlet_account` int(11) NOT NULL,
   `route_id` int(11) DEFAULT NULL,
   `route_name` varchar(191) DEFAULT NULL,
   `route_id_update` int(11) DEFAULT NULL,
@@ -273,12 +315,55 @@ CREATE TABLE `Clients` (
   `contact` varchar(191) NOT NULL,
   `tax_pin` varchar(191) DEFAULT NULL,
   `location` varchar(191) DEFAULT NULL,
-  `status` int(11) NOT NULL DEFAULT 1,
+  `status` int(11) NOT NULL DEFAULT 0,
   `client_type` int(11) DEFAULT NULL,
-  `outlet_account` int(11) DEFAULT NULL,
   `countryId` int(11) NOT NULL,
   `added_by` int(11) DEFAULT NULL,
-  `created_at` datetime(3) DEFAULT current_timestamp(3)
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `discountPercentage` double DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `Clients`
+--
+
+INSERT INTO `Clients` (`id`, `salesRepId`, `name`, `address`, `latitude`, `longitude`, `balance`, `email`, `region_id`, `region`, `outlet_account`, `route_id`, `route_name`, `route_id_update`, `route_name_update`, `contact`, `tax_pin`, `location`, `status`, `client_type`, `countryId`, `added_by`, `created_at`, `discountPercentage`) VALUES
+(1, 63, 'MINISO SARIT', 'Kenya', -1.2607772, 36.8016888, NULL, NULL, 0, '', 1, NULL, 'WESTLANDS', 44, 'DODOMA', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(2, 79, 'MINISO WESTGATE', 'Kenya', -1.2570443, 36.803133, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(3, 82, 'MINISO HUB', 'Kenya', -1.3204357, 36.7038018, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(4, 67, 'MINISO JUNCTION', 'Kenya', NULL, NULL, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(5, NULL, 'MINISO YAYA', 'Kenya', -1.2930186, 36.7876109, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(6, 86, 'MINISO SOUTHFIELD', 'Kenya', -1.3287807, 36.8906387, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(7, 81, 'MINISO BBS', 'Kenya', 0, 0, 0.00, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', '', NULL, 1, 2, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(8, 64, 'MINISO GARDEN CITY', 'Kenya', -1.2327165, 36.8785436, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(9, 71, 'MINISO TRM', 'Kenya', -1.2196795, 36.8885403, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(10, NULL, 'MINISO NORD', 'Kenya', NULL, NULL, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(11, 84, 'MINISO RUNDA', 'Kenya', -1.2182119, 36.8089887, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(12, 72, 'MINISO TWO RIVERS', 'Kenya', -1.2107912, 36.7952337, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(13, 73, 'MINISO VILLAGE MARKET', 'Kenya', -1.2293818, 36.8047495, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(14, NULL, 'MINISO UNITED MALL', 'Kenya', -0.0983823, 34.7625269, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(15, 70, 'MINISO RUPAS', 'Kenya', NULL, NULL, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(16, 68, 'MINISO LIKONI', 'Kenya', -4.1027192, 39.6454038, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(17, 65, 'MINISO CITY MALL', 'Kenya', -4.0195589, 39.7210391, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(18, 74, 'MINISO PROMINADE', 'Kenya', -4.0378888, 39.7064404, NULL, NULL, 0, '', 1, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 25),
+(19, 63, 'GOODLIFE SARIT', 'Kenya', -1.2607772, 36.8016888, NULL, NULL, 0, '', 2, NULL, NULL, 16, 'PARKLANDS/RUAKA/LIMURU RD/BANANA/EASTLEIGH/PANGANI', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
+(20, 78, 'GOODLIFE VILLAGE MARKET', 'Kenya', -1.2293818, 36.8047495, NULL, NULL, 0, '', 2, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
+(21, 77, 'GOODLIFE GARDEN CITY', 'Kenya', -1.2327165, 36.8785436, NULL, NULL, 0, '', 2, NULL, NULL, 39, 'NAIROBI/MURANGA/KIRINYAGA', 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
+(22, 75, 'GOODLIFE TRM', 'Kenya', -1.2196795, 36.8885403, NULL, NULL, 0, '', 2, NULL, NULL, NULL, NULL, 'notprovided', NULL, NULL, 1, NULL, 1, NULL, '2025-06-22 13:23:45.095', 38),
+(23, NULL, 'AURORA CAPITAL CENTER', 'Kenya', -1.3164177, 36.8346625, 0.00, NULL, 0, '', 3, NULL, NULL, 5, 'COAST', 'notprovided', '123', NULL, 1, 2, 1, NULL, '2025-06-22 13:23:45.095', 40);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ClientStock`
+--
+
+CREATE TABLE `ClientStock` (
+  `id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `clientId` int(11) NOT NULL,
+  `productId` int(11) NOT NULL,
+  `salesrepId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -817,6 +902,13 @@ CREATE TABLE `LoginHistory` (
   `sessionStart` varchar(191) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `LoginHistory`
+--
+
+INSERT INTO `LoginHistory` (`id`, `userId`, `timezone`, `duration`, `status`, `sessionEnd`, `sessionStart`) VALUES
+(2240, 2, 'Africa/Nairobi', 0, 1, NULL, '2025-08-11 08:43:51.000');
+
 -- --------------------------------------------------------
 
 --
@@ -1020,28 +1112,6 @@ CREATE TABLE `payroll_history` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Product`
---
-
-CREATE TABLE `Product` (
-  `id` int(11) NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `category_id` int(11) NOT NULL,
-  `category` varchar(191) NOT NULL,
-  `unit_cost` decimal(11,2) NOT NULL,
-  `description` varchar(191) DEFAULT NULL,
-  `currentStock` int(11) DEFAULT NULL,
-  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
-  `updatedAt` datetime(3) NOT NULL,
-  `clientId` int(11) DEFAULT NULL,
-  `image` varchar(255) DEFAULT NULL,
-  `unit_cost_ngn` decimal(11,2) DEFAULT NULL,
-  `unit_cost_tzs` decimal(11,2) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `ProductReport`
 --
 
@@ -1081,6 +1151,43 @@ CREATE TABLE `products` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `image_url` varchar(200) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id`, `product_code`, `product_name`, `description`, `category_id`, `category`, `unit_of_measure`, `cost_price`, `selling_price`, `tax_type`, `reorder_level`, `current_stock`, `is_active`, `created_at`, `updated_at`, `image_url`) VALUES
+(1, 'GQ001', 'GLAMAOUR QUEEN HIGHLIGHTER Deser Rose Pink Gold', NULL, 1, 'Highlighters', 'PCS', 2500.00, 2500.00, '16%', 0, 0, 1, '2025-06-22 11:39:41', '2025-06-22 12:38:00', 'https://ik.imagekit.io/bja2qwwdjjy/glamour_JpRmrZIDQN.webp?updatedAt=1745913190192'),
+(2, 'GQ002', 'GLAMAOUR QUEEN HIGHLIGHTER Deser Rose Gold', NULL, 1, 'Highlighters', 'PCS', 2500.00, 2500.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(3, 'GQ003', 'GLAMAOUR QUEEN LIQUID EYELINER Black', '', 2, 'Eyeliners', 'PCS', 1600.00, 1600.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-25 08:25:47', 'https://citlogisticssystems.com/glamour_queen/upload/products/product_3_1750839947.png'),
+(4, 'GQ004', 'GLAMAOUR QUEEN EYESHADOW PALETTE Sunset Sahara', '', 3, 'Eyeshadows', 'PCS', 3850.00, 3850.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-25 08:26:33', 'https://citlogisticssystems.com/glamour_queen/upload/products/product_4_1750839993.png'),
+(5, 'GQ005', 'GLAMAOUR QUEEN EYESHADOW PALETTE Sunrise Kilimanjaro', '', 3, 'Eyeshadows', 'PCS', 3850.00, 3850.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-25 08:26:52', 'https://citlogisticssystems.com/glamour_queen/upload/products/product_5_1750840012.png'),
+(6, 'GQ006', 'GLAMAOUR QUEEN EYESHADOW PALETTE Midnight Nile', NULL, 3, 'Eyeshadows', 'PCS', 3850.00, 3850.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(7, 'GQ007', 'GLAMAOUR QUEEN LIQUID LIPSTICK Crush On You', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(8, 'GQ008', 'GLAMAOUR QUEEN LIQUID LIPSTICK Crazy In Love', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(9, 'GQ009', 'GLAMAOUR QUEEN LIQUID LIPSTICK Wildnight', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(10, 'GQ010', 'GLAMAOUR QUEEN LIQUID LIPSTICK Bitterness Kiss', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(11, 'GQ011', 'GLAMAOUR QUEEN LIQUID LIPSTICK Don\'t Shush Me', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(12, 'GQ012', 'GLAMAOUR QUEEN LIQUID LIPSTICK Say My Name', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(13, 'GQ013', 'GLAMAOUR QUEEN LIQUID LIPSTICK Boss In Skirt', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(14, 'GQ014', 'GLAMAOUR QUEEN LIQUID LIPSTICK No limit', NULL, 4, 'Lipsticks', 'PCS', 2450.00, 2450.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(15, 'GQ015', 'GLAMAOUR QUEEN INTERSTELLAR Colour Changing Lip Balm', NULL, 5, 'Lip Balms', 'PCS', 1100.00, 1100.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(16, 'GQ016', 'GLAMAOUR QUEEN INTERSTELLAR Moisturizing Lip Balm', NULL, 5, 'Lip Balms', 'PCS', 1000.00, 1000.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(17, 'GQ017', 'GLAMAOUR QUEEN EYEBROW PENCIL Black', '', 6, 'Eyebrows', 'PCS', 1400.00, 1400.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-25 08:15:56', './upload/products/product_17_1750839356.jpg'),
+(18, 'GQ018', 'GLAMAOUR QUEEN EYEBROW PENCIL Deep Brown', '', 6, 'Eyebrows', 'PCS', 1400.00, 1400.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-25 08:21:20', 'https://citlogisticssystems.com/glamour_queen/upload/products/product_18_1750839680.jpg'),
+(19, 'GQ019', 'GLAMAOUR QUEEN EYELASHES Naked Sexy', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(20, 'GQ020', 'GLAMAOUR QUEEN EYELASHES Naked Natural', '', 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-25 08:28:20', 'https://citlogisticssystems.com/glamour_queen/upload/products/product_20_1750840100.png'),
+(21, 'GQ021', 'GLAMAOUR QUEEN EYELASHES Doll Natural', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(22, 'GQ022', 'GLAMAOUR QUEEN EYELASHES Doll Volumizing', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(23, 'GQ023', 'GLAMAOUR QUEEN EYELASHES Drama Lengthening', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(24, 'GQ024', 'GLAMAOUR QUEEN EYELASHES Drama Volumizing', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(25, 'GQ025', 'GLAMAOUR QUEEN EYELASHES Rounded Lengthening', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(26, 'GQ026', 'GLAMAOUR QUEEN EYELASHES Rounded Volumizing', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(27, 'GQ027', 'GLAMAOUR QUEEN EYELASHES Flared Lengthening', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(28, 'GQ028', 'GLAMAOUR QUEEN EYELASHES Flared Volumizing', NULL, 7, 'Eyelashes', 'PCS', 995.00, 995.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(29, 'GQ029', 'GLAMAOUR QUEEN GLAM SAFARI GLOW GLAM LASHES Waridi', NULL, 8, 'Glam Lashes', 'PCS', 1100.00, 1100.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(30, 'GQ030', 'GLAMAOUR QUEEN GLAM SAFARI GLOW GLAM LASHES Nuru', NULL, 8, 'Glam Lashes', 'PCS', 1000.00, 1000.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', ''),
+(31, 'GQ031', 'GLAMAOUR QUEEN GLAM SAFARI GLOW GLAM LASHES Nibusu', NULL, 8, 'Glam Lashes', 'PCS', 1100.00, 1100.00, '16%', 0, 0, 1, '2025-06-22 11:39:42', '2025-06-22 12:38:00', '');
 
 -- --------------------------------------------------------
 
@@ -1205,6 +1312,25 @@ CREATE TABLE `Riders` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `role`
+--
+
+CREATE TABLE `role` (
+  `id` int(11) NOT NULL,
+  `name` varchar(119) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `role`
+--
+
+INSERT INTO `role` (`id`, `name`) VALUES
+(1, 'SALES_REP'),
+(2, 'RELIEVER');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `routes`
 --
 
@@ -1219,6 +1345,59 @@ CREATE TABLE `routes` (
   `leader_name` varchar(100) NOT NULL,
   `status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `routes`
+--
+
+INSERT INTO `routes` (`id`, `name`, `region`, `region_name`, `country_id`, `country_name`, `leader_id`, `leader_name`, `status`) VALUES
+(1, 'CBD/HURLINGHAM/KILIMANI', 1, 'Nairobi', 1, 'Kenya', 1, 'Benjamin', 1),
+(2, 'THIKA RD/KASARANI/TRM/RUIRU/KIMBO/JUJA', 1, 'Nairobi', 1, 'Kenya', 1, 'Benjamin', 1),
+(3, 'Narok /Maasai Mara', 1, 'Nairobi', 1, '', 0, '', 1),
+(4, 'NAIVASHA/NYANDARUA/GILGIL/NYAHURURU', 0, '', 1, '', 0, '', 1),
+(5, 'COAST', 0, '', 1, '', 0, '', 1),
+(6, 'MACHAKOS', 0, '', 1, '', 0, '', 1),
+(7, 'NAKURU EAST/NAKURU WEST', 0, '', 1, '', 0, '', 1),
+(8, 'ELDORET/KITALE/BUNGOMA', 0, '', 1, '', 0, '', 1),
+(9, 'ARUSHA/DODOMA/DAR ES SALAAM', 0, '', 1, '', 0, '', 1),
+(10, 'DIANI/UKUNDA', 0, '', 1, '', 0, '', 1),
+(11, 'MOMBASA RD/OUTERING/SOUTH B/UTAWALA/BURUBURU', 0, '', 1, '', 0, '', 1),
+(12, 'BAMBURI/MTAWAPA/NYALI', 0, '', 1, '', 0, '', 1),
+(13, 'SOUTH B/LANGATA/RONGAI/MADARAKA', 0, '', 1, '', 0, '', 1),
+(14, 'MSA RD/KITENGELA/ATHI RIVER/BELLEVUE/MACHAKOS TOWN', 0, '', 1, '', 0, '', 1),
+(15, 'KAHAWA WEST/JUJA/THIKA/KENOL', 0, '', 1, '', 0, '', 1),
+(16, 'PARKLANDS/RUAKA/LIMURU RD/BANANA/EASTLEIGH/PANGANI', 0, '', 1, '', 0, '', 1),
+(17, 'JOGOO RD/KAYOLE/KANGUNDO RD/ OUTERING RD', 0, '', 1, '', 0, '', 1),
+(18, 'MOMBASA ', 0, '', 1, '', 0, '', 1),
+(19, 'NGONG RD/LENANA RD/KILIMANI/CBD/KAREN', 0, '', 1, '', 0, '', 1),
+(20, 'KISII/OYUGIS/HOMABAY', 0, '', 1, '', 0, '', 1),
+(21, 'KAYOLE/DONHOLM/EMBAKASI/UTAWALA', 0, '', 1, '', 0, '', 1),
+(22, 'DONHOL/FEDHA/UTAWALA/MLOLONGO/ATHI RIVER/KITENGELA', 0, '', 1, '', 0, '', 1),
+(23, 'NORTHERN BYPASS/RUAKA/MIREMA/CBD', 0, '', 1, '', 0, '', 1),
+(24, 'BULBUL/VET/NGONG TOWN/KISERIAN/MATASIA/RONGAI', 0, '', 1, '', 0, '', 1),
+(25, 'KIAMBU RD/KIAMBU TOWN/LIMURU ', 0, '', 1, '', 0, '', 1),
+(26, 'EMBU TOWN/CHUKA/KERUGOYA/MWEA/KUTUS', 0, '', 1, '', 0, '', 1),
+(27, 'MERU/ISIOLO/MAKUTANO', 0, '', 1, '', 0, '', 1),
+(28, 'KISUMU TOWN/AHERO-KISUMU/KISUMU-MASENO', 0, '', 1, '', 0, '', 1),
+(29, 'NYERI TOWN/KARATINA/OTHAYA', 0, '', 1, '', 0, '', 1),
+(30, 'WAIYAKI WAY/WESTLANDS/KIKUYU/KITUSURU', 0, '', 1, '', 0, '', 1),
+(31, 'KITUI', 0, '', 1, '', 0, '', 1),
+(32, 'WESTLANDS/KITUSURU/KILELESHWA/LAVINGTON', 0, '', 1, '', 0, '', 1),
+(33, 'KAKAMEGA/MUMIAS', 0, '', 1, '', 0, '', 1),
+(34, 'WAIYAKI WAY/KIKUYU RD/NAIROBI-NAKURU HIGHWAY/REDHILL', 0, '', 1, '', 0, '', 1),
+(35, 'KILIFI/MALINDI/WATAMU', 0, '', 1, '', 0, '', 1),
+(36, 'NANYUKI', 0, '', 1, '', 0, '', 1),
+(37, 'BOMAS/LANGATA RD/NAIROBI WEST/SOUTH C', 0, '', 1, '', 0, '', 1),
+(38, 'KAREN/KERARAPON/BULBUL/ZAMBIA', 0, '', 1, '', 0, '', 1),
+(39, 'NAIROBI/MURANGA/KIRINYAGA', 0, '', 1, '', 0, '', 1),
+(40, 'RUIRU/MARURUI/KIAMBU RD/RIDGEWAYS', 0, '', 1, '', 0, '', 1),
+(41, 'KAMAKIS/KAHAWA SUKARI/MOUNTAIN MALL/SURVEY', 0, '', 1, '', 0, '', 1),
+(42, 'NAKURU EAST/NAKURU WEST', 0, '', 1, '', 0, '', 1),
+(43, 'DAR ES SALAAM', 0, '', 1, '', 0, '', 1),
+(44, 'DODOMA', 0, '', 1, '', 0, '', 1),
+(45, 'ARUSHA', 0, '', 1, '', 0, '', 1),
+(46, 'MURANGA/SAGANA/KENOL', 0, '', 1, '', 0, '', 1),
+(47, 'MOSHI', 0, '', 1, '', 0, '', 1);
 
 -- --------------------------------------------------------
 
@@ -1257,11 +1436,9 @@ CREATE TABLE `SalesRep` (
   `route` varchar(100) NOT NULL,
   `route_id_update` int(11) NOT NULL,
   `route_name_update` varchar(100) NOT NULL,
-  `visits_targets` int(3) NOT NULL,
-  `new_clients` int(3) NOT NULL,
-  `vapes_targets` int(11) NOT NULL,
-  `pouches_targets` int(11) NOT NULL,
-  `role` varchar(191) DEFAULT 'USER',
+  `visits_targets` int(11) NOT NULL,
+  `new_clients` int(11) NOT NULL,
+  `role_id` int(11) DEFAULT 1,
   `manager_type` int(11) NOT NULL,
   `status` int(11) DEFAULT 0,
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
@@ -1272,6 +1449,47 @@ CREATE TABLE `SalesRep` (
   `photoUrl` varchar(191) DEFAULT '',
   `managerId` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `SalesRep`
+--
+
+INSERT INTO `SalesRep` (`id`, `name`, `email`, `phoneNumber`, `password`, `countryId`, `country`, `region_id`, `region`, `route_id`, `route`, `route_id_update`, `route_name_update`, `visits_targets`, `new_clients`, `role_id`, `manager_type`, `status`, `createdAt`, `updatedAt`, `retail_manager`, `key_channel_manager`, `distribution_manager`, `photoUrl`, `managerId`) VALUES
+(2, 'Benjamin Okwama', 'bennjiokwama@gmail.com', '0706166875', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 1, 'k', 39, 'NAIROBI/MURANGA/KIRINYAGA', 0, 0, 2, 0, 1, '2025-06-22 11:43:02.490', '2025-07-24 09:07:41.206', 0, 0, 0, 'https://res.cloudinary.com/otienobryan/image/upload/v1750596234/whoosh/profile_photos/1750596232967-profile.png', NULL),
+(3, 'Joseph Okwamas', 'jose@gmail.com', '0711376366', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 1, 'Kilimani', 44, 'DODOMA', 0, 0, 1, 0, 1, '2025-06-22 12:54:08.149', '2025-06-22 21:25:11.297', 0, 0, 0, 'https://res.cloudinary.com/otienobryan/image/upload/v1750627510/whoosh/profile_photos/1750627510743-profile.png', NULL),
+(60, 'MILKA WAMBUI KAMAU', 'Kamaumilka12@gmail.com', '0715388907', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(61, 'MARY GATHONI MAINA', 'gabbygathoni2020@gmail.com', '0701432625', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(62, 'Gladwell Njuka Mbugua', 'njukambugua003@gmail.com', '0708698469', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(63, 'SARAH KIGAMWA', 'Sarahkigamwa94@gmail.com', '0794410122', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(64, 'FAITH NDUNGE', 'fndunge084@gmail.com', '0707498138', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(65, 'NINA KANGAI MICHENI', 'ninakangai1@gmail.com', '079864354', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(66, 'MAGDALENA WANJIRU', 'magdalenawanjiru72@gmail.com', '0704187193', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-07-24 13:20:56.290', 0, 0, 0, 'https://res.cloudinary.com/otienobryan/image/upload/v1753363236/whoosh/profile_photos/1753363236290-profile.jpg', NULL),
+(67, 'Blessing Inawedi', 'blessinginawedi@gmail.com', '0705898877', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(68, 'Mercy Marion Chepng\'eno', 'mercymarion0@gmail.com', '0726818317', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(69, 'VERONICAH NJERI GACHERU', 'veronicagacheru244@gmail.com', '0769552599', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(70, 'RUTH NJERI MURIGI', 'ruthmurigi33@gmail.com', '0720366028', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(71, 'ALICE MUTHONI WANYOIKE', 'aliceevelyn254@gmail.com', '0798996031', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(72, 'MARY WANJIKU NJOKI', 'njokimary75@gmail.com', '0727931220', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(73, 'VERNER AMBALA', 'venamissy78@gmail.com', '0748896253', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(74, 'FATMA RAMADHAN', 'fatmahr26@gmail.com', '0702339559', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(75, 'TABITHA MUKULU WAMBUA', 'tabbytabz98@gmail.com', '0706011876', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(76, 'STACY AKINYI', 'ochielstaicy001@gmail.com', '0746015959', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(77, 'JECINTA ATIENO', 'jecintak952@gmail.com', '0715453567', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(78, 'EVE NGANGA', 'evenganga88@gmail.com', '0745638757', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(79, 'EUNICE NDUKU MUTIA', 'prettyndushi@gmail.com', '0718100124', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(80, 'KHADIJA', 'khadija.reliever@placeholder.com', '0712345678', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 5, 'COAST', 0, 0, 2, 0, 1, '2025-06-25 10:08:34.000', '2025-06-26 04:32:30.509', 0, 0, 0, '', NULL),
+(81, 'SUSAN NYAMBURA NDUNGU', 'nsuziepesh@gmail.com', '0115331662', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(82, 'GRACE MWENDE KATA', 'aishakata@gmail.com', '0714692441', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(83, 'HANNAH', 'hannah.reliever@placeholder.com', '0723456789', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(84, 'DORIS AYUMA ASHUNDU', 'dorisayuma352@gmail.com', '0710808489', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(85, 'PAMELA', 'pamela.reliever@placeholder.com', '0734567890', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(86, 'SPHILIAN KERUBO MOGAKA', 'mogakashilian@gmail.com', '0797232452', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(87, 'FRUMENCE MAGDALENA SHIYO', 'frumence.reliever@placeholder.com', '0708144980', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(88, 'Pamela adhiambo', 'adhiambopamela26@gmail.com', '0706778462', '$2b$10$kcOv1l/tlEk4SFHZjS6Bzu0WEooohNjlaOTrXHqVfSjODiI5Tj7sG', 1, 'Kenya', 1, 'Nairobi', 1, 'Kilimani', 1, 'Kilimani', 0, 0, 1, 0, 1, '2025-07-23 21:25:38.386', '2025-07-23 21:27:16.780', 0, 0, 0, 'https://res.cloudinary.com/otienobryan/image/upload/v1753306036/whoosh/profile_photos/1753306036330-profile.jpg', NULL),
+(89, 'Chagadwa Valencia', 'valenciachagadwa@gmail.com', '0743924259', '$2b$10$Hx.MHg2HV7YXd3K.0fSEpeQ6zQ0v7a.m.uu.o63RYYW0PdGdz.ivC', 1, 'Kenya', 1, 'Nairobi', 1, 'Kilimani', 1, 'Kilimani', 0, 0, 1, 0, 1, '2025-07-24 05:50:44.496', '2025-07-24 06:40:59.221', 0, 0, 0, 'https://res.cloudinary.com/otienobryan/image/upload/v1753339258/whoosh/profile_photos/1753339258802-profile.jpg', NULL),
+(90, 'Juliet Nduati', 'loisejuliet@gmail.com', '0798153264', '$2b$10$D9eCnlc09.OZ25cNgPaXD.vwQR6whfetvd6Vv/2GxHyyXzb1FaKCO', 1, 'Kenya', 1, 'Nairobi', 1, 'Kilimani', 1, 'Kilimani', 0, 0, 1, 0, 1, '2025-07-24 06:02:55.806', '2025-07-24 07:18:13.293', 0, 0, 0, '', NULL),
+(91, 'Felicia Wambui', 'shareyourmail@here.com', '0782119519', '$2b$10$wCiwvdIuaC11/dD5xo9HlONGSEVwBuV1eAITaJHyFJ/O5apC4m.WG', 1, 'Kenya', 1, 'Nairobi', 0, '', 0, '', 0, 0, 1, 0, 1, '2025-06-25 10:08:34.000', '2025-06-25 10:08:34.000', 0, 0, 0, '', NULL),
+(92, 'Densy Wambui Ndungu', 'ndunguwambui032@gmail.com', '0710410836', '$2b$10$DnnoZiavf6cIgS3PY7.06.11P3u0ut21W9G4UIc8PCsO5NBogewOC', 1, 'Kenya', 1, 'Nairobi', 1, 'Kilimani', 1, 'Kilimani', 0, 0, 1, 0, 1, '2025-07-24 08:32:21.999', '2025-07-24 08:32:21.999', 0, 0, 0, '', NULL);
 
 -- --------------------------------------------------------
 
@@ -1373,6 +1591,13 @@ CREATE TABLE `staff` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `is_active` int(3) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `staff`
+--
+
+INSERT INTO `staff` (`id`, `name`, `photo_url`, `empl_no`, `id_no`, `role`, `phone_number`, `password`, `department`, `business_email`, `department_email`, `salary`, `employment_type`, `created_at`, `updated_at`, `is_active`) VALUES
+(1, 'Bryan', '', '', '', 'sales', NULL, '$2a$10$me0dzhAfGglEGPhcK/34BuWmhYW3USYy3SeMbe46CQop102Yq./1S', NULL, NULL, NULL, NULL, '', '2025-08-11 14:16:09', '2025-08-11 14:18:02', 0);
 
 -- --------------------------------------------------------
 
@@ -1803,12 +2028,30 @@ ALTER TABLE `chat_room_members`
   ADD KEY `staff_id` (`staff_id`);
 
 --
+-- Indexes for table `ClientAssignment`
+--
+ALTER TABLE `ClientAssignment`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ClientAssignment_outletId_salesRepId_key` (`outletId`,`salesRepId`),
+  ADD KEY `ClientAssignment_salesRepId_idx` (`salesRepId`),
+  ADD KEY `ClientAssignment_outletId_idx` (`outletId`);
+
+--
 -- Indexes for table `Clients`
 --
 ALTER TABLE `Clients`
   ADD PRIMARY KEY (`id`),
   ADD KEY `Clients_countryId_fkey` (`countryId`),
-  ADD KEY `Clients_countryId_status_route_id_idx` (`countryId`,`status`,`route_id`);
+  ADD KEY `Clients_salesRepId_fkey` (`salesRepId`);
+
+--
+-- Indexes for table `ClientStock`
+--
+ALTER TABLE `ClientStock`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ClientStock_clientId_productId_key` (`clientId`,`productId`),
+  ADD KEY `ClientStock_productId_fkey` (`productId`),
+  ADD KEY `sale` (`salesrepId`);
 
 --
 -- Indexes for table `client_ledger`
@@ -2142,13 +2385,6 @@ ALTER TABLE `payroll_history`
   ADD KEY `staff_id` (`staff_id`);
 
 --
--- Indexes for table `Product`
---
-ALTER TABLE `Product`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `Product_clientId_fkey` (`clientId`);
-
---
 -- Indexes for table `ProductReport`
 --
 ALTER TABLE `ProductReport`
@@ -2213,6 +2449,12 @@ ALTER TABLE `Riders`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `role`
+--
+ALTER TABLE `role`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `routes`
 --
 ALTER TABLE `routes`
@@ -2231,10 +2473,11 @@ ALTER TABLE `salesclient_payment`
 --
 ALTER TABLE `SalesRep`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `SalesRep_email_key` (`email`),
+  ADD UNIQUE KEY `SalesRep_phoneNumber_key` (`phoneNumber`),
   ADD KEY `SalesRep_countryId_fkey` (`countryId`),
-  ADD KEY `idx_status_role` (`status`,`role`),
-  ADD KEY `idx_location` (`countryId`,`region_id`,`route_id`),
-  ADD KEY `idx_manager` (`managerId`);
+  ADD KEY `SalesRep_managerId_idx` (`managerId`),
+  ADD KEY `role_id` (`role_id`);
 
 --
 -- Indexes for table `sales_orders`
@@ -2513,9 +2756,21 @@ ALTER TABLE `chat_room_members`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `ClientAssignment`
+--
+ALTER TABLE `ClientAssignment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
 -- AUTO_INCREMENT for table `Clients`
 --
 ALTER TABLE `Clients`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `ClientStock`
+--
+ALTER TABLE `ClientStock`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -2684,7 +2939,7 @@ ALTER TABLE `leave_types`
 -- AUTO_INCREMENT for table `LoginHistory`
 --
 ALTER TABLE `LoginHistory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2241;
 
 --
 -- AUTO_INCREMENT for table `managers`
@@ -2753,12 +3008,6 @@ ALTER TABLE `payroll_history`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `Product`
---
-ALTER TABLE `Product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `ProductReport`
 --
 ALTER TABLE `ProductReport`
@@ -2768,7 +3017,7 @@ ALTER TABLE `ProductReport`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `purchase_orders`
@@ -2807,10 +3056,16 @@ ALTER TABLE `Riders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `role`
+--
+ALTER TABLE `role`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `routes`
 --
 ALTER TABLE `routes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `salesclient_payment`
@@ -2822,7 +3077,7 @@ ALTER TABLE `salesclient_payment`
 -- AUTO_INCREMENT for table `SalesRep`
 --
 ALTER TABLE `SalesRep`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
 
 --
 -- AUTO_INCREMENT for table `sales_orders`
@@ -2852,7 +3107,7 @@ ALTER TABLE `sales_rep_manager_assignments`
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `staff_tasks`
@@ -2967,6 +3222,19 @@ ALTER TABLE `warning_letters`
 --
 
 --
+-- Constraints for table `ClientAssignment`
+--
+ALTER TABLE `ClientAssignment`
+  ADD CONSTRAINT `client_` FOREIGN KEY (`outletId`) REFERENCES `Clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `salesrep_id` FOREIGN KEY (`salesRepId`) REFERENCES `SalesRep` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `ClientStock`
+--
+ALTER TABLE `ClientStock`
+  ADD CONSTRAINT `sale` FOREIGN KEY (`salesrepId`) REFERENCES `SalesRep` (`id`);
+
+--
 -- Constraints for table `credit_notes`
 --
 ALTER TABLE `credit_notes`
@@ -2982,10 +3250,10 @@ ALTER TABLE `credit_note_items`
   ADD CONSTRAINT `credit_note_items_ibfk_3` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `LoginHistory`
+-- Constraints for table `SalesRep`
 --
-ALTER TABLE `LoginHistory`
-  ADD CONSTRAINT `LoginHistory_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `SalesRep` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `SalesRep`
+  ADD CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`);
 
 --
 -- Constraints for table `staff_tasks`

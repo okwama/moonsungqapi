@@ -23,7 +23,9 @@ export declare class Clients {
     outlet_account: number;
     countryId: number;
     added_by: number;
+    salesRepId: number;
     addedByUser: SalesRep;
+    salesRep: SalesRep;
     created_at: Date;
     journeyPlans: JourneyPlan[];
     upliftSales: UpliftSale[];

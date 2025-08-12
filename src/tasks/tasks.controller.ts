@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TasksService } from './tasks.service';
 
@@ -42,5 +42,12 @@ export class TasksController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.tasksService.remove(+id);
+  }
+
+  @Get('salesrep/:id')
+  async getSalesRepTasks(@Param('id') salesRepId: string, @Request() req) {
+    // For now, return empty array since tasks functionality isn't implemented yet
+    console.log(`📋 GET /tasks/salesrep/${salesRepId} - User: ${req.user?.id}, Role: ${req.user?.role}`);
+    return [];
   }
 } 

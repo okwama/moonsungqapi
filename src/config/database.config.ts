@@ -22,6 +22,8 @@ import { FeedbackReport } from '../entities/feedback-report.entity';
 import { ProductReport } from '../entities/product-report.entity';
 import { VisibilityReport } from '../entities/visibility-report.entity';
 import { SalesClientPayment } from '../entities/sales-client-payment.entity';
+import { ClientStock } from '../entities/client-stock.entity';
+import { Role } from '../entities/role.entity';
 
 export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOptions => {
   const useLocalDb = configService.get<string>('USE_LOCAL_DB', 'false') === 'true';
@@ -40,7 +42,7 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
       entities: [
         SalesRep, Clients, Product, JourneyPlan, LoginHistory, UpliftSale, UpliftSaleItem,
         Task, Leave, Store, StoreInventory, Category, CategoryPriceOption, Order, OrderItem, Users, Notice, LeaveType,
-        FeedbackReport, ProductReport, VisibilityReport, SalesClientPayment,
+        FeedbackReport, ProductReport, VisibilityReport, SalesClientPayment, ClientStock, Role,
       ],
       synchronize: false,
       logging: configService.get<boolean>('DB_LOGGING', false),
@@ -72,7 +74,7 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     entities: [
       SalesRep, Clients, Product, JourneyPlan, LoginHistory, UpliftSale, UpliftSaleItem,
       Task, Leave, Store, StoreInventory, Category, CategoryPriceOption, Order, OrderItem, Users, Notice, LeaveType,
-      FeedbackReport, ProductReport, VisibilityReport, SalesClientPayment,
+      FeedbackReport, ProductReport, VisibilityReport, SalesClientPayment, ClientStock, Role,
     ],
     synchronize: false,
     logging: configService.get<boolean>('DB_LOGGING', false),

@@ -2,6 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColum
 import { JourneyPlan } from '../journey-plans/entities/journey-plan.entity';
 import { LoginHistory } from './login-history.entity';
 import * as bcrypt from 'bcryptjs';
+import { Clients } from './clients.entity';
+import { Role } from './role.entity';
 
 @Entity('SalesRep')
 @Index('idx_status_role', ['status', 'role'])
@@ -54,14 +56,12 @@ export class SalesRep {
   @Column()
   new_clients: number;
 
-  @Column()
-  vapes_targets: number;
+  @Column({ name: 'role_id', nullable: true })
+  roleId: number;
 
-  @Column()
-  pouches_targets: number;
-
-  @Column({ nullable: true, default: 'USER' })
-  role: string;
+  @ManyToOne(() => Role, { nullable: true })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
   @Column()
   manager_type: number;

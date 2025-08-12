@@ -39,7 +39,7 @@ let ProfileController = ProfileController_1 = class ProfileController {
                     email: user.email,
                     phoneNumber: user.phoneNumber,
                     photoUrl: user.photoUrl,
-                    role: user.role,
+                    role: user.role?.name || 'SALES_REP',
                     region: user.region,
                     region_id: user.region_id,
                     country: user.country,
@@ -92,6 +92,42 @@ let ProfileController = ProfileController_1 = class ProfileController {
             throw error;
         }
     }
+    async getSessionHistory(req, startDate, endDate, period) {
+        this.logger.log(`📊 Session history request for user: ${req.user?.name || 'Unknown'}`);
+        try {
+            const sessions = await this.profileService.getSessionHistory(req.user.id, startDate, endDate, period);
+            this.logger.log(`✅ Session history retrieved for user: ${req.user?.name}`);
+            return { sessions };
+        }
+        catch (error) {
+            this.logger.error(`❌ Session history failed for user ${req.user.id}:`, error.stack);
+            throw error;
+        }
+    }
+    async getUserStats(req, startDate, endDate, month) {
+        this.logger.log(`📈 User stats request for user: ${req.user?.name || 'Unknown'}`);
+        try {
+            const stats = await this.profileService.getUserStats(req.user.id, startDate, endDate, month);
+            this.logger.log(`✅ User stats retrieved for user: ${req.user?.name}`);
+            return { stats };
+        }
+        catch (error) {
+            this.logger.error(`❌ User stats failed for user ${req.user.id}:`, error.stack);
+            throw error;
+        }
+    }
+    async deleteAccount(req) {
+        this.logger.log(`🗑️ Account deletion request for user: ${req.user?.name || 'Unknown'}`);
+        try {
+            const result = await this.profileService.deleteAccount(req.user.id);
+            this.logger.log(`✅ Account deleted successfully for user: ${req.user?.name}`);
+            return result;
+        }
+        catch (error) {
+            this.logger.error(`❌ Account deletion failed for user ${req.user.id}:`, error.stack);
+            throw error;
+        }
+    }
 };
 exports.ProfileController = ProfileController;
 __decorate([
@@ -129,6 +165,34 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ProfileController.prototype, "updateProfilePhoto", null);
+__decorate([
+    (0, common_1.Get)('session-history'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('startDate')),
+    __param(2, (0, common_1.Query)('endDate')),
+    __param(3, (0, common_1.Query)('period')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ProfileController.prototype, "getSessionHistory", null);
+__decorate([
+    (0, common_1.Get)('user-stats'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('startDate')),
+    __param(2, (0, common_1.Query)('endDate')),
+    __param(3, (0, common_1.Query)('month')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ProfileController.prototype, "getUserStats", null);
+__decorate([
+    (0, common_1.Delete)('account'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ProfileController.prototype, "deleteAccount", null);
 exports.ProfileController = ProfileController = ProfileController_1 = __decorate([
     (0, common_1.Controller)('profile'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

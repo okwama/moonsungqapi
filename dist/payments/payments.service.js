@@ -36,10 +36,16 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             });
             this.logger.log(`📝 Payment entity created: ${JSON.stringify(payment)}`);
             if (file) {
-                this.logger.log(`☁️ Uploading file to Cloudinary: ${file.originalname}`);
-                const uploadResult = await this.cloudinaryService.uploadFile(file);
-                payment.invoicefileUrl = uploadResult.secure_url;
-                this.logger.log(`✅ File uploaded successfully: ${uploadResult.secure_url}`);
+                this.logger.log(`📤 Uploading file to Cloudinary: ${file.originalname}`);
+                try {
+                    const cloudinaryResult = await this.cloudinaryService.uploadFile(file);
+                    payment.invoicefileUrl = cloudinaryResult.secure_url;
+                    this.logger.log(`✅ File uploaded successfully to Cloudinary: ${cloudinaryResult.secure_url}`);
+                }
+                catch (uploadError) {
+                    this.logger.error(`❌ File upload failed: ${uploadError.message}`);
+                    throw uploadError;
+                }
             }
             const savedPayment = await this.paymentsRepository.save(payment);
             this.logger.log(`✅ Payment saved successfully with ID: ${savedPayment.id}`);

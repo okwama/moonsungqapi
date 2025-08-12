@@ -31,7 +31,20 @@ let ClientsService = class ClientsService {
         return this.clientRepository.save(client);
     }
     async findAll(userCountryId) {
-        return this.clientRepository.find({
+        console.log(`🔍 ClientsService.findAll - Looking for clients with countryId: ${userCountryId}, status: 1`);
+        const allClients = await this.clientRepository.find({
+            select: ['id', 'name', 'countryId', 'status']
+        });
+        console.log(`📊 Total clients in database: ${allClients.length}`);
+        console.log(`📊 Clients by country:`, allClients.reduce((acc, client) => {
+            acc[client.countryId] = (acc[client.countryId] || 0) + 1;
+            return acc;
+        }, {}));
+        console.log(`📊 Clients by status:`, allClients.reduce((acc, client) => {
+            acc[client.status] = (acc[client.status] || 0) + 1;
+            return acc;
+        }, {}));
+        const clients = await this.clientRepository.find({
             where: {
                 status: 1,
                 countryId: userCountryId,
@@ -47,6 +60,28 @@ let ClientsService = class ClientsService {
             ],
             order: { name: 'ASC' },
         });
+        console.log(`✅ Found ${clients.length} clients for country ${userCountryId} with status 1`);
+        return clients;
+    }
+    async findAllForAdmin(userCountryId) {
+        console.log(`🔍 ClientsService.findAllForAdmin - Looking for all clients with countryId: ${userCountryId}`);
+        const clients = await this.clientRepository.find({
+            where: {
+                countryId: userCountryId,
+            },
+            select: [
+                'id',
+                'name',
+                'contact',
+                'region',
+                'region_id',
+                'status',
+                'countryId'
+            ],
+            order: { name: 'ASC' },
+        });
+        console.log(`✅ Found ${clients.length} clients for country ${userCountryId} (all statuses)`);
+        return clients;
     }
     async findOne(id, userCountryId) {
         return this.clientRepository.findOne({
@@ -234,17 +269,11 @@ let ClientsService = class ClientsService {
         return this.findOne(id, userCountryId);
     }
     async rejectClient(id, userCountryId) {
-        const existingClient = await this.clientRepository.findOne({
-            where: {
-                id,
-                status: 0,
-                countryId: userCountryId,
-            },
-        });
+        const existingClient = await this.findOne(id, userCountryId);
         if (!existingClient) {
             return false;
         }
-        await this.clientRepository.update(id, { status: 2 });
+        await this.clientRepository.update(id, { status: 0 });
         return true;
     }
 };

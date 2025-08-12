@@ -26,7 +26,23 @@ export class ClientsService {
   }
 
   async findAll(userCountryId: number): Promise<Clients[]> {
-    return this.clientRepository.find({
+    console.log(`🔍 ClientsService.findAll - Looking for clients with countryId: ${userCountryId}, status: 1`);
+    
+    // First, let's check what clients exist in the database
+    const allClients = await this.clientRepository.find({
+      select: ['id', 'name', 'countryId', 'status']
+    });
+    console.log(`📊 Total clients in database: ${allClients.length}`);
+    console.log(`📊 Clients by country:`, allClients.reduce((acc, client) => {
+      acc[client.countryId] = (acc[client.countryId] || 0) + 1;
+      return acc;
+    }, {}));
+    console.log(`📊 Clients by status:`, allClients.reduce((acc, client) => {
+      acc[client.status] = (acc[client.status] || 0) + 1;
+      return acc;
+    }, {}));
+    
+    const clients = await this.clientRepository.find({
       where: { 
         status: 1, // Only approved/active clients
         countryId: userCountryId, // Only clients in user's country
@@ -42,6 +58,32 @@ export class ClientsService {
       ],
       order: { name: 'ASC' },
     });
+    
+    console.log(`✅ Found ${clients.length} clients for country ${userCountryId} with status 1`);
+    return clients;
+  }
+
+  async findAllForAdmin(userCountryId: number): Promise<Clients[]> {
+    console.log(`🔍 ClientsService.findAllForAdmin - Looking for all clients with countryId: ${userCountryId}`);
+    
+    const clients = await this.clientRepository.find({
+      where: { 
+        countryId: userCountryId, // Only clients in user's country
+      },
+      select: [
+        'id',
+        'name', 
+        'contact',
+        'region',
+        'region_id',
+        'status',
+        'countryId'
+      ],
+      order: { name: 'ASC' },
+    });
+    
+    console.log(`✅ Found ${clients.length} clients for country ${userCountryId} (all statuses)`);
+    return clients;
   }
 
   async findOne(id: number, userCountryId: number): Promise<Clients | null> {
@@ -271,20 +313,12 @@ export class ClientsService {
 
   // Reject a client (admin only)
   async rejectClient(id: number, userCountryId: number): Promise<boolean> {
-    // First check if client exists and belongs to user's country
-    const existingClient = await this.clientRepository.findOne({
-      where: { 
-        id, 
-        status: 0, // Only pending clients can be rejected
-        countryId: userCountryId,
-      },
-    });
-    
+    const existingClient = await this.findOne(id, userCountryId);
     if (!existingClient) {
       return false;
     }
     
-    await this.clientRepository.update(id, { status: 2 }); // 2 = rejected
+    await this.clientRepository.update(id, { status: 0 }); // Reject client
     return true;
   }
 } 

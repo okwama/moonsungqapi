@@ -43,6 +43,10 @@ let TasksController = class TasksController {
     async remove(id) {
         return this.tasksService.remove(+id);
     }
+    async getSalesRepTasks(salesRepId, req) {
+        console.log(`📋 GET /tasks/salesrep/${salesRepId} - User: ${req.user?.id}, Role: ${req.user?.role}`);
+        return [];
+    }
 };
 exports.TasksController = TasksController;
 __decorate([
@@ -96,6 +100,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], TasksController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Get)('salesrep/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], TasksController.prototype, "getSalesRepTasks", null);
 exports.TasksController = TasksController = __decorate([
     (0, common_1.Controller)('tasks'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

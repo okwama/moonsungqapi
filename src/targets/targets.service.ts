@@ -368,8 +368,10 @@ export class TargetsService {
   private async getProductSalesProgress(userId: number, startDate: Date, endDate: Date): Promise<any> {
     // Get product targets from SalesRep table
     const salesRep = await this.salesRepRepository.findOne({ where: { id: userId } });
-    const vapesTarget = salesRep?.vapes_targets || 0;
-    const pouchesTarget = salesRep?.pouches_targets || 0;
+    // Note: vapes_targets and pouches_targets columns don't exist in the database
+    // Setting default targets to 0 for now
+    const vapesTarget = 0;
+    const pouchesTarget = 0;
 
     // Get sales data for the period
     const queryBuilder = this.upliftSaleRepository.createQueryBuilder('sale');

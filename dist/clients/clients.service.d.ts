@@ -7,6 +7,7 @@ export declare class ClientsService {
     constructor(clientRepository: Repository<Clients>);
     create(createClientDto: CreateClientDto, userCountryId: number): Promise<Clients>;
     findAll(userCountryId: number): Promise<Clients[]>;
+    findAllForAdmin(userCountryId: number): Promise<Clients[]>;
     findOne(id: number, userCountryId: number): Promise<Clients | null>;
     findOneBasic(id: number, userCountryId: number): Promise<Clients | null>;
     update(id: number, updateClientDto: Partial<CreateClientDto>, userCountryId: number): Promise<Clients | null>;

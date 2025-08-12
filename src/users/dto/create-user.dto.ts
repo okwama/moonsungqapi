@@ -54,8 +54,8 @@ export class CreateUserDto {
   pouchesTargets?: number;
 
   @IsOptional()
-  @IsString()
-  role?: string;
+  @IsNumber()
+  roleId?: number;
 
   @IsNumber()
   managerType: number;

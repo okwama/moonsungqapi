@@ -28,34 +28,53 @@ let ClockInOutService = ClockInOutService_1 = class ClockInOutService {
         try {
             const { userId, clientTime } = clockInDto;
             this.logger.log(`🟢 Clock In attempt for user ${userId} at ${clientTime}`);
-            const activeSession = await this.loginHistoryRepository.findOne({
-                where: {
-                    userId,
+            const today = new Date(clientTime);
+            today.setHours(0, 0, 0, 0);
+            const todayStart = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0') + ' 00:00:00.000';
+            const actualTime = new Date(clientTime);
+            const sessionStartTime = actualTime.getFullYear() + '-' +
+                String(actualTime.getMonth() + 1).padStart(2, '0') + '-' +
+                String(actualTime.getDate()).padStart(2, '0') + ' ' +
+                String(actualTime.getHours()).padStart(2, '0') + ':' +
+                String(actualTime.getMinutes()).padStart(2, '0') + ':' +
+                String(actualTime.getSeconds()).padStart(2, '0') + '.000';
+            const todayRecord = await this.loginHistoryRepository
+                .createQueryBuilder('session')
+                .where('session.userId = :userId', { userId })
+                .andWhere('DATE(session.sessionStart) = DATE(:clientDate)', { clientDate: clientTime })
+                .getOne();
+            if (todayRecord) {
+                await this.loginHistoryRepository.update(todayRecord.id, {
                     status: 1,
-                },
-                order: { sessionStart: 'DESC' },
-            });
-            if (activeSession) {
-                this.logger.warn(`⚠️ User ${userId} already has an active session`);
+                    sessionEnd: null,
+                    duration: 0,
+                });
+                this.logger.log(`✅ User ${userId} resumed session. Record ID: ${todayRecord.id}`);
                 return {
-                    success: false,
-                    message: 'You are already clocked in. Please clock out first.',
+                    success: true,
+                    message: 'Successfully resumed session',
+                    sessionId: todayRecord.id,
                 };
             }
-            const newSession = this.loginHistoryRepository.create({
-                userId,
-                status: 1,
-                sessionStart: clientTime,
-                timezone: 'Africa/Nairobi',
-                duration: 0,
-            });
-            const savedSession = await this.loginHistoryRepository.save(newSession);
-            this.logger.log(`✅ User ${userId} clocked in successfully. Session ID: ${savedSession.id}`);
-            return {
-                success: true,
-                message: 'Successfully clocked in',
-                sessionId: savedSession.id,
-            };
+            else {
+                const newSession = this.loginHistoryRepository.create({
+                    userId,
+                    status: 1,
+                    sessionStart: sessionStartTime,
+                    sessionEnd: null,
+                    timezone: 'Africa/Nairobi',
+                    duration: 0,
+                });
+                const savedSession = await this.loginHistoryRepository.save(newSession);
+                this.logger.log(`✅ User ${userId} started new session. Record ID: ${savedSession.id}`);
+                return {
+                    success: true,
+                    message: 'Successfully started new session',
+                    sessionId: savedSession.id,
+                };
+            }
         }
         catch (error) {
             this.logger.error(`❌ Clock In failed for user ${clockInDto.userId}: ${error.message}`);
@@ -69,32 +88,49 @@ let ClockInOutService = ClockInOutService_1 = class ClockInOutService {
         try {
             const { userId, clientTime } = clockOutDto;
             this.logger.log(`🔴 Clock Out attempt for user ${userId} at ${clientTime}`);
-            const activeSession = await this.loginHistoryRepository.findOne({
-                where: {
-                    userId,
-                    status: 1,
-                },
-                order: { sessionStart: 'DESC' },
-            });
-            if (!activeSession) {
-                this.logger.warn(`⚠️ User ${userId} has no active session to clock out`);
+            const today = new Date(clientTime);
+            today.setHours(0, 0, 0, 0);
+            const todayStart = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0') + ' 00:00:00.000';
+            const actualTime = new Date(clientTime);
+            const sessionEndTime = actualTime.getFullYear() + '-' +
+                String(actualTime.getMonth() + 1).padStart(2, '0') + '-' +
+                String(actualTime.getDate()).padStart(2, '0') + ' ' +
+                String(actualTime.getHours()).padStart(2, '0') + ':' +
+                String(actualTime.getMinutes()).padStart(2, '0') + ':' +
+                String(actualTime.getSeconds()).padStart(2, '0') + '.000';
+            const todayRecord = await this.loginHistoryRepository
+                .createQueryBuilder('session')
+                .where('session.userId = :userId', { userId })
+                .andWhere('DATE(session.sessionStart) = DATE(:clientDate)', { clientDate: clientTime })
+                .getOne();
+            if (!todayRecord) {
+                this.logger.warn(`⚠️ User ${userId} has no session record for today`);
                 return {
                     success: false,
-                    message: 'You are not currently clocked in.',
+                    message: 'No active session found for today.',
                 };
             }
-            const startTime = new Date(activeSession.sessionStart);
+            if (todayRecord.status === 2 && todayRecord.sessionEnd) {
+                this.logger.warn(`⚠️ User ${userId} session already ended for today`);
+                return {
+                    success: false,
+                    message: 'Session already ended for today.',
+                };
+            }
+            const startTime = new Date(todayRecord.sessionStart);
             const endTime = new Date(clientTime);
             const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60));
-            await this.loginHistoryRepository.update(activeSession.id, {
+            await this.loginHistoryRepository.update(todayRecord.id, {
                 status: 2,
-                sessionEnd: clientTime,
+                sessionEnd: sessionEndTime,
                 duration: durationMinutes,
             });
-            this.logger.log(`✅ User ${userId} clocked out successfully. Duration: ${durationMinutes} minutes`);
+            this.logger.log(`✅ User ${userId} ended session. Total duration: ${durationMinutes} minutes`);
             return {
                 success: true,
-                message: 'Successfully clocked out',
+                message: 'Successfully ended session',
                 duration: durationMinutes,
             };
         }
@@ -106,145 +142,131 @@ let ClockInOutService = ClockInOutService_1 = class ClockInOutService {
             };
         }
     }
-    async getCurrentStatus(userId) {
+    async getCurrentStatus(userId, clientTime) {
         try {
-            const activeSession = await this.loginHistoryRepository.findOne({
-                where: {
-                    userId,
-                    status: 1,
-                },
-                order: { sessionStart: 'DESC' },
-            });
-            if (!activeSession) {
+            const referenceTime = clientTime ? new Date(clientTime) : new Date();
+            const today = new Date(referenceTime);
+            today.setHours(0, 0, 0, 0);
+            const todayStart = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0') + ' 00:00:00.000';
+            this.logger.log(`🔍 Checking status for user ${userId} on date: ${todayStart} (client time: ${clientTime || 'not provided'})`);
+            const todayRecord = await this.loginHistoryRepository
+                .createQueryBuilder('session')
+                .where('session.userId = :userId', { userId })
+                .andWhere('DATE(session.sessionStart) = DATE(:clientDate)', { clientDate: referenceTime })
+                .getOne();
+            if (!todayRecord) {
+                this.logger.log(`❌ No record found for user ${userId} on ${todayStart}`);
                 return { isClockedIn: false };
             }
-            const startTime = new Date(activeSession.sessionStart);
-            const now = new Date();
-            const currentDuration = Math.floor((now.getTime() - startTime.getTime()) / (1000 * 60));
+            this.logger.log(`✅ Found record for user ${userId}: status=${todayRecord.status}, sessionStart=${todayRecord.sessionStart}`);
             return {
-                isClockedIn: true,
-                sessionStart: activeSession.sessionStart,
-                duration: currentDuration,
+                isClockedIn: todayRecord.status === 1,
+                sessionStart: todayRecord.sessionStart,
+                duration: todayRecord.duration,
+                sessionId: todayRecord.id,
             };
         }
         catch (error) {
-            this.logger.error(`❌ Get current status failed for user ${userId}: ${error.message}`);
+            this.logger.error(`❌ Error getting current status for user ${userId}: ${error.message}`);
             return { isClockedIn: false };
         }
     }
-    async getTodaySessions(userId) {
+    async getTodaySessions(userId, clientTime) {
         try {
-            const today = new Date();
-            const todayStr = today.toISOString().split('T')[0];
-            const sessions = await this.loginHistoryRepository
+            const referenceTime = clientTime ? new Date(clientTime) : new Date();
+            const today = new Date(referenceTime);
+            today.setHours(0, 0, 0, 0);
+            const todayStart = today.getFullYear() + '-' +
+                String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                String(today.getDate()).padStart(2, '0') + ' 00:00:00.000';
+            this.logger.log(`🔍 Getting today's sessions for user ${userId} on date: ${todayStart} (client time: ${clientTime || 'not provided'})`);
+            const todayRecord = await this.loginHistoryRepository
                 .createQueryBuilder('session')
                 .where('session.userId = :userId', { userId })
-                .andWhere('DATE(session.sessionStart) = :today', { today: todayStr })
-                .orderBy('session.sessionStart', 'DESC')
-                .getMany();
-            const formattedSessions = sessions.map(session => ({
-                id: session.id,
-                sessionStart: session.sessionStart,
-                sessionEnd: session.sessionEnd,
-                duration: session.duration,
-                status: session.status,
-                timezone: session.timezone,
-            }));
-            return { sessions: formattedSessions };
+                .andWhere('DATE(session.sessionStart) = DATE(:clientDate)', { clientDate: referenceTime })
+                .getOne();
+            if (!todayRecord) {
+                return { sessions: [] };
+            }
+            return {
+                sessions: [{
+                        id: todayRecord.id,
+                        userId: todayRecord.userId,
+                        sessionStart: todayRecord.sessionStart,
+                        sessionEnd: todayRecord.sessionEnd,
+                        duration: todayRecord.duration,
+                        status: todayRecord.status,
+                        timezone: todayRecord.timezone,
+                    }],
+            };
         }
         catch (error) {
-            this.logger.error(`❌ Get today's sessions failed for user ${userId}: ${error.message}`);
+            this.logger.error(`❌ Error getting today's sessions for user ${userId}: ${error.message}`);
             return { sessions: [] };
         }
     }
     async getClockHistory(userId, startDate, endDate) {
         try {
-            this.logger.log(`📅 Getting clock history for user ${userId} from ${startDate} to ${endDate}`);
             let query = this.loginHistoryRepository
                 .createQueryBuilder('session')
                 .where('session.userId = :userId', { userId })
                 .orderBy('session.sessionStart', 'DESC');
-            if (startDate && endDate) {
-                query = query.andWhere('DATE(session.sessionStart) BETWEEN :startDate AND :endDate', {
-                    startDate,
-                    endDate,
-                });
+            if (startDate) {
+                query = query.andWhere('session.sessionStart >= :startDate', { startDate });
             }
-            else if (startDate) {
-                query = query.andWhere('DATE(session.sessionStart) >= :startDate', { startDate });
-            }
-            else if (endDate) {
-                query = query.andWhere('DATE(session.sessionStart) <= :endDate', { endDate });
+            if (endDate) {
+                query = query.andWhere('session.sessionStart <= :endDate', { endDate });
             }
             const sessions = await query.getMany();
-            const formattedSessions = sessions.map(session => ({
-                id: session.id,
-                sessionStart: session.sessionStart,
-                sessionEnd: session.sessionEnd,
-                duration: session.duration,
-                status: session.status,
-                timezone: session.timezone,
-                formattedStart: session.sessionStart ? this.formatDateTime(session.sessionStart) : null,
-                formattedEnd: session.sessionEnd ? this.formatDateTime(session.sessionEnd) : null,
-                formattedDuration: session.duration ? this.formatDuration(session.duration) : null,
-                isActive: session.status === 1,
-            }));
-            this.logger.log(`✅ Found ${formattedSessions.length} clock sessions for user ${userId}`);
-            return { sessions: formattedSessions };
+            return {
+                sessions: sessions.map(session => ({
+                    id: session.id,
+                    userId: session.userId,
+                    sessionStart: session.sessionStart,
+                    sessionEnd: session.sessionEnd,
+                    duration: session.duration,
+                    status: session.status,
+                    timezone: session.timezone,
+                })),
+            };
         }
         catch (error) {
-            this.logger.error(`❌ Get clock history failed for user ${userId}: ${error.message}`);
+            this.logger.error(`❌ Error getting clock history for user ${userId}: ${error.message}`);
             return { sessions: [] };
         }
     }
     async getClockSessionsWithProcedure(userId, startDate, endDate, limit = 50) {
         try {
-            this.logger.log(`🚀 Using stored procedure for clock sessions - User: ${userId}`);
             const result = await this.dataSource.query('CALL GetClockSessions(?, ?, ?, ?)', [userId, startDate || null, endDate || null, limit]);
-            if (result && result.length > 0) {
-                const sessions = result[0] || [];
-                this.logger.log(`✅ Stored procedure executed successfully`);
-                this.logger.log(`📊 Sessions found: ${sessions.length}`);
-                return { sessions };
-            }
-            else {
-                throw new Error('Invalid result from stored procedure');
-            }
+            return { sessions: result[0] || [] };
         }
         catch (error) {
-            this.logger.log(`⚠️ Stored procedure failed, falling back to service method: ${error.message}`);
-            return this.getClockSessionsFallback(userId, startDate, endDate);
+            this.logger.warn(`⚠️ Stored procedure failed, using fallback: ${error.message}`);
+            return this.getClockHistory(userId, startDate, endDate);
         }
     }
     async getClockSessionsFallback(userId, startDate, endDate) {
-        const history = await this.getClockHistory(userId, startDate, endDate);
-        return { sessions: history.sessions };
+        return this.getClockHistory(userId, startDate, endDate);
     }
     formatDateTime(dateTimeStr) {
+        if (!dateTimeStr)
+            return '';
         try {
             const date = new Date(dateTimeStr);
-            return date.toLocaleString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true,
-            });
+            return date.toISOString().slice(0, 19).replace('T', ' ');
         }
-        catch (e) {
+        catch (error) {
             return dateTimeStr;
         }
     }
     formatDuration(minutes) {
+        if (!minutes || minutes <= 0)
+            return '0h 0m';
         const hours = Math.floor(minutes / 60);
         const remainingMinutes = minutes % 60;
-        if (hours > 0) {
-            return `${hours}h ${remainingMinutes}m`;
-        }
-        else {
-            return `${remainingMinutes}m`;
-        }
+        return `${hours}h ${remainingMinutes}m`;
     }
 };
 exports.ClockInOutService = ClockInOutService;

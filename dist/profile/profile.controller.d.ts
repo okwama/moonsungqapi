@@ -31,4 +31,14 @@ export declare class ProfileController {
     updateProfilePhoto(req: any, file: Express.Multer.File): Promise<{
         photoUrl: string;
     }>;
+    getSessionHistory(req: any, startDate?: string, endDate?: string, period?: string): Promise<{
+        sessions: any[];
+    }>;
+    getUserStats(req: any, startDate?: string, endDate?: string, month?: string): Promise<{
+        stats: any;
+    }>;
+    deleteAccount(req: any): Promise<{
+        success: boolean;
+        message: string;
+    }>;
 }

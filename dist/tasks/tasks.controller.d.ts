@@ -11,4 +11,5 @@ export declare class TasksController {
     }): Promise<import("../entities").Task>;
     completeTask(id: string): Promise<import("../entities").Task>;
     remove(id: string): Promise<void>;
+    getSalesRepTasks(salesRepId: string, req: any): Promise<any[]>;
 }

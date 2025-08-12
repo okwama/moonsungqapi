@@ -16,6 +16,7 @@ export declare class AuthController {
             email: any;
             phone: any;
             role: any;
+            roleId: any;
             countryId: any;
             regionId: any;
             routeId: any;

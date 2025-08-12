@@ -28,16 +28,22 @@ export class ClockInOutController {
    * Get current clock status
    */
   @Get('status/:userId')
-  async getCurrentStatus(@Param('userId') userId: string) {
-    return await this.clockInOutService.getCurrentStatus(parseInt(userId));
+  async getCurrentStatus(
+    @Param('userId') userId: string,
+    @Query('clientTime') clientTime?: string
+  ) {
+    return await this.clockInOutService.getCurrentStatus(parseInt(userId), clientTime);
   }
 
   /**
    * Get today's sessions
    */
   @Get('today/:userId')
-  async getTodaySessions(@Param('userId') userId: string) {
-    return await this.clockInOutService.getTodaySessions(parseInt(userId));
+  async getTodaySessions(
+    @Param('userId') userId: string,
+    @Query('clientTime') clientTime?: string
+  ) {
+    return await this.clockInOutService.getTodaySessions(parseInt(userId), clientTime);
   }
 
   /**

@@ -1,0 +1,345 @@
+{
+	"info": {
+		"_postman_id": "clock-in-out-test-collection",
+		"name": "Clock-In-Out Test Collection",
+		"description": "Test collection for the updated clock-in/out system with single daily record approach",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"phoneNumber\": \"07061668785\",\n  \"password\": \"password\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				},
+				"description": "Login with test credentials to get JWT token and user ID"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get Current Status",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/clock-in-out/status/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"clock-in-out",
+						"status",
+						"{{userId}}"
+					]
+				},
+				"description": "Get current clock-in status for the user"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Get Today's Sessions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/clock-in-out/today/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"clock-in-out",
+						"today",
+						"{{userId}}"
+					]
+				},
+				"description": "Get today's clock-in/out sessions"
+			},
+			"response": []
+		},
+		{
+			"name": "4. Clock In",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": {{userId}},\n  \"clientTime\": \"{{$timestamp}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/clock-in-out/clock-in",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"clock-in-out",
+						"clock-in"
+					]
+				},
+				"description": "Clock in - should create new daily record or resume existing one"
+			},
+			"response": []
+		},
+		{
+			"name": "5. Clock Out",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": {{userId}},\n  \"clientTime\": \"{{$timestamp}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/clock-in-out/clock-out",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"clock-in-out",
+						"clock-out"
+					]
+				},
+				"description": "Clock out - should end current session and calculate duration"
+			},
+			"response": []
+		},
+		{
+			"name": "6. Get Clock History",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/clock-in-out/history/{{userId}}?startDate={{startDate}}&endDate={{endDate}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"clock-in-out",
+						"history",
+						"{{userId}}"
+					],
+					"query": [
+						{
+							"key": "startDate",
+							"value": "{{startDate}}"
+						},
+						{
+							"key": "endDate",
+							"value": "{{endDate}}"
+						}
+					]
+				},
+				"description": "Get clock-in/out history with optional date range"
+			},
+			"response": []
+		},
+		{
+			"name": "Test Scenarios",
+			"item": [
+				{
+					"name": "Scenario 1: Single Clock-In/Out",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/test-scenario-1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"test-scenario-1"
+							]
+						},
+						"description": "Test Steps:\n1. Login\n2. Clock In\n3. Wait 30 seconds\n4. Clock Out\n5. Check status and today's sessions\n\nExpected: One record with status 2 and calculated duration"
+					},
+					"response": []
+				},
+				{
+					"name": "Scenario 2: Multiple Clock-Ins (Same Day)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/test-scenario-2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"test-scenario-2"
+							]
+						},
+						"description": "Test Steps:\n1. Login\n2. Clock In\n3. Wait 30 seconds\n4. Clock Out\n5. Wait 30 seconds\n6. Clock In Again\n7. Wait 30 seconds\n8. Clock Out\n9. Check final status\n\nExpected: Same record ID throughout, total duration accumulated"
+					},
+					"response": []
+				},
+				{
+					"name": "Scenario 3: Resume Session",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/test-scenario-3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"test-scenario-3"
+							]
+						},
+						"description": "Test Steps:\n1. Login\n2. Clock In\n3. Check status (should be active)\n4. Clock In Again (should resume)\n5. Check status (should still be active)\n6. Clock Out\n\nExpected: Same record, status remains 1 until final clock-out"
+					},
+					"response": []
+				}
+			],
+			"description": "Predefined test scenarios to validate the single daily record approach"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-extract token and user ID from login response",
+					"if (pm.request.name === '1. Login') {",
+					"    // Clear previous values",
+					"    pm.environment.unset('authToken');",
+					"    pm.environment.unset('userId');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-extract token and user ID from login response",
+					"if (pm.request.name === '1. Login' && pm.response.code === 200) {",
+					"    const response = pm.response.json();",
+					"    if (response.access_token) {",
+					"        pm.environment.set('authToken', response.access_token);",
+					"        console.log('✅ Token extracted and saved');",
+					"    }",
+					"    if (response.user && response.user.id) {",
+					"        pm.environment.set('userId', response.user.id);",
+					"        console.log('✅ User ID extracted and saved:', response.user.id);",
+					"    }",
+					"}",
+					"",
+					"// Test response validation",
+					"pm.test('Status code is 200', function () {",
+					"    pm.response.to.have.status(200);",
+					"});",
+					"",
+					"pm.test('Response has JSON body', function () {",
+					"    pm.response.to.be.json;",
+					"});",
+					"",
+					"// Specific tests for clock-in/out endpoints",
+					"if (pm.request.name === '4. Clock In') {",
+					"    pm.test('Clock-in successful', function () {",
+					"        const response = pm.response.json();",
+					"        pm.expect(response.success).to.be.true;",
+					"        pm.expect(response.message).to.include('session');",
+					"    });",
+					"}",
+					"",
+					"if (pm.request.name === '5. Clock Out') {",
+					"    pm.test('Clock-out successful', function () {",
+					"        const response = pm.response.json();",
+					"        pm.expect(response.success).to.be.true;",
+					"        pm.expect(response.message).to.include('ended');",
+					"        pm.expect(response.duration).to.be.a('number');",
+					"    });",
+					"}",
+					"",
+					"if (pm.request.name === '2. Get Current Status') {",
+					"    pm.test('Status response valid', function () {",
+					"        const response = pm.response.json();",
+					"        pm.expect(response).to.have.property('isClockedIn');",
+					"        pm.expect(response).to.have.property('currentSession');",
+					"    });",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "startDate",
+			"value": "2025-01-01",
+			"type": "string"
+		},
+		{
+			"key": "endDate",
+			"value": "2025-12-31",
+			"type": "string"
+		}
+	]
+}

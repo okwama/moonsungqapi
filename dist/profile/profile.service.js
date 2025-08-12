@@ -19,17 +19,20 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const sales_rep_entity_1 = require("../entities/sales-rep.entity");
 const cloudinary_service_1 = require("../cloudinary/cloudinary.service");
+const clock_in_out_service_1 = require("../clock-in-out/clock-in-out.service");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
 let ProfileService = ProfileService_1 = class ProfileService {
-    constructor(userRepository, cloudinaryService) {
+    constructor(userRepository, cloudinaryService, clockInOutService) {
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;
+        this.clockInOutService = clockInOutService;
         this.logger = new common_1.Logger(ProfileService_1.name);
     }
     async findById(id) {
         return this.userRepository.findOne({
             where: { id, status: 1 },
+            relations: ['role'],
         });
     }
     async updatePassword(userId, currentPassword, newPassword, confirmPassword) {
@@ -143,12 +146,89 @@ let ProfileService = ProfileService_1 = class ProfileService {
             throw error;
         }
     }
+    async getSessionHistory(userId, startDate, endDate, period) {
+        this.logger.log(`📊 Getting session history for user ${userId}`);
+        try {
+            const sessions = await this.clockInOutService.getClockSessionsWithProcedure(userId, startDate, endDate);
+            const sessionList = Array.isArray(sessions) ? sessions : sessions?.sessions || [];
+            this.logger.log(`✅ Retrieved ${sessionList.length} sessions for user ${userId}`);
+            return sessionList;
+        }
+        catch (error) {
+            this.logger.error(`❌ Error getting session history for user ${userId}:`, error);
+            throw error;
+        }
+    }
+    async getUserStats(userId, startDate, endDate, month) {
+        this.logger.log(`📈 Getting user stats for user ${userId}`);
+        try {
+            const loginHoursData = await this.getLoginHoursData(userId, startDate, endDate, month);
+            const journeyPlanData = await this.getJourneyPlanData(userId, startDate, endDate, month);
+            const targetsData = await this.getTargetsData(userId, startDate, endDate, month);
+            const stats = {
+                loginHours: loginHoursData,
+                journeyPlans: journeyPlanData,
+                targets: targetsData,
+                summary: {
+                    totalLoginHours: loginHoursData.totalHours || 0,
+                    totalJourneyPlans: journeyPlanData.totalPlans || 0,
+                    completedTargets: targetsData.completed || 0,
+                    totalTargets: targetsData.total || 0,
+                }
+            };
+            this.logger.log(`✅ Retrieved user stats for user ${userId}`);
+            return stats;
+        }
+        catch (error) {
+            this.logger.error(`❌ Error getting user stats for user ${userId}:`, error);
+            throw error;
+        }
+    }
+    async deleteAccount(userId) {
+        this.logger.log(`🗑️ Deleting account for user ${userId}`);
+        try {
+            await this.userRepository.update(userId, {
+                status: 0,
+            });
+            this.logger.log(`✅ Account deleted for user ${userId}`);
+            return {
+                success: true,
+                message: 'Account deleted successfully',
+            };
+        }
+        catch (error) {
+            this.logger.error(`❌ Error deleting account for user ${userId}:`, error);
+            throw error;
+        }
+    }
+    async getLoginHoursData(userId, startDate, endDate, month) {
+        return {
+            totalHours: 0,
+            averageHoursPerDay: 0,
+            dailyData: [],
+        };
+    }
+    async getJourneyPlanData(userId, startDate, endDate, month) {
+        return {
+            totalPlans: 0,
+            completedPlans: 0,
+            dailyData: [],
+        };
+    }
+    async getTargetsData(userId, startDate, endDate, month) {
+        return {
+            total: 0,
+            completed: 0,
+            dailyData: [],
+        };
+    }
 };
 exports.ProfileService = ProfileService;
 exports.ProfileService = ProfileService = ProfileService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(sales_rep_entity_1.SalesRep)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        cloudinary_service_1.CloudinaryService])
+        cloudinary_service_1.CloudinaryService,
+        clock_in_out_service_1.ClockInOutService])
 ], ProfileService);
 //# sourceMappingURL=profile.service.js.map

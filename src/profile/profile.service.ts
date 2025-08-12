@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SalesRep } from '../entities/sales-rep.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { ClockInOutService } from '../clock-in-out/clock-in-out.service';
 import * as bcrypt from 'bcryptjs';
 import * as fs from 'fs';
 
@@ -14,11 +15,13 @@ export class ProfileService {
     @InjectRepository(SalesRep)
     private userRepository: Repository<SalesRep>,
     private cloudinaryService: CloudinaryService,
+    private clockInOutService: ClockInOutService,
   ) {}
 
   async findById(id: number): Promise<SalesRep | null> {
     return this.userRepository.findOne({
       where: { id, status: 1 },
+      relations: ['role'], // Include role relation to get role name
     });
   }
 
@@ -183,5 +186,118 @@ export class ProfileService {
       this.logger.error(`❌ Error updating profile photo for user ${userId}:`, error);
       throw error;
     }
+  }
+
+  async getSessionHistory(
+    userId: number,
+    startDate?: string,
+    endDate?: string,
+    period?: string,
+  ): Promise<any[]> {
+    this.logger.log(`📊 Getting session history for user ${userId}`);
+    
+    try {
+      // Use the existing clock-in-out service to get session history
+      const sessions = await this.clockInOutService.getClockSessionsWithProcedure(
+        userId,
+        startDate,
+        endDate,
+      );
+      
+      // Handle the response structure properly
+      const sessionList = Array.isArray(sessions) ? sessions : sessions?.sessions || [];
+      this.logger.log(`✅ Retrieved ${sessionList.length} sessions for user ${userId}`);
+      return sessionList;
+    } catch (error) {
+      this.logger.error(`❌ Error getting session history for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  async getUserStats(
+    userId: number,
+    startDate?: string,
+    endDate?: string,
+    month?: string,
+  ): Promise<any> {
+    this.logger.log(`📈 Getting user stats for user ${userId}`);
+    
+    try {
+      // Get login hours data
+      const loginHoursData = await this.getLoginHoursData(userId, startDate, endDate, month);
+      
+      // Get journey plan data
+      const journeyPlanData = await this.getJourneyPlanData(userId, startDate, endDate, month);
+      
+      // Get targets data
+      const targetsData = await this.getTargetsData(userId, startDate, endDate, month);
+      
+      const stats = {
+        loginHours: loginHoursData,
+        journeyPlans: journeyPlanData,
+        targets: targetsData,
+        summary: {
+          totalLoginHours: loginHoursData.totalHours || 0,
+          totalJourneyPlans: journeyPlanData.totalPlans || 0,
+          completedTargets: targetsData.completed || 0,
+          totalTargets: targetsData.total || 0,
+        }
+      };
+      
+      this.logger.log(`✅ Retrieved user stats for user ${userId}`);
+      return stats;
+    } catch (error) {
+      this.logger.error(`❌ Error getting user stats for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  async deleteAccount(userId: number): Promise<{ success: boolean; message: string }> {
+    this.logger.log(`🗑️ Deleting account for user ${userId}`);
+    
+    try {
+      // Soft delete by setting status to 0
+      await this.userRepository.update(userId, {
+        status: 0,
+        // You might want to add additional fields like deletedAt
+      });
+      
+      this.logger.log(`✅ Account deleted for user ${userId}`);
+      return {
+        success: true,
+        message: 'Account deleted successfully',
+      };
+    } catch (error) {
+      this.logger.error(`❌ Error deleting account for user ${userId}:`, error);
+      throw error;
+    }
+  }
+
+  private async getLoginHoursData(userId: number, startDate?: string, endDate?: string, month?: string): Promise<any> {
+    // This would integrate with your existing analytics service
+    // For now, returning mock data structure
+    return {
+      totalHours: 0,
+      averageHoursPerDay: 0,
+      dailyData: [],
+    };
+  }
+
+  private async getJourneyPlanData(userId: number, startDate?: string, endDate?: string, month?: string): Promise<any> {
+    // This would integrate with your existing journey plans service
+    return {
+      totalPlans: 0,
+      completedPlans: 0,
+      dailyData: [],
+    };
+  }
+
+  private async getTargetsData(userId: number, startDate?: string, endDate?: string, month?: string): Promise<any> {
+    // This would integrate with your existing targets service
+    return {
+      total: 0,
+      completed: 0,
+      dailyData: [],
+    };
   }
 } 

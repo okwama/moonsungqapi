@@ -25,6 +25,15 @@ export class ProductsService {
       try {
         console.log(`🔍 Fetching all active products with inventory and price options... (attempt ${attempt}/${maxRetries})`);
         
+        // First, let's check if there are any products at all
+        const totalProducts = await this.productRepository.count();
+        console.log(`📊 Total products in database: ${totalProducts}`);
+        
+        const activeProducts = await this.productRepository.count({
+          where: { isActive: true }
+        });
+        console.log(`📊 Active products in database: ${activeProducts}`);
+        
         // Get products with their store inventory data and category price options
         const products = await this.productRepository
           .createQueryBuilder('product')

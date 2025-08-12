@@ -1,6 +1,10 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SalesRep } from '../entities/sales-rep.entity';
 import { UsersService } from '../users/users.service';
+import { RolesService } from '../roles/roles.service';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -8,14 +12,22 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
+    @InjectRepository(SalesRep)
+    private userRepository: Repository<SalesRep>,
     private usersService: UsersService,
+    private rolesService: RolesService,
     private jwtService: JwtService,
   ) {}
 
   async validateUser(phoneNumber: string, password: string): Promise<any> {
     this.logger.log(`🔍 Validating user with phone: ${phoneNumber}`);
     
-    const user = await this.usersService.findByPhoneNumber(phoneNumber);
+    // First, find user without status filter to check if they exist
+    const user = await this.userRepository.findOne({
+      where: { phoneNumber },
+      relations: ['role']
+    });
+    
     if (!user) {
       this.logger.warn(`❌ User not found for phone: ${phoneNumber}`);
       return null;
@@ -25,7 +37,7 @@ export class AuthService {
     
     if (user.status !== 1) {
       this.logger.warn(`❌ User ${user.name} is inactive (status: ${user.status})`);
-      return null;
+      throw new UnauthorizedException('Account is inactive. Please contact admin to activate your account.');
     }
     
     const isValidPassword = await user.validatePassword(password);
@@ -47,7 +59,8 @@ export class AuthService {
     const payload = { 
       phoneNumber: user.phoneNumber, 
       sub: user.id,
-      role: user.role,
+      role: user.role?.name || 'USER',
+      roleId: user.roleId,
       countryId: user.countryId,
       regionId: user.region_id,
       routeId: user.route_id
@@ -73,7 +86,8 @@ export class AuthService {
         name: user.name,
         email: user.email,
         phone: user.phoneNumber,
-        role: user.role,
+        role: user.role?.name || 'USER',
+        roleId: user.roleId,
         countryId: user.countryId,
         regionId: user.region_id,
         routeId: user.route_id,

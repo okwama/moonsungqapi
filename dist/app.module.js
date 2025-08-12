@@ -35,6 +35,12 @@ const reports_module_1 = require("./reports/reports.module");
 const routes_module_1 = require("./routes/routes.module");
 const version_module_1 = require("./version/version.module");
 const payments_module_1 = require("./payments/payments.module");
+const outlet_quantity_module_1 = require("./outlet-quantity/outlet-quantity.module");
+const cloudinary_module_1 = require("./cloudinary/cloudinary.module");
+const client_assignment_module_1 = require("./client-assignment/client-assignment.module");
+const client_stock_module_1 = require("./client-stock/client-stock.module");
+const notice_board_module_1 = require("./notice-board/notice-board.module");
+const roles_module_1 = require("./roles/roles.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -80,6 +86,12 @@ exports.AppModule = AppModule = __decorate([
             routes_module_1.RoutesModule,
             version_module_1.VersionModule,
             payments_module_1.PaymentsModule,
+            outlet_quantity_module_1.OutletQuantityModule,
+            cloudinary_module_1.CloudinaryModule,
+            client_assignment_module_1.ClientAssignmentModule,
+            client_stock_module_1.ClientStockModule,
+            notice_board_module_1.NoticeBoardModule,
+            roles_module_1.RolesModule,
         ],
         providers: [database_health_service_1.DatabaseHealthService],
     })

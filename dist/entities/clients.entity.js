@@ -102,10 +102,19 @@ __decorate([
     __metadata("design:type", Number)
 ], Clients.prototype, "added_by", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], Clients.prototype, "salesRepId", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => sales_rep_entity_1.SalesRep, { nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: 'added_by' }),
     __metadata("design:type", sales_rep_entity_1.SalesRep)
 ], Clients.prototype, "addedByUser", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => sales_rep_entity_1.SalesRep, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'salesRepId' }),
+    __metadata("design:type", sales_rep_entity_1.SalesRep)
+], Clients.prototype, "salesRep", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', nullable: true, default: () => 'CURRENT_TIMESTAMP' }),
     __metadata("design:type", Date)
@@ -121,6 +130,7 @@ __decorate([
 exports.Clients = Clients = __decorate([
     (0, typeorm_1.Entity)('Clients'),
     (0, typeorm_1.Index)('Clients_countryId_fkey', ['countryId']),
-    (0, typeorm_1.Index)('idx_country_status_route', ['countryId', 'status', 'route_id'])
+    (0, typeorm_1.Index)('idx_country_status_route', ['countryId', 'status', 'route_id']),
+    (0, typeorm_1.Index)('idx_salesRepId', ['salesRepId'])
 ], Clients);
 //# sourceMappingURL=clients.entity.js.map

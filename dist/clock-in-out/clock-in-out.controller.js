@@ -26,11 +26,11 @@ let ClockInOutController = class ClockInOutController {
     async clockOut(clockOutDto) {
         return await this.clockInOutService.clockOut(clockOutDto);
     }
-    async getCurrentStatus(userId) {
-        return await this.clockInOutService.getCurrentStatus(parseInt(userId));
+    async getCurrentStatus(userId, clientTime) {
+        return await this.clockInOutService.getCurrentStatus(parseInt(userId), clientTime);
     }
-    async getTodaySessions(userId) {
-        return await this.clockInOutService.getTodaySessions(parseInt(userId));
+    async getTodaySessions(userId, clientTime) {
+        return await this.clockInOutService.getTodaySessions(parseInt(userId), clientTime);
     }
     async getClockHistory(userId, startDate, endDate) {
         return await this.clockInOutService.getClockSessionsWithProcedure(parseInt(userId), startDate, endDate);
@@ -56,15 +56,17 @@ __decorate([
 __decorate([
     (0, common_1.Get)('status/:userId'),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Query)('clientTime')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], ClockInOutController.prototype, "getCurrentStatus", null);
 __decorate([
     (0, common_1.Get)('today/:userId'),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Query)('clientTime')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], ClockInOutController.prototype, "getTodaySessions", null);
 __decorate([

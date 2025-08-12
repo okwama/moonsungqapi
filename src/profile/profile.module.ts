@@ -3,12 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { ClockInOutModule } from '../clock-in-out/clock-in-out.module';
 import { SalesRep } from '../entities/sales-rep.entity';
 import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SalesRep]),
+    ClockInOutModule,
     MulterModule.register({
       storage: require('multer').memoryStorage(),
       limits: {

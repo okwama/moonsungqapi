@@ -32,6 +32,12 @@ let ProductsService = class ProductsService {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 console.log(`🔍 Fetching all active products with inventory and price options... (attempt ${attempt}/${maxRetries})`);
+                const totalProducts = await this.productRepository.count();
+                console.log(`📊 Total products in database: ${totalProducts}`);
+                const activeProducts = await this.productRepository.count({
+                    where: { isActive: true }
+                });
+                console.log(`📊 Active products in database: ${activeProducts}`);
                 const products = await this.productRepository
                     .createQueryBuilder('product')
                     .leftJoinAndSelect('product.storeInventory', 'storeInventory')

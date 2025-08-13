@@ -12,9 +12,14 @@ export class ClientStockController {
 
   @Get('status')
   async getFeatureStatus() {
+    // Check environment variable for feature flag
+    const isEnabled = process.env.CLIENT_STOCK_ENABLED !== 'false';
+    
     return {
-      enabled: true,
-      message: 'Client stock feature is enabled'
+      enabled: isEnabled,
+      message: isEnabled 
+        ? 'Client stock feature is enabled' 
+        : 'Client stock feature is disabled'
     };
   }
 

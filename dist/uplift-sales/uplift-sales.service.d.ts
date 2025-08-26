@@ -10,7 +10,7 @@ export declare class UpliftSalesService {
     private dataSource;
     private outletQuantityTransactionsService;
     constructor(upliftSaleRepository: Repository<UpliftSale>, upliftSaleItemRepository: Repository<UpliftSaleItem>, clientStockRepository: Repository<ClientStock>, dataSource: DataSource, outletQuantityTransactionsService: OutletQuantityTransactionsService);
-    findAll(query: any): Promise<UpliftSale[]>;
+    findAll(query: any, requestUser?: any): Promise<UpliftSale[]>;
     findOne(id: number): Promise<UpliftSale>;
     validateStock(clientId: number, items: any[]): Promise<{
         isValid: boolean;

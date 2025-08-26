@@ -28,23 +28,35 @@ let UpliftSalesService = class UpliftSalesService {
         this.dataSource = dataSource;
         this.outletQuantityTransactionsService = outletQuantityTransactionsService;
     }
-    async findAll(query) {
+    async findAll(query, requestUser) {
         try {
             console.log('🔍 Uplift Sales Query Parameters:', query);
-            if (!query.salesrepId && !query.userId) {
-                throw new Error('salesrepId parameter is required');
+            console.log('👤 Request User:', requestUser);
+            let userId;
+            if (query.userId) {
+                userId = parseInt(query.userId);
+                if (isNaN(userId)) {
+                    throw new Error('Invalid userId: must be a valid number');
+                }
+            }
+            else if (requestUser && requestUser.id) {
+                userId = parseInt(requestUser.id);
+                if (isNaN(userId)) {
+                    throw new Error('Invalid user ID in token');
+                }
+                console.log('👤 Using userId from JWT token:', userId);
+            }
+            else {
+                console.log('❌ No userId in query and no user in request:', { query, requestUser });
+                throw new Error('userId parameter is required or user must be authenticated');
             }
             const queryBuilder = this.upliftSaleRepository.createQueryBuilder('upliftSale')
                 .leftJoinAndSelect('upliftSale.client', 'client')
                 .leftJoinAndSelect('upliftSale.user', 'user')
                 .leftJoinAndSelect('upliftSale.upliftSaleItems', 'items')
                 .leftJoinAndSelect('items.product', 'product');
-            const salesrepId = parseInt(query.salesrepId || query.userId);
-            console.log('👤 Filtering by salesrepId/userId:', salesrepId, 'Type:', typeof salesrepId);
-            if (isNaN(salesrepId)) {
-                throw new Error('Invalid salesrepId: must be a valid number');
-            }
-            queryBuilder.where('upliftSale.userId = :salesrepId', { salesrepId });
+            console.log('👤 Filtering by userId:', userId, 'Type:', typeof userId);
+            queryBuilder.where('upliftSale.userId = :userId', { userId });
             if (query.status) {
                 queryBuilder.andWhere('upliftSale.status = :status', { status: query.status });
             }
@@ -58,7 +70,7 @@ let UpliftSalesService = class UpliftSalesService {
             console.log('🔍 Generated SQL Query:', sql);
             console.log('🔍 Query Parameters:', queryBuilder.getParameters());
             const result = await queryBuilder.orderBy('upliftSale.createdAt', 'DESC').getMany();
-            console.log(`📊 Found ${result.length} uplift sales for salesrepId: ${salesrepId}`);
+            console.log(`📊 Found ${result.length} uplift sales for userId: ${userId}`);
             if (result.length > 0) {
                 console.log('📋 First 3 results userId values:', result.slice(0, 3).map(sale => sale.userId));
             }

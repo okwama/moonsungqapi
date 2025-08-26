@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpliftSalesService } from './uplift-sales.service';
 
@@ -8,15 +8,13 @@ export class UpliftSalesController {
   constructor(private readonly upliftSalesService: UpliftSalesService) {}
 
   @Get()
-  async findAll(@Query() query: any) {
-    // REQUIRED query parameter:
-    // - userId: filter by user/sales representative ID (REQUIRED)
-    // 
+  async findAll(@Query() query: any, @Request() req: any) {
     // Optional query parameters:
+    // - userId: filter by specific user ID (if not provided, uses authenticated user)
     // - status: filter by status (0=voided, 1=active)
     // - startDate: filter by creation date (from)
     // - endDate: filter by creation date (to)
-    return this.upliftSalesService.findAll(query);
+    return this.upliftSalesService.findAll(query, req.user);
   }
 
   @Get(':id')

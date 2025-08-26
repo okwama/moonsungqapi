@@ -19,13 +19,30 @@ export class UpliftSalesService {
     private outletQuantityTransactionsService: OutletQuantityTransactionsService,
   ) {}
 
-  async findAll(query: any) {
+  async findAll(query: any, requestUser?: any) {
     try {
       console.log('🔍 Uplift Sales Query Parameters:', query);
+      console.log('👤 Request User:', requestUser);
       
-      // Require userId parameter (Flutter app uses userId)
-      if (!query.userId) {
-        throw new Error('userId parameter is required');
+      // Get userId from query parameter or from JWT token
+      let userId: number;
+      
+      if (query.userId) {
+        // If userId is provided in query, use it
+        userId = parseInt(query.userId);
+        if (isNaN(userId)) {
+          throw new Error('Invalid userId: must be a valid number');
+        }
+      } else if (requestUser && requestUser.id) {
+        // If no userId in query, get it from JWT token
+        userId = parseInt(requestUser.id);
+        if (isNaN(userId)) {
+          throw new Error('Invalid user ID in token');
+        }
+        console.log('👤 Using userId from JWT token:', userId);
+      } else {
+        console.log('❌ No userId in query and no user in request:', { query, requestUser });
+        throw new Error('userId parameter is required or user must be authenticated');
       }
 
       const queryBuilder = this.upliftSaleRepository.createQueryBuilder('upliftSale')
@@ -34,14 +51,7 @@ export class UpliftSalesService {
         .leftJoinAndSelect('upliftSale.upliftSaleItems', 'items')
         .leftJoinAndSelect('items.product', 'product');
 
-      // Primary filter by userId (Flutter app expectation)
-      const userId = parseInt(query.userId);
       console.log('👤 Filtering by userId:', userId, 'Type:', typeof userId);
-      
-      if (isNaN(userId)) {
-        throw new Error('Invalid userId: must be a valid number');
-      }
-      
       queryBuilder.where('upliftSale.userId = :userId', { userId });
 
       if (query.status) {

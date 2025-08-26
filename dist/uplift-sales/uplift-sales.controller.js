@@ -20,8 +20,8 @@ let UpliftSalesController = class UpliftSalesController {
     constructor(upliftSalesService) {
         this.upliftSalesService = upliftSalesService;
     }
-    async findAll(query) {
-        return this.upliftSalesService.findAll(query);
+    async findAll(query, req) {
+        return this.upliftSalesService.findAll(query, req.user);
     }
     async findOne(id) {
         return this.upliftSalesService.findOne(+id);
@@ -47,8 +47,9 @@ exports.UpliftSalesController = UpliftSalesController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UpliftSalesController.prototype, "findAll", null);
 __decorate([

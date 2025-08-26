@@ -12,3 +12,6 @@ import { OutletQuantityTransactionsService } from './outlet-quantity-transaction
 })
 export class OutletQuantityTransactionsModule {}
 
+
+
+

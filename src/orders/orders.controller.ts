@@ -25,11 +25,17 @@ export class OrdersController {
   async findAll(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
+    @Request() req
   ) {
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
     
-    const orders = await this.ordersService.findAll();
+    console.log(`🔍 GET /orders - User: ${userId}, Role: ${userRole}, Page: ${pageNum}, Limit: ${limitNum}`);
+    
+    // Get orders based on user role
+    const orders = await this.ordersService.findAll(userId, userRole);
     
     // Calculate pagination
     const total = orders.length;
@@ -37,6 +43,8 @@ export class OrdersController {
     const startIndex = (pageNum - 1) * limitNum;
     const endIndex = startIndex + limitNum;
     const paginatedOrders = orders.slice(startIndex, endIndex);
+    
+    console.log(`📊 Orders: Found ${total} orders, returning ${paginatedOrders.length} for page ${pageNum}`);
     
     // Return in format expected by Flutter app
     return {
@@ -50,8 +58,21 @@ export class OrdersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const order = await this.ordersService.findOne(+id);
+  async findOne(@Param('id') id: string, @Request() req) {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    
+    console.log(`🔍 GET /orders/${id} - User: ${userId}, Role: ${userRole}`);
+    
+    const order = await this.ordersService.findOne(+id, userId, userRole);
+    
+    if (!order) {
+      console.log(`❌ Order ${id} not found or access denied for user ${userId}`);
+      return {
+        success: false,
+        error: 'Order not found or access denied'
+      };
+    }
     
     // Return in format expected by Flutter app
     return {

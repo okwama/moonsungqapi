@@ -157,17 +157,61 @@ export class OrdersService {
     return `SO-${currentYear}-${nextNumber.toString().padStart(4, '0')}`;
   }
 
-  async findAll(): Promise<Order[]> {
-    return this.orderRepository.find({
-      relations: ['user', 'client', 'orderItems', 'orderItems.product'],
-    });
+  async findAll(userId?: number, userRole?: string): Promise<Order[]> {
+    console.log(`🔍 OrdersService.findAll - User: ${userId}, Role: ${userRole}`);
+    
+    if (userRole === 'SALES_REP') {
+      // Sales reps can only see their own orders
+      console.log(`👤 User is SALES_REP - filtering orders for userId: ${userId}`);
+      
+      const orders = await this.orderRepository.find({
+        where: { salesrep: userId },
+        relations: ['user', 'client', 'orderItems', 'orderItems.product'],
+        order: { createdAt: 'DESC' }
+      });
+      
+      console.log(`✅ SALES_REP ${userId} has ${orders.length} orders`);
+      return orders;
+    } else {
+      // Admins and other roles can see all orders
+      console.log(`🔑 User has admin privileges - returning all orders`);
+      
+      const orders = await this.orderRepository.find({
+        relations: ['user', 'client', 'orderItems', 'orderItems.product'],
+        order: { createdAt: 'DESC' }
+      });
+      
+      console.log(`📊 Found ${orders.length} total orders`);
+      return orders;
+    }
   }
 
-  async findOne(id: number): Promise<Order | null> {
-    return this.orderRepository.findOne({
-      where: { id },
-      relations: ['user', 'client', 'orderItems', 'orderItems.product'],
-    });
+  async findOne(id: number, userId?: number, userRole?: string): Promise<Order | null> {
+    console.log(`🔍 OrdersService.findOne - Order: ${id}, User: ${userId}, Role: ${userRole}`);
+    
+    if (userRole === 'SALES_REP') {
+      // Sales reps can only access their own orders
+      const order = await this.orderRepository.findOne({
+        where: { id, salesrep: userId },
+        relations: ['user', 'client', 'orderItems', 'orderItems.product'],
+      });
+      
+      if (!order) {
+        console.log(`❌ SALES_REP ${userId} not authorized to access order ${id} or order not found`);
+        return null;
+      }
+      
+      console.log(`✅ SALES_REP ${userId} authorized to access order ${id}`);
+      return order;
+    } else {
+      // Admins and other roles can access any order
+      console.log(`🔑 User has admin privileges - accessing order ${id}`);
+      
+      return this.orderRepository.findOne({
+        where: { id },
+        relations: ['user', 'client', 'orderItems', 'orderItems.product'],
+      });
+    }
   }
 
   async update(id: number, updateOrderDto: Partial<CreateOrderDto>): Promise<Order | null> {

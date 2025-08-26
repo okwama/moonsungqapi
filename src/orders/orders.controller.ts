@@ -46,6 +46,14 @@ export class OrdersController {
     
     console.log(`📊 Orders: Found ${total} orders, returning ${paginatedOrders.length} for page ${pageNum}`);
     
+    // Debug: Log first few orders with timestamps
+    if (paginatedOrders.length > 0) {
+      console.log(`🕒 Order timestamps (sorted by createdAt DESC):`);
+      paginatedOrders.slice(0, 3).forEach((order, index) => {
+        console.log(`  ${index + 1}. Order ${order.id}: createdAt=${order.createdAt}, updatedAt=${order.updatedAt}`);
+      });
+    }
+    
     // Return in format expected by Flutter app
     return {
       success: true,

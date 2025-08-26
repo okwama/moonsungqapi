@@ -9,8 +9,8 @@ export declare class OrdersService {
     constructor(orderRepository: Repository<Order>, orderItemRepository: Repository<OrderItem>, dataSource: DataSource);
     create(createOrderDto: CreateOrderDto, salesrepId?: number): Promise<Order>;
     private generateSoNumber;
-    findAll(): Promise<Order[]>;
-    findOne(id: number): Promise<Order | null>;
+    findAll(userId?: number, userRole?: string): Promise<Order[]>;
+    findOne(id: number, userId?: number, userRole?: string): Promise<Order | null>;
     update(id: number, updateOrderDto: Partial<CreateOrderDto>): Promise<Order | null>;
     remove(id: number): Promise<void>;
 }

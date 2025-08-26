@@ -29,15 +29,19 @@ let OrdersController = class OrdersController {
             data: order
         };
     }
-    async findAll(page = '1', limit = '10') {
+    async findAll(page = '1', limit = '10', req) {
         const pageNum = parseInt(page, 10);
         const limitNum = parseInt(limit, 10);
-        const orders = await this.ordersService.findAll();
+        const userId = req.user?.id;
+        const userRole = req.user?.role;
+        console.log(`🔍 GET /orders - User: ${userId}, Role: ${userRole}, Page: ${pageNum}, Limit: ${limitNum}`);
+        const orders = await this.ordersService.findAll(userId, userRole);
         const total = orders.length;
         const totalPages = Math.ceil(total / limitNum);
         const startIndex = (pageNum - 1) * limitNum;
         const endIndex = startIndex + limitNum;
         const paginatedOrders = orders.slice(startIndex, endIndex);
+        console.log(`📊 Orders: Found ${total} orders, returning ${paginatedOrders.length} for page ${pageNum}`);
         return {
             success: true,
             data: paginatedOrders,
@@ -47,8 +51,18 @@ let OrdersController = class OrdersController {
             totalPages: totalPages,
         };
     }
-    async findOne(id) {
-        const order = await this.ordersService.findOne(+id);
+    async findOne(id, req) {
+        const userId = req.user?.id;
+        const userRole = req.user?.role;
+        console.log(`🔍 GET /orders/${id} - User: ${userId}, Role: ${userRole}`);
+        const order = await this.ordersService.findOne(+id, userId, userRole);
+        if (!order) {
+            console.log(`❌ Order ${id} not found or access denied for user ${userId}`);
+            return {
+                success: false,
+                error: 'Order not found or access denied'
+            };
+        }
         return {
             success: true,
             data: order
@@ -78,15 +92,17 @@ __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "findOne", null);
 __decorate([

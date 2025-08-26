@@ -24,9 +24,12 @@ let ClientStockController = ClientStockController_1 = class ClientStockControlle
         this.logger = new common_2.Logger(ClientStockController_1.name);
     }
     async getFeatureStatus() {
+        const isEnabled = process.env.CLIENT_STOCK_ENABLED !== 'false';
         return {
-            enabled: true,
-            message: 'Client stock feature is enabled'
+            enabled: isEnabled,
+            message: isEnabled
+                ? 'Client stock feature is enabled'
+                : 'Client stock feature is disabled'
         };
     }
     async getClientStock(clientId, req) {

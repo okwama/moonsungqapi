@@ -9,6 +9,14 @@ export class UpliftSalesController {
 
   @Get()
   async findAll(@Query() query: any) {
+    // REQUIRED query parameter:
+    // - salesrepId: filter by sales representative ID (REQUIRED)
+    // 
+    // Optional query parameters:
+    // - userId: alternative to salesrepId (for backward compatibility)
+    // - status: filter by status (0=voided, 1=active)
+    // - startDate: filter by creation date (from)
+    // - endDate: filter by creation date (to)
     return this.upliftSalesService.findAll(query);
   }
 

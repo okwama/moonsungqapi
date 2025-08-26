@@ -21,15 +21,20 @@ export class UpliftSalesService {
 
   async findAll(query: any) {
     try {
+      // Require salesrepId parameter
+      if (!query.salesrepId && !query.userId) {
+        throw new Error('salesrepId parameter is required');
+      }
+
       const queryBuilder = this.upliftSaleRepository.createQueryBuilder('upliftSale')
         .leftJoinAndSelect('upliftSale.client', 'client')
         .leftJoinAndSelect('upliftSale.user', 'user')
         .leftJoinAndSelect('upliftSale.upliftSaleItems', 'items')
         .leftJoinAndSelect('items.product', 'product');
 
-      if (query.userId) {
-        queryBuilder.where('upliftSale.userId = :userId', { userId: query.userId });
-      }
+      // Primary filter by salesrepId (or userId for backward compatibility)
+      const salesrepId = query.salesrepId || query.userId;
+      queryBuilder.where('upliftSale.userId = :salesrepId', { salesrepId });
 
       if (query.status) {
         queryBuilder.andWhere('upliftSale.status = :status', { status: query.status });
@@ -46,7 +51,7 @@ export class UpliftSalesService {
       return queryBuilder.orderBy('upliftSale.createdAt', 'DESC').getMany();
     } catch (error) {
       console.error('Error fetching uplift sales:', error);
-      throw new Error('Failed to fetch uplift sales');
+      throw new Error(`Failed to fetch uplift sales: ${error.message}`);
     }
   }
 

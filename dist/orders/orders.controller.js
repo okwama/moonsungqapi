@@ -42,6 +42,12 @@ let OrdersController = class OrdersController {
         const endIndex = startIndex + limitNum;
         const paginatedOrders = orders.slice(startIndex, endIndex);
         console.log(`📊 Orders: Found ${total} orders, returning ${paginatedOrders.length} for page ${pageNum}`);
+        if (paginatedOrders.length > 0) {
+            console.log(`🕒 Order timestamps (sorted by createdAt DESC):`);
+            paginatedOrders.slice(0, 3).forEach((order, index) => {
+                console.log(`  ${index + 1}. Order ${order.id}: createdAt=${order.createdAt}, updatedAt=${order.updatedAt}`);
+            });
+        }
         return {
             success: true,
             data: paginatedOrders,

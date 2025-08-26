@@ -30,14 +30,21 @@ let UpliftSalesService = class UpliftSalesService {
     }
     async findAll(query) {
         try {
+            console.log('🔍 Uplift Sales Query Parameters:', query);
+            if (!query.salesrepId && !query.userId) {
+                throw new Error('salesrepId parameter is required');
+            }
             const queryBuilder = this.upliftSaleRepository.createQueryBuilder('upliftSale')
                 .leftJoinAndSelect('upliftSale.client', 'client')
                 .leftJoinAndSelect('upliftSale.user', 'user')
                 .leftJoinAndSelect('upliftSale.upliftSaleItems', 'items')
                 .leftJoinAndSelect('items.product', 'product');
-            if (query.userId) {
-                queryBuilder.where('upliftSale.userId = :userId', { userId: query.userId });
+            const salesrepId = parseInt(query.salesrepId || query.userId);
+            console.log('👤 Filtering by salesrepId/userId:', salesrepId, 'Type:', typeof salesrepId);
+            if (isNaN(salesrepId)) {
+                throw new Error('Invalid salesrepId: must be a valid number');
             }
+            queryBuilder.where('upliftSale.userId = :salesrepId', { salesrepId });
             if (query.status) {
                 queryBuilder.andWhere('upliftSale.status = :status', { status: query.status });
             }
@@ -47,11 +54,19 @@ let UpliftSalesService = class UpliftSalesService {
             if (query.endDate) {
                 queryBuilder.andWhere('upliftSale.createdAt <= :endDate', { endDate: query.endDate });
             }
-            return queryBuilder.orderBy('upliftSale.createdAt', 'DESC').getMany();
+            const sql = queryBuilder.getSql();
+            console.log('🔍 Generated SQL Query:', sql);
+            console.log('🔍 Query Parameters:', queryBuilder.getParameters());
+            const result = await queryBuilder.orderBy('upliftSale.createdAt', 'DESC').getMany();
+            console.log(`📊 Found ${result.length} uplift sales for salesrepId: ${salesrepId}`);
+            if (result.length > 0) {
+                console.log('📋 First 3 results userId values:', result.slice(0, 3).map(sale => sale.userId));
+            }
+            return result;
         }
         catch (error) {
             console.error('Error fetching uplift sales:', error);
-            throw new Error('Failed to fetch uplift sales');
+            throw new Error(`Failed to fetch uplift sales: ${error.message}`);
         }
     }
     async findOne(id) {

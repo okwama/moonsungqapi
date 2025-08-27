@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ClientStock = exports.Store = exports.StoreInventory = exports.Route = exports.LeaveType = exports.Version = exports.Upload = exports.ClientAssignment = exports.ClientPayment = exports.OutletQuantity = exports.SalesClientPayment = exports.Target = exports.Task = exports.LeaveRequest = exports.Leave = exports.UpliftSaleItem = exports.UpliftSale = exports.VisibilityReport = exports.ProductReport = exports.FeedbackReport = exports.JourneyPlan = exports.CategoryPriceOption = exports.Category = exports.Product = exports.Clients = exports.LoginHistory = exports.SalesRep = void 0;
+exports.Token = exports.ClientStock = exports.Store = exports.StoreInventory = exports.Route = exports.LeaveType = exports.Version = exports.Upload = exports.ClientAssignment = exports.ClientPayment = exports.OutletQuantity = exports.SalesClientPayment = exports.Target = exports.Task = exports.LeaveRequest = exports.Leave = exports.UpliftSaleItem = exports.UpliftSale = exports.VisibilityReport = exports.ProductReport = exports.FeedbackReport = exports.JourneyPlan = exports.CategoryPriceOption = exports.Category = exports.Product = exports.Clients = exports.LoginHistory = exports.SalesRep = void 0;
 var sales_rep_entity_1 = require("./sales-rep.entity");
 Object.defineProperty(exports, "SalesRep", { enumerable: true, get: function () { return sales_rep_entity_1.SalesRep; } });
 var login_history_entity_1 = require("./login-history.entity");
@@ -55,4 +55,6 @@ var store_entity_1 = require("./store.entity");
 Object.defineProperty(exports, "Store", { enumerable: true, get: function () { return store_entity_1.Store; } });
 var client_stock_entity_1 = require("./client-stock.entity");
 Object.defineProperty(exports, "ClientStock", { enumerable: true, get: function () { return client_stock_entity_1.ClientStock; } });
+var token_entity_1 = require("./token.entity");
+Object.defineProperty(exports, "Token", { enumerable: true, get: function () { return token_entity_1.Token; } });
 //# sourceMappingURL=index.js.map

@@ -17,6 +17,7 @@ const auth_service_1 = require("./auth.service");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
 const local_strategy_1 = require("./strategies/local.strategy");
 const sales_rep_entity_1 = require("../entities/sales-rep.entity");
+const token_entity_1 = require("../entities/token.entity");
 const users_module_1 = require("../users/users.module");
 const roles_module_1 = require("../roles/roles.module");
 let AuthModule = class AuthModule {
@@ -27,7 +28,7 @@ exports.AuthModule = AuthModule = __decorate([
         imports: [
             users_module_1.UsersModule,
             roles_module_1.RolesModule,
-            typeorm_1.TypeOrmModule.forFeature([sales_rep_entity_1.SalesRep]),
+            typeorm_1.TypeOrmModule.forFeature([sales_rep_entity_1.SalesRep, token_entity_1.Token]),
             passport_1.PassportModule,
             jwt_1.JwtModule.registerAsync({
                 imports: [config_1.ConfigModule],

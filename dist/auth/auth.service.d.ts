@@ -1,15 +1,17 @@
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { SalesRep } from '../entities/sales-rep.entity';
+import { Token } from '../entities/token.entity';
 import { UsersService } from '../users/users.service';
 import { RolesService } from '../roles/roles.service';
 export declare class AuthService {
     private userRepository;
+    private tokenRepository;
     private usersService;
     private rolesService;
     private jwtService;
     private readonly logger;
-    constructor(userRepository: Repository<SalesRep>, usersService: UsersService, rolesService: RolesService, jwtService: JwtService);
+    constructor(userRepository: Repository<SalesRep>, tokenRepository: Repository<Token>, usersService: UsersService, rolesService: RolesService, jwtService: JwtService);
     validateUser(phoneNumber: string, password: string): Promise<any>;
     login(user: any): Promise<{
         success: boolean;
@@ -31,5 +33,29 @@ export declare class AuthService {
             photoUrl: any;
         };
     }>;
+    refreshToken(refreshToken: string): Promise<{
+        success: boolean;
+        accessToken: string;
+        expiresIn: number;
+        user: {
+            id: number;
+            name: string;
+            email: string;
+            phone: string;
+            role: string;
+            roleId: number;
+            countryId: number;
+            regionId: number;
+            routeId: number;
+            status: number;
+            photoUrl: string;
+        };
+    }>;
+    logout(userId: number): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    private storeTokens;
+    private storeAccessToken;
     validateToken(token: string): Promise<any>;
 }

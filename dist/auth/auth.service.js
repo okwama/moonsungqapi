@@ -19,11 +19,13 @@ const jwt_1 = require("@nestjs/jwt");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const sales_rep_entity_1 = require("../entities/sales-rep.entity");
+const token_entity_1 = require("../entities/token.entity");
 const users_service_1 = require("../users/users.service");
 const roles_service_1 = require("../roles/roles.service");
 let AuthService = AuthService_1 = class AuthService {
-    constructor(userRepository, usersService, rolesService, jwtService) {
+    constructor(userRepository, tokenRepository, usersService, rolesService, jwtService) {
         this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
         this.usersService = usersService;
         this.rolesService = rolesService;
         this.jwtService = jwtService;
@@ -70,6 +72,7 @@ let AuthService = AuthService_1 = class AuthService {
         this.logger.log(`🎫 JWT token generated successfully for user: ${user.name}`);
         const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
         this.logger.log(`🔄 Refresh token generated for user: ${user.name}`);
+        await this.storeTokens(user.id, token, refreshToken);
         const response = {
             success: true,
             message: 'Login successful',
@@ -93,11 +96,143 @@ let AuthService = AuthService_1 = class AuthService {
         this.logger.log(`📤 Login response prepared for user: ${user.name}`);
         return response;
     }
+    async refreshToken(refreshToken) {
+        this.logger.log('🔄 Processing token refresh request');
+        try {
+            const payload = this.jwtService.verify(refreshToken);
+            this.logger.log(`✅ Refresh token verified for user ID: ${payload.sub}`);
+            const tokenRecord = await this.tokenRepository.findOne({
+                where: {
+                    token: refreshToken,
+                    tokenType: 'refresh',
+                    blacklisted: false
+                }
+            });
+            if (!tokenRecord) {
+                this.logger.warn('❌ Refresh token not found in database or blacklisted');
+                throw new common_1.UnauthorizedException('Invalid refresh token');
+            }
+            if (new Date() > tokenRecord.expiresAt) {
+                this.logger.warn('❌ Refresh token has expired');
+                throw new common_1.UnauthorizedException('Refresh token expired');
+            }
+            const user = await this.usersService.findById(payload.sub);
+            if (!user || user.status !== 1) {
+                this.logger.warn(`❌ User not found or inactive for token user ID: ${payload.sub}`);
+                throw new common_1.UnauthorizedException('User not found or inactive');
+            }
+            const newPayload = {
+                phoneNumber: user.phoneNumber,
+                sub: user.id,
+                role: user.role?.name || 'USER',
+                roleId: user.roleId,
+                countryId: user.countryId,
+                regionId: user.region_id,
+                routeId: user.route_id
+            };
+            const newAccessToken = this.jwtService.sign(newPayload);
+            this.logger.log(`🎫 New access token generated for user: ${user.name}`);
+            await this.storeAccessToken(user.id, newAccessToken);
+            await this.tokenRepository.update({ id: tokenRecord.id }, { lastUsedAt: new Date() });
+            const response = {
+                success: true,
+                accessToken: newAccessToken,
+                expiresIn: 32400,
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phoneNumber,
+                    role: user.role?.name || 'USER',
+                    roleId: user.roleId,
+                    countryId: user.countryId,
+                    regionId: user.region_id,
+                    routeId: user.route_id,
+                    status: user.status,
+                    photoUrl: user.photoUrl
+                }
+            };
+            this.logger.log(`✅ Token refresh successful for user: ${user.name}`);
+            return response;
+        }
+        catch (error) {
+            this.logger.error('❌ Token refresh failed', error.stack);
+            throw new common_1.UnauthorizedException('Invalid refresh token');
+        }
+    }
+    async logout(userId) {
+        this.logger.log(`🚪 Processing logout for user ID: ${userId}`);
+        try {
+            await this.tokenRepository.update({ salesRepId: userId }, { blacklisted: true });
+            this.logger.log(`✅ All tokens blacklisted for user ID: ${userId}`);
+            return { success: true, message: 'Logged out successfully' };
+        }
+        catch (error) {
+            this.logger.error(`❌ Logout failed for user ID: ${userId}`, error.stack);
+            throw error;
+        }
+    }
+    async storeTokens(userId, accessToken, refreshToken) {
+        this.logger.log(`💾 Storing tokens for user ID: ${userId}`);
+        try {
+            const accessTokenRecord = new token_entity_1.Token();
+            accessTokenRecord.token = accessToken;
+            accessTokenRecord.salesRepId = userId;
+            accessTokenRecord.tokenType = 'access';
+            accessTokenRecord.expiresAt = new Date(Date.now() + 9 * 60 * 60 * 1000);
+            accessTokenRecord.blacklisted = false;
+            await this.tokenRepository.save(accessTokenRecord);
+            const refreshTokenRecord = new token_entity_1.Token();
+            refreshTokenRecord.token = refreshToken;
+            refreshTokenRecord.salesRepId = userId;
+            refreshTokenRecord.tokenType = 'refresh';
+            refreshTokenRecord.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            refreshTokenRecord.blacklisted = false;
+            await this.tokenRepository.save(refreshTokenRecord);
+            this.logger.log(`✅ Tokens stored successfully for user ID: ${userId}`);
+        }
+        catch (error) {
+            this.logger.error(`❌ Failed to store tokens for user ID: ${userId}`, error.stack);
+            throw error;
+        }
+    }
+    async storeAccessToken(userId, accessToken) {
+        this.logger.log(`💾 Storing new access token for user ID: ${userId}`);
+        try {
+            const accessTokenRecord = new token_entity_1.Token();
+            accessTokenRecord.token = accessToken;
+            accessTokenRecord.salesRepId = userId;
+            accessTokenRecord.tokenType = 'access';
+            accessTokenRecord.expiresAt = new Date(Date.now() + 9 * 60 * 60 * 1000);
+            accessTokenRecord.blacklisted = false;
+            await this.tokenRepository.save(accessTokenRecord);
+            this.logger.log(`✅ New access token stored successfully for user ID: ${userId}`);
+        }
+        catch (error) {
+            this.logger.error(`❌ Failed to store new access token for user ID: ${userId}`, error.stack);
+            throw error;
+        }
+    }
     async validateToken(token) {
         this.logger.log('🔍 Validating JWT token');
         try {
             const payload = this.jwtService.verify(token);
             this.logger.log(`✅ JWT token verified for user ID: ${payload.sub}`);
+            const tokenRecord = await this.tokenRepository.findOne({
+                where: {
+                    token: token,
+                    tokenType: 'access',
+                    blacklisted: false
+                }
+            });
+            if (!tokenRecord) {
+                this.logger.warn('❌ Token not found in database or blacklisted');
+                throw new common_1.UnauthorizedException('Invalid token');
+            }
+            if (new Date() > tokenRecord.expiresAt) {
+                this.logger.warn('❌ Token has expired');
+                throw new common_1.UnauthorizedException('Token expired');
+            }
             const user = await this.usersService.findById(payload.sub);
             if (!user || user.status !== 1) {
                 this.logger.warn(`❌ User not found or inactive for token user ID: ${payload.sub}`);
@@ -116,7 +251,9 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(sales_rep_entity_1.SalesRep)),
+    __param(1, (0, typeorm_1.InjectRepository)(token_entity_1.Token)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         users_service_1.UsersService,
         roles_service_1.RolesService,
         jwt_1.JwtService])

@@ -43,6 +43,7 @@ const client_stock_module_1 = require("./client-stock/client-stock.module");
 const notice_board_module_1 = require("./notice-board/notice-board.module");
 const roles_module_1 = require("./roles/roles.module");
 const sample_requests_module_1 = require("./sample-requests/sample-requests.module");
+const asset_requests_module_1 = require("./asset-requests/asset-requests.module");
 const outlet_quantity_transactions_module_1 = require("./outlet-quantity-transactions/outlet-quantity-transactions.module");
 const auto_clockout_module_1 = require("./auto-clockout/auto-clockout.module");
 let AppModule = class AppModule {
@@ -98,6 +99,7 @@ exports.AppModule = AppModule = __decorate([
             notice_board_module_1.NoticeBoardModule,
             roles_module_1.RolesModule,
             sample_requests_module_1.SampleRequestsModule,
+            asset_requests_module_1.AssetRequestsModule,
             outlet_quantity_transactions_module_1.OutletQuantityTransactionsModule,
             auto_clockout_module_1.AutoClockoutModule,
         ],

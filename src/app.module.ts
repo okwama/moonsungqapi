@@ -35,6 +35,7 @@ import { ClientStockModule } from './client-stock/client-stock.module';
 import { NoticeBoardModule } from './notice-board/notice-board.module';
 import { RolesModule } from './roles/roles.module';
 import { SampleRequestsModule } from './sample-requests/sample-requests.module';
+import { AssetRequestsModule } from './asset-requests/asset-requests.module';
 import { OutletQuantityTransactionsModule } from './outlet-quantity-transactions/outlet-quantity-transactions.module';
 import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
 
@@ -88,6 +89,7 @@ import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
     NoticeBoardModule,
     RolesModule,
     SampleRequestsModule,
+    AssetRequestsModule,
     OutletQuantityTransactionsModule,
     AutoClockoutModule,
   ],

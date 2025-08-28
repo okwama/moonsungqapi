@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ScheduleModule } from '@nestjs/schedule';
 import { getDatabaseConfig } from './config/database.config';
 import { DatabaseHealthService } from './config/database-health.service';
 
@@ -35,6 +36,7 @@ import { NoticeBoardModule } from './notice-board/notice-board.module';
 import { RolesModule } from './roles/roles.module';
 import { SampleRequestsModule } from './sample-requests/sample-requests.module';
 import { OutletQuantityTransactionsModule } from './outlet-quantity-transactions/outlet-quantity-transactions.module';
+import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
 
 
 @Module({
@@ -57,6 +59,7 @@ import { OutletQuantityTransactionsModule } from './outlet-quantity-transactions
       inject: [ConfigService],
     }),
     PassportModule,
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     ProfileModule,
@@ -86,6 +89,7 @@ import { OutletQuantityTransactionsModule } from './outlet-quantity-transactions
     RolesModule,
     SampleRequestsModule,
     OutletQuantityTransactionsModule,
+    AutoClockoutModule,
   ],
   providers: [DatabaseHealthService],
 })

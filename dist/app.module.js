@@ -12,6 +12,7 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
+const schedule_1 = require("@nestjs/schedule");
 const database_config_1 = require("./config/database.config");
 const database_health_service_1 = require("./config/database-health.service");
 const auth_module_1 = require("./auth/auth.module");
@@ -43,6 +44,7 @@ const notice_board_module_1 = require("./notice-board/notice-board.module");
 const roles_module_1 = require("./roles/roles.module");
 const sample_requests_module_1 = require("./sample-requests/sample-requests.module");
 const outlet_quantity_transactions_module_1 = require("./outlet-quantity-transactions/outlet-quantity-transactions.module");
+const auto_clockout_module_1 = require("./auto-clockout/auto-clockout.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -67,6 +69,7 @@ exports.AppModule = AppModule = __decorate([
                 inject: [config_1.ConfigService],
             }),
             passport_1.PassportModule,
+            schedule_1.ScheduleModule.forRoot(),
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             profile_module_1.ProfileModule,
@@ -96,6 +99,7 @@ exports.AppModule = AppModule = __decorate([
             roles_module_1.RolesModule,
             sample_requests_module_1.SampleRequestsModule,
             outlet_quantity_transactions_module_1.OutletQuantityTransactionsModule,
+            auto_clockout_module_1.AutoClockoutModule,
         ],
         providers: [database_health_service_1.DatabaseHealthService],
     })

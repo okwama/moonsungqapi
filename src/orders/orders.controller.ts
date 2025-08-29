@@ -33,6 +33,7 @@ export class OrdersController {
     const userRole = req.user?.role;
     
     console.log(`🔍 GET /orders - User: ${userId}, Role: ${userRole}, Page: ${pageNum}, Limit: ${limitNum}`);
+    console.log(`🔍 Complete user object from JWT:`, JSON.stringify(req.user, null, 2));
     
     // Get orders based on user role
     const orders = await this.ordersService.findAll(userId, userRole);

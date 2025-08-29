@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Aug 29, 2025 at 12:30 AM
+-- Generation Time: Aug 29, 2025 at 06:49 AM
 -- Server version: 10.6.22-MariaDB-cll-lve
 -- PHP Version: 8.4.10
 
@@ -119,6 +119,13 @@ CREATE TABLE `asset_requests` (
   `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `asset_requests`
+--
+
+INSERT INTO `asset_requests` (`id`, `requestNumber`, `salesRepId`, `requestDate`, `status`, `notes`, `approvedBy`, `approvedAt`, `assignedBy`, `assignedAt`, `returnDate`, `createdAt`, `updatedAt`) VALUES
+(1, 'AR-20250829-001', 2, '2025-08-29 00:55:53', 'pending', 'test', NULL, NULL, NULL, NULL, NULL, '2025-08-29 00:55:53', '2025-08-29 00:55:53');
+
 -- --------------------------------------------------------
 
 --
@@ -136,6 +143,13 @@ CREATE TABLE `asset_request_items` (
   `returnedQuantity` int(11) DEFAULT 0,
   `createdAt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `asset_request_items`
+--
+
+INSERT INTO `asset_request_items` (`id`, `assetRequestId`, `assetName`, `assetType`, `quantity`, `notes`, `assignedQuantity`, `returnedQuantity`, `createdAt`) VALUES
+(1, 1, 'wipes', 'Other', 1, '', 0, 0, '2025-08-29 00:55:53');
 
 -- --------------------------------------------------------
 
@@ -1035,6 +1049,13 @@ CREATE TABLE `ClientTargets` (
   `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Dumping data for table `ClientTargets`
+--
+
+INSERT INTO `ClientTargets` (`id`, `clientId`, `month`, `year`, `amount`, `createdAt`, `updatedAt`) VALUES
+(1, 23, '08', 2025, 7000.00, '2025-08-28 22:30:47', '2025-08-28 22:30:47');
+
 -- --------------------------------------------------------
 
 --
@@ -1322,7 +1343,8 @@ INSERT INTO `FeedbackReport` (`comment`, `createdAt`, `clientId`, `id`, `userId`
 ('testing ', '2025-08-19 11:50:11.943', 19, 10, 2),
 ('United mall ', '2025-08-27 11:20:14.872', 14, 11, 76),
 ('sales are improving ', '2025-08-27 11:46:50.041', 5, 12, 64),
-('Organising after stock take', '2025-08-28 12:06:24.328', 2, 13, 99);
+('Organising after stock take', '2025-08-28 12:06:24.328', 2, 13, 99),
+('test', '2025-08-29 07:14:50.831', 19, 14, 2);
 
 -- --------------------------------------------------------
 
@@ -1590,7 +1612,7 @@ INSERT INTO `JourneyPlan` (`id`, `date`, `time`, `userId`, `clientId`, `status`,
 (62, '2025-08-28 13:54:46.657', '13:54:46', 73, 1, 2, '2025-08-28 13:55:48.590', -1.2609386, 36.8015962, 'https://res.cloudinary.com/otienobryan/image/upload/v1756378551/whoosh/uploads/upload_1756378551145_73.jpg', NULL, NULL, NULL, NULL, 1, NULL),
 (63, '2025-08-28 17:07:56.130', '17:07:56', 96, 7, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL),
 (64, '2025-08-28 22:43:00.538', '22:43:00', 2, 19, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL),
-(65, '2025-08-29 00:00:11.422', '00:00:11', 2, 19, 2, '2025-08-29 00:00:32.961', -1.3009032577586774, 36.77775287316497, NULL, NULL, NULL, NULL, NULL, 1, NULL);
+(65, '2025-08-29 00:00:11.422', '00:00:11', 2, 19, 3, '2025-08-29 00:00:32.961', -1.3009032577586774, 36.77775287316497, NULL, NULL, -1.300896370665229, 36.77774306343038, '2025-08-29 07:18:04.771', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -2004,7 +2026,8 @@ INSERT INTO `LoginHistory` (`id`, `userId`, `timezone`, `duration`, `status`, `s
 (2458, 66, 'Africa/Nairobi', 0, 2, '2025-08-28 20:02:00.000', '2025-08-28 11:12:54.000'),
 (2459, 70, 'Africa/Nairobi', 600, 2, '2025-08-28 21:19:45.000', '2025-08-28 11:19:41.000'),
 (2460, 82, 'Africa/Nairobi', 460, 2, '2025-08-28 19:03:44.000', '2025-08-28 11:23:37.000'),
-(2461, 2, 'Africa/Nairobi', 0, 2, '2025-08-28 20:02:00.000', '2025-08-28 20:05:17.000');
+(2461, 2, 'Africa/Nairobi', 0, 2, '2025-08-28 20:02:00.000', '2025-08-28 20:05:17.000'),
+(2462, 2, 'Africa/Nairobi', 0, 1, NULL, '2025-08-29 06:58:34.000');
 
 -- --------------------------------------------------------
 
@@ -3752,7 +3775,17 @@ INSERT INTO `Token` (`id`, `token`, `salesRepId`, `createdAt`, `expiresAt`, `bla
 (85, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDE0Nzk3LCJleHAiOjE3NTY0NDcxOTd9.tw7Tm5ommE3JPQ3KKlnBgL9-u63uAzJ-O', 2, '2025-08-28 22:59:56.998', '2025-08-29 05:59:57.209', 0, NULL, 'access'),
 (86, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDE0Nzk3LCJleHAiOjE3NTcwMTk1OTd9.PBqkorU4JCofZqUWBcvaTlGUtsINgEfyO', 2, '2025-08-28 22:59:57.913', '2025-09-04 20:59:58.126', 0, NULL, 'refresh'),
 (87, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDE2MDI5LCJleHAiOjE3NTY0NDg0Mjl9.w_1zGCljJyKABtXMOV86Cnj5dcSMlfawk', 2, '2025-08-28 23:20:29.738', '2025-08-29 06:20:29.953', 0, NULL, 'access'),
-(88, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDE2MDI5LCJleHAiOjE3NTcwMjA4Mjl9.Rp3CSoXzixVbwJ1dERanGJS_Zk8gTvvss', 2, '2025-08-28 23:20:30.637', '2025-09-04 21:20:30.853', 0, NULL, 'refresh');
+(88, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDE2MDI5LCJleHAiOjE3NTcwMjA4Mjl9.Rp3CSoXzixVbwJ1dERanGJS_Zk8gTvvss', 2, '2025-08-28 23:20:30.637', '2025-09-04 21:20:30.853', 0, NULL, 'refresh'),
+(89, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIxNzEzLCJleHAiOjE3NTY0NTQxMTN9.mIgAyMje2bu6Yq_csh9RjosTW-vZBpCub', 2, '2025-08-29 00:55:13.302', '2025-08-29 10:55:13.305', 0, NULL, 'access'),
+(90, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIxNzEzLCJleHAiOjE3NTcwMjY1MTN9.vEAbW8dWOaEI2yh-5Qc0_-VeTz1deBZol', 2, '2025-08-29 00:55:13.549', '2025-09-05 01:55:13.574', 0, NULL, 'refresh'),
+(91, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIyMTg4LCJleHAiOjE3NTY0NTQ1ODh9.p18iLlzi70kl-ChIH7TX0VmaS-yK7R5qG', 2, '2025-08-29 01:03:08.493', '2025-08-29 11:03:08.774', 0, NULL, 'access'),
+(92, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIyMTg4LCJleHAiOjE3NTcwMjY5ODh9.hFizexhTxNZGw4vr_xlZpCaM3yDDYaEwG', 2, '2025-08-29 01:03:08.761', '2025-09-05 02:03:09.053', 0, NULL, 'refresh'),
+(93, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIyNTEyLCJleHAiOjE3NTY0NTQ5MTJ9.d-1_r5ZRHlvs0uN5RWhSOZ6VCpVJnA3iz', 2, '2025-08-29 01:08:32.307', '2025-08-29 11:08:32.595', 0, NULL, 'access'),
+(94, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIyNTEyLCJleHAiOjE3NTcwMjczMTJ9.CWj1lyvv-Qy3jsqrmgPV3wElokPEAsrxR', 2, '2025-08-29 01:08:32.548', '2025-09-05 02:08:32.835', 0, NULL, 'refresh'),
+(95, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIzMzQwLCJleHAiOjE3NTY0NTU3NDB9.Y4_mXVBGugIbk7bMngJX3AxYHS_d2hPkz', 2, '2025-08-29 01:22:20.261', '2025-08-29 11:22:20.041', 0, NULL, 'access'),
+(96, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDIzMzQwLCJleHAiOjE3NTcwMjgxNDB9.4GiNWU85RgKRY56ZcoafbIp5KR33AxqWK', 2, '2025-08-29 01:22:20.495', '2025-09-05 02:22:20.290', 0, NULL, 'refresh'),
+(97, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDM5OTA2LCJleHAiOjE3NTY0NzIzMDZ9.SRhV02Py6-To7GOe7hnchL_t-1pzoUiFj', 2, '2025-08-29 05:58:25.741', '2025-08-29 12:58:26.007', 0, NULL, 'access'),
+(98, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6IjA3MDYxNjY4NzUiLCJzdWIiOjIsInJvbGUiOiJSRUxJRVZFUiIsInJvbGVJZCI6MiwiY291bnRyeUlkIjoxLCJyZWdpb25JZCI6MSwicm91dGVJZCI6MSwiaWF0IjoxNzU2NDM5OTA2LCJleHAiOjE3NTcwNDQ3MDZ9.qbIsjUL-6ZTdBzlskJqQP55aqWC_pdB1N', 2, '2025-08-29 05:58:26.647', '2025-09-05 03:58:26.919', 0, NULL, 'refresh');
 
 -- --------------------------------------------------------
 
@@ -4037,7 +4070,8 @@ INSERT INTO `VisibilityReport` (`comment`, `imageUrl`, `createdAt`, `clientId`, 
 ('', 'https://res.cloudinary.com/otienobryan/image/upload/v1756366287/whoosh/uploads/upload_1756366287785_63.jpg', '2025-08-28 10:31:28.370', 9, 25, 63),
 ('', 'https://res.cloudinary.com/otienobryan/image/upload/v1756366680/whoosh/uploads/upload_1756366680014_91.jpg', '2025-08-28 10:37:59.642', 13, 26, 91),
 ('', 'https://res.cloudinary.com/otienobryan/image/upload/v1756368799/whoosh/uploads/upload_1756368799524_99.jpg', '2025-08-28 11:13:20.286', 2, 27, 99),
-('', 'https://res.cloudinary.com/otienobryan/image/upload/v1756371936/whoosh/uploads/upload_1756371936809_99.jpg', '2025-08-28 12:05:36.940', 2, 28, 99);
+('', 'https://res.cloudinary.com/otienobryan/image/upload/v1756371936/whoosh/uploads/upload_1756371936809_99.jpg', '2025-08-28 12:05:36.940', 2, 28, 99),
+('', 'https://res.cloudinary.com/otienobryan/image/upload/v1756440874/whoosh/uploads/upload_1756440874505_2.jpg', '2025-08-29 07:14:35.272', 19, 29, 2);
 
 -- --------------------------------------------------------
 
@@ -4886,13 +4920,13 @@ ALTER TABLE `assets`
 -- AUTO_INCREMENT for table `asset_requests`
 --
 ALTER TABLE `asset_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `asset_request_items`
 --
 ALTER TABLE `asset_request_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `asset_types`
@@ -4970,7 +5004,7 @@ ALTER TABLE `ClientStock`
 -- AUTO_INCREMENT for table `ClientTargets`
 --
 ALTER TABLE `ClientTargets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `client_ledger`
@@ -5060,7 +5094,7 @@ ALTER TABLE `faulty_products_reports`
 -- AUTO_INCREMENT for table `FeedbackReport`
 --
 ALTER TABLE `FeedbackReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `hr_calendar_tasks`
@@ -5138,7 +5172,7 @@ ALTER TABLE `leave_types`
 -- AUTO_INCREMENT for table `LoginHistory`
 --
 ALTER TABLE `LoginHistory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2462;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2463;
 
 --
 -- AUTO_INCREMENT for table `managers`
@@ -5384,7 +5418,7 @@ ALTER TABLE `termination_letters`
 -- AUTO_INCREMENT for table `Token`
 --
 ALTER TABLE `Token`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
 
 --
 -- AUTO_INCREMENT for table `UpliftSale`
@@ -5420,7 +5454,7 @@ ALTER TABLE `versions`
 -- AUTO_INCREMENT for table `VisibilityReport`
 --
 ALTER TABLE `VisibilityReport`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `warning_letters`

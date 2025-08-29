@@ -7,9 +7,10 @@ import { Store } from '../entities/store.entity';
 import { StoreInventory } from '../entities/store-inventory.entity';
 import { Category } from '../entities/category.entity';
 import { CategoryPriceOption } from '../entities/category-price-option.entity';
+import { Clients } from '../entities/clients.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Store, StoreInventory, Category, CategoryPriceOption])],
+  imports: [TypeOrmModule.forFeature([Product, Store, StoreInventory, Category, CategoryPriceOption, Clients])],
   controllers: [ProductsController, HealthController],
   providers: [ProductsService],
   exports: [ProductsService],

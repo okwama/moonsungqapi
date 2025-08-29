@@ -132,6 +132,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => sample_request_entity_1.SampleRequest, sampleRequest => sampleRequest.client),
     __metadata("design:type", Array)
 ], Clients.prototype, "sampleRequests", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'double', default: 0, nullable: true }),
+    __metadata("design:type", Number)
+], Clients.prototype, "discountPercentage", void 0);
 exports.Clients = Clients = __decorate([
     (0, typeorm_1.Entity)('Clients'),
     (0, typeorm_1.Index)('Clients_countryId_fkey', ['countryId']),

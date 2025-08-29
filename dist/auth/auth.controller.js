@@ -62,6 +62,18 @@ let AuthController = AuthController_1 = class AuthController {
         this.logger.log(`👤 Profile request for user: ${req.user?.name || 'Unknown'}`);
         return req.user;
     }
+    async getValidTokens(req) {
+        this.logger.log(`🔍 Valid tokens request for user: ${req.user?.name || 'Unknown'}`);
+        try {
+            const result = await this.authService.getValidTokens(req.user.id);
+            this.logger.log(`✅ Valid tokens retrieved for user: ${req.user?.name}`);
+            return result;
+        }
+        catch (error) {
+            this.logger.error(`💥 Failed to get valid tokens for user: ${req.user?.name}`, error.stack);
+            throw error;
+        }
+    }
     async logout(req) {
         this.logger.log(`🚪 Logout request received for user: ${req.user?.name || 'Unknown'}`);
         try {
@@ -100,6 +112,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('valid-tokens'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getValidTokens", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('logout'),

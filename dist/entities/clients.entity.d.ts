@@ -31,4 +31,5 @@ export declare class Clients {
     journeyPlans: JourneyPlan[];
     upliftSales: UpliftSale[];
     sampleRequests: SampleRequest[];
+    discountPercentage: number;
 }

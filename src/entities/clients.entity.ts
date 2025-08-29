@@ -94,4 +94,7 @@ export class Clients {
 
   @OneToMany(() => SampleRequest, sampleRequest => sampleRequest.client)
   sampleRequests: SampleRequest[];
+
+  @Column({ type: 'double', default: 0, nullable: true })
+  discountPercentage: number;
 } 

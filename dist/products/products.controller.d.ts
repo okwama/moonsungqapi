@@ -4,8 +4,8 @@ export declare class ProductsController {
     private readonly productsService;
     private dataSource;
     constructor(productsService: ProductsService, dataSource: DataSource);
-    findAll(): Promise<import("./entities/product.entity").Product[]>;
-    findProductsForUser(req: any): Promise<import("./entities/product.entity").Product[]>;
+    findAll(clientId?: string): Promise<import("./entities/product.entity").Product[]>;
+    findProductsForUser(req: any, clientId?: string): Promise<import("./entities/product.entity").Product[]>;
     findOne(id: string): Promise<import("./entities/product.entity").Product>;
 }
 export declare class HealthController {

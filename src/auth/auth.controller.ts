@@ -63,6 +63,23 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('valid-tokens')
+  @HttpCode(HttpStatus.OK)
+  async getValidTokens(@Request() req) {
+    this.logger.log(`🔍 Valid tokens request for user: ${req.user?.name || 'Unknown'}`);
+    
+    try {
+      const result = await this.authService.getValidTokens(req.user.id);
+      this.logger.log(`✅ Valid tokens retrieved for user: ${req.user?.name}`);
+      
+      return result;
+    } catch (error) {
+      this.logger.error(`💥 Failed to get valid tokens for user: ${req.user?.name}`, error.stack);
+      throw error;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Request() req) {

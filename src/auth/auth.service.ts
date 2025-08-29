@@ -7,6 +7,7 @@ import { Token } from '../entities/token.entity';
 import { UsersService } from '../users/users.service';
 import { RolesService } from '../roles/roles.service';
 import * as bcrypt from 'bcryptjs';
+import { MoreThan, MoreThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -167,6 +168,7 @@ export class AuthService {
       const response = {
         success: true,
         accessToken: newAccessToken,
+        refreshToken: refreshToken, // Return the same refresh token to confirm it's still valid
         expiresIn: 32400, // 9 hours in seconds
         user: {
           id: user.id,
@@ -301,6 +303,114 @@ export class AuthService {
     } catch (error) {
       this.logger.error('❌ JWT token validation failed', error.stack);
       throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  async getValidTokens(userId: number) {
+    this.logger.log(`🔍 Getting valid tokens for user ID: ${userId}`);
+    
+    try {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      // Get valid tokens created today that haven't expired
+      const validTokens = await this.tokenRepository.find({
+        where: {
+          salesRepId: userId,
+          blacklisted: false,
+          createdAt: MoreThanOrEqual(today), // Created today or later
+          expiresAt: MoreThan(now) // Not expired yet
+        },
+        order: {
+          createdAt: 'DESC' // Most recent first
+        }
+      });
+      
+      this.logger.log(`📋 Found ${validTokens.length} valid tokens for user ID: ${userId}`);
+      
+      // If no valid tokens found, generate new ones
+      if (validTokens.length === 0) {
+        this.logger.log(`🔄 No valid tokens found, generating new tokens for user ID: ${userId}`);
+        
+        // Get user information
+        const user = await this.usersService.findById(userId);
+        if (!user || user.status !== 1) {
+          this.logger.warn(`❌ User not found or inactive for user ID: ${userId}`);
+          throw new UnauthorizedException('User not found or inactive');
+        }
+        
+        // Generate new tokens
+        const newAccessToken = this.jwtService.sign({
+          phoneNumber: user.phoneNumber,
+          sub: user.id,
+          role: user.role?.name || 'USER',
+          roleId: user.roleId,
+          countryId: user.countryId,
+          regionId: user.region_id,
+          routeId: user.route_id
+        });
+        
+        const newRefreshToken = this.jwtService.sign({
+          sub: user.id,
+          type: 'refresh'
+        }, { expiresIn: '7d' });
+        
+        // Store new tokens in database
+        await this.storeTokens(user.id, newAccessToken, newRefreshToken);
+        
+        this.logger.log(`✅ New tokens generated and stored for user ID: ${userId}`);
+        
+        // Return the newly generated tokens
+        const response = {
+          success: true,
+          accessTokens: [{
+            token: newAccessToken,
+            expiresAt: new Date(Date.now() + 9 * 60 * 60 * 1000), // 9 hours
+            createdAt: new Date()
+          }],
+          refreshTokens: [{
+            token: newRefreshToken,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+            createdAt: new Date()
+          }],
+          totalTokens: 2,
+          validAccessTokens: 1,
+          validRefreshTokens: 1,
+          tokensGenerated: true
+        };
+        
+        this.logger.log(`✅ New tokens response prepared for user ID: ${userId}`);
+        return response;
+      }
+      
+      // Separate access and refresh tokens
+      const accessTokens = validTokens.filter(token => token.tokenType === 'access');
+      const refreshTokens = validTokens.filter(token => token.tokenType === 'refresh');
+      
+      const response = {
+        success: true,
+        accessTokens: accessTokens.map(token => ({
+          token: token.token,
+          expiresAt: token.expiresAt,
+          createdAt: token.createdAt
+        })),
+        refreshTokens: refreshTokens.map(token => ({
+          token: token.token,
+          expiresAt: token.expiresAt,
+          createdAt: token.createdAt
+        })),
+        totalTokens: validTokens.length,
+        validAccessTokens: accessTokens.length,
+        validRefreshTokens: refreshTokens.length,
+        tokensGenerated: false
+      };
+      
+      this.logger.log(`✅ Valid tokens response prepared for user ID: ${userId}`);
+      return response;
+      
+    } catch (error) {
+      this.logger.error(`❌ Failed to get valid tokens for user ID: ${userId}`, error.stack);
+      throw error;
     }
   }
 } 

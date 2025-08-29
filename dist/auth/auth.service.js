@@ -22,6 +22,7 @@ const sales_rep_entity_1 = require("../entities/sales-rep.entity");
 const token_entity_1 = require("../entities/token.entity");
 const users_service_1 = require("../users/users.service");
 const roles_service_1 = require("../roles/roles.service");
+const typeorm_3 = require("typeorm");
 let AuthService = AuthService_1 = class AuthService {
     constructor(userRepository, tokenRepository, usersService, rolesService, jwtService) {
         this.userRepository = userRepository;
@@ -137,6 +138,7 @@ let AuthService = AuthService_1 = class AuthService {
             const response = {
                 success: true,
                 accessToken: newAccessToken,
+                refreshToken: refreshToken,
                 expiresIn: 32400,
                 user: {
                     id: user.id,
@@ -244,6 +246,92 @@ let AuthService = AuthService_1 = class AuthService {
         catch (error) {
             this.logger.error('❌ JWT token validation failed', error.stack);
             throw new common_1.UnauthorizedException('Invalid token');
+        }
+    }
+    async getValidTokens(userId) {
+        this.logger.log(`🔍 Getting valid tokens for user ID: ${userId}`);
+        try {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const validTokens = await this.tokenRepository.find({
+                where: {
+                    salesRepId: userId,
+                    blacklisted: false,
+                    createdAt: (0, typeorm_3.MoreThanOrEqual)(today),
+                    expiresAt: (0, typeorm_3.MoreThan)(now)
+                },
+                order: {
+                    createdAt: 'DESC'
+                }
+            });
+            this.logger.log(`📋 Found ${validTokens.length} valid tokens for user ID: ${userId}`);
+            if (validTokens.length === 0) {
+                this.logger.log(`🔄 No valid tokens found, generating new tokens for user ID: ${userId}`);
+                const user = await this.usersService.findById(userId);
+                if (!user || user.status !== 1) {
+                    this.logger.warn(`❌ User not found or inactive for user ID: ${userId}`);
+                    throw new common_1.UnauthorizedException('User not found or inactive');
+                }
+                const newAccessToken = this.jwtService.sign({
+                    phoneNumber: user.phoneNumber,
+                    sub: user.id,
+                    role: user.role?.name || 'USER',
+                    roleId: user.roleId,
+                    countryId: user.countryId,
+                    regionId: user.region_id,
+                    routeId: user.route_id
+                });
+                const newRefreshToken = this.jwtService.sign({
+                    sub: user.id,
+                    type: 'refresh'
+                }, { expiresIn: '7d' });
+                await this.storeTokens(user.id, newAccessToken, newRefreshToken);
+                this.logger.log(`✅ New tokens generated and stored for user ID: ${userId}`);
+                const response = {
+                    success: true,
+                    accessTokens: [{
+                            token: newAccessToken,
+                            expiresAt: new Date(Date.now() + 9 * 60 * 60 * 1000),
+                            createdAt: new Date()
+                        }],
+                    refreshTokens: [{
+                            token: newRefreshToken,
+                            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                            createdAt: new Date()
+                        }],
+                    totalTokens: 2,
+                    validAccessTokens: 1,
+                    validRefreshTokens: 1,
+                    tokensGenerated: true
+                };
+                this.logger.log(`✅ New tokens response prepared for user ID: ${userId}`);
+                return response;
+            }
+            const accessTokens = validTokens.filter(token => token.tokenType === 'access');
+            const refreshTokens = validTokens.filter(token => token.tokenType === 'refresh');
+            const response = {
+                success: true,
+                accessTokens: accessTokens.map(token => ({
+                    token: token.token,
+                    expiresAt: token.expiresAt,
+                    createdAt: token.createdAt
+                })),
+                refreshTokens: refreshTokens.map(token => ({
+                    token: token.token,
+                    expiresAt: token.expiresAt,
+                    createdAt: token.createdAt
+                })),
+                totalTokens: validTokens.length,
+                validAccessTokens: accessTokens.length,
+                validRefreshTokens: refreshTokens.length,
+                tokensGenerated: false
+            };
+            this.logger.log(`✅ Valid tokens response prepared for user ID: ${userId}`);
+            return response;
+        }
+        catch (error) {
+            this.logger.error(`❌ Failed to get valid tokens for user ID: ${userId}`, error.stack);
+            throw error;
         }
     }
 };

@@ -23,10 +23,18 @@ let ProductsController = class ProductsController {
         this.productsService = productsService;
         this.dataSource = dataSource;
     }
-    async findAll() {
+    async findAll(clientId) {
         try {
             console.log('📦 Products API: GET /products called');
-            const products = await this.productsService.findAll();
+            const parsedClientId = clientId ? parseInt(clientId) : undefined;
+            if (parsedClientId) {
+                console.log(`💰 Products API: Applying discount for client ${parsedClientId}`);
+                console.log(`💰 API Call: GET /products?clientId=${parsedClientId}`);
+            }
+            else {
+                console.log(`💰 Products API: No client discount requested`);
+            }
+            const products = await this.productsService.findAll(parsedClientId);
             console.log(`📦 Products API: Returning ${products.length} products`);
             return products;
         }
@@ -35,17 +43,25 @@ let ProductsController = class ProductsController {
             throw error;
         }
     }
-    async findProductsForUser(req) {
+    async findProductsForUser(req, clientId) {
         try {
             console.log('🌍 Products API: GET /products/user called');
             const userCountryId = req.user?.countryId || req.user?.country_id;
+            const parsedClientId = clientId ? parseInt(clientId) : undefined;
+            if (parsedClientId) {
+                console.log(`💰 Products API: Applying discount for client ${parsedClientId}`);
+                console.log(`💰 API Call: GET /products/user?clientId=${parsedClientId}`);
+            }
+            else {
+                console.log(`💰 Products API: No client discount requested`);
+            }
             if (!userCountryId || isNaN(userCountryId)) {
                 console.log('⚠️ No valid country ID found in user data, using fallback');
-                const products = await this.productsService.findProductsByCountry(0);
+                const products = await this.productsService.findProductsByCountry(0, parsedClientId);
                 console.log(`🌍 Products API: Returning ${products.length} products using fallback`);
                 return products;
             }
-            const products = await this.productsService.findProductsByCountry(userCountryId);
+            const products = await this.productsService.findProductsByCountry(userCountryId, parsedClientId);
             console.log(`🌍 Products API: Returning ${products.length} products for country ${userCountryId}`);
             return products;
         }
@@ -61,16 +77,18 @@ let ProductsController = class ProductsController {
 exports.ProductsController = ProductsController;
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('clientId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)('user'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('clientId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findProductsForUser", null);
 __decorate([

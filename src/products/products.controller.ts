@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Request, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -12,10 +12,19 @@ export class ProductsController {
   ) {}
 
   @Get()
-  async findAll() {
+  async findAll(@Query('clientId') clientId?: string) {
     try {
       console.log('📦 Products API: GET /products called');
-      const products = await this.productsService.findAll();
+      const parsedClientId = clientId ? parseInt(clientId) : undefined;
+      
+      if (parsedClientId) {
+        console.log(`💰 Products API: Applying discount for client ${parsedClientId}`);
+        console.log(`💰 API Call: GET /products?clientId=${parsedClientId}`);
+      } else {
+        console.log(`💰 Products API: No client discount requested`);
+      }
+      
+      const products = await this.productsService.findAll(parsedClientId);
       console.log(`📦 Products API: Returning ${products.length} products`);
       return products;
     } catch (error) {
@@ -26,20 +35,29 @@ export class ProductsController {
 
   @Get('user')
   @UseGuards(JwtAuthGuard)
-  async findProductsForUser(@Request() req) {
+  async findProductsForUser(@Request() req, @Query('clientId') clientId?: string) {
     try {
       console.log('🌍 Products API: GET /products/user called');
       const userCountryId = req.user?.countryId || req.user?.country_id;
       
+      const parsedClientId = clientId ? parseInt(clientId) : undefined;
+      
+      if (parsedClientId) {
+        console.log(`💰 Products API: Applying discount for client ${parsedClientId}`);
+        console.log(`💰 API Call: GET /products/user?clientId=${parsedClientId}`);
+      } else {
+        console.log(`💰 Products API: No client discount requested`);
+      }
+      
       if (!userCountryId || isNaN(userCountryId)) {
         console.log('⚠️ No valid country ID found in user data, using fallback');
         // Use fallback (store 1) if no country ID
-        const products = await this.productsService.findProductsByCountry(0);
+        const products = await this.productsService.findProductsByCountry(0, parsedClientId);
         console.log(`🌍 Products API: Returning ${products.length} products using fallback`);
         return products;
       }
 
-      const products = await this.productsService.findProductsByCountry(userCountryId);
+      const products = await this.productsService.findProductsByCountry(userCountryId, parsedClientId);
       console.log(`🌍 Products API: Returning ${products.length} products for country ${userCountryId}`);
       return products;
     } catch (error) {

@@ -36,6 +36,7 @@ export declare class AuthService {
     refreshToken(refreshToken: string): Promise<{
         success: boolean;
         accessToken: string;
+        refreshToken: string;
         expiresIn: number;
         user: {
             id: number;
@@ -58,4 +59,21 @@ export declare class AuthService {
     private storeTokens;
     private storeAccessToken;
     validateToken(token: string): Promise<any>;
+    getValidTokens(userId: number): Promise<{
+        success: boolean;
+        accessTokens: {
+            token: string;
+            expiresAt: Date;
+            createdAt: Date;
+        }[];
+        refreshTokens: {
+            token: string;
+            expiresAt: Date;
+            createdAt: Date;
+        }[];
+        totalTokens: number;
+        validAccessTokens: number;
+        validRefreshTokens: number;
+        tokensGenerated: boolean;
+    }>;
 }

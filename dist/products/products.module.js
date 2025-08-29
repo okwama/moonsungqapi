@@ -16,12 +16,13 @@ const store_entity_1 = require("../entities/store.entity");
 const store_inventory_entity_1 = require("../entities/store-inventory.entity");
 const category_entity_1 = require("../entities/category.entity");
 const category_price_option_entity_1 = require("../entities/category-price-option.entity");
+const clients_entity_1 = require("../entities/clients.entity");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
 exports.ProductsModule = ProductsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product, store_entity_1.Store, store_inventory_entity_1.StoreInventory, category_entity_1.Category, category_price_option_entity_1.CategoryPriceOption])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product, store_entity_1.Store, store_inventory_entity_1.StoreInventory, category_entity_1.Category, category_price_option_entity_1.CategoryPriceOption, clients_entity_1.Clients])],
         controllers: [products_controller_1.ProductsController, products_controller_1.HealthController],
         providers: [products_service_1.ProductsService],
         exports: [products_service_1.ProductsService],

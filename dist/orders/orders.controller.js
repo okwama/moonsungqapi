@@ -35,6 +35,7 @@ let OrdersController = class OrdersController {
         const userId = req.user?.id;
         const userRole = req.user?.role;
         console.log(`🔍 GET /orders - User: ${userId}, Role: ${userRole}, Page: ${pageNum}, Limit: ${limitNum}`);
+        console.log(`🔍 Complete user object from JWT:`, JSON.stringify(req.user, null, 2));
         const orders = await this.ordersService.findAll(userId, userRole);
         const total = orders.length;
         const totalPages = Math.ceil(total / limitNum);

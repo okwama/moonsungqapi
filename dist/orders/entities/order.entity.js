@@ -82,6 +82,14 @@ __decorate([
     __metadata("design:type", Number)
 ], Order.prototype, "myStatus", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'received_into_stock', type: 'tinyint', default: 0 }),
+    __metadata("design:type", Boolean)
+], Order.prototype, "receivedIntoStock", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'received_at', type: 'timestamp', nullable: true }),
+    __metadata("design:type", Date)
+], Order.prototype, "receivedAt", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => users_entity_1.Users, { nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: 'created_by' }),
     __metadata("design:type", users_entity_1.Users)

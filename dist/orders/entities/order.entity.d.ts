@@ -18,6 +18,8 @@ export declare class Order {
     assignedAt: Date;
     status: string;
     myStatus: number;
+    receivedIntoStock: boolean;
+    receivedAt: Date;
     user: Users;
     client: Clients;
     orderItems: OrderItem[];

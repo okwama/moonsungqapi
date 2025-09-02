@@ -239,6 +239,17 @@ let OrdersService = class OrdersService {
     async remove(id) {
         await this.orderRepository.delete(id);
     }
+    async markReceived(id, userId) {
+        const order = await this.findOne(id, userId);
+        if (!order) {
+            throw new Error('Order not found or access denied');
+        }
+        await this.orderRepository.update(id, {
+            receivedIntoStock: true,
+            receivedAt: new Date(),
+        });
+        return this.findOne(id, userId);
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([

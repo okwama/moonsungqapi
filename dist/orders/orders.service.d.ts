@@ -13,4 +13,5 @@ export declare class OrdersService {
     findOne(id: number, userId?: number, userRole?: string): Promise<Order | null>;
     update(id: number, updateOrderDto: Partial<CreateOrderDto>): Promise<Order | null>;
     remove(id: number): Promise<void>;
+    markReceived(id: number, userId?: number): Promise<Order | null>;
 }

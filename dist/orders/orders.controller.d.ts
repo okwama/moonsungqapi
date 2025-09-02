@@ -29,4 +29,8 @@ export declare class OrdersController {
         data: import("./entities/order.entity").Order;
     }>;
     remove(id: string): Promise<void>;
+    markReceived(id: string, req: any): Promise<{
+        success: boolean;
+        data: import("./entities/order.entity").Order;
+    }>;
 }

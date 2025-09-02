@@ -1,29 +1,21 @@
-import { Controller, Get, Post, Put, Param, Query, Body, UseGuards } from '@nestjs/common';
-import { CommissionService } from './commission.service';
+import { Body, Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CommissionService } from './commission.service';
+import { DailyCommission } from './entities/daily-commission.entity';
 
 @Controller('commission')
 @UseGuards(JwtAuthGuard)
 export class CommissionController {
   constructor(private readonly commissionService: CommissionService) {}
 
-  /**
-   * Calculate daily commission for a sales rep
-   */
   @Get('daily/:salesRepId')
   async calculateDailyCommission(
     @Param('salesRepId') salesRepId: string,
     @Query('date') date?: string,
-  ) {
+  ): Promise<{ success: boolean; data: any; message: string }> {
     const targetDate = date ? new Date(date) : new Date();
-    const result = await this.commissionService.calculateDailyCommission(
-      +salesRepId,
-      targetDate,
-    );
-    
-    // Save the commission record
+    const result = await this.commissionService.calculateDailyCommission(+salesRepId, targetDate);
     await this.commissionService.saveDailyCommission(result);
-    
     return {
       success: true,
       data: result,
@@ -31,24 +23,15 @@ export class CommissionController {
     };
   }
 
-  /**
-   * Get commission history for a sales rep
-   */
   @Get('history/:salesRepId')
   async getCommissionHistory(
     @Param('salesRepId') salesRepId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-  ) {
+  ): Promise<{ success: boolean; data: any[]; message: string }> {
     const start = startDate ? new Date(startDate) : undefined;
     const end = endDate ? new Date(endDate) : undefined;
-    
-    const history = await this.commissionService.getCommissionHistory(
-      +salesRepId,
-      start,
-      end,
-    );
-
+    const history = await this.commissionService.getCommissionHistory(+salesRepId, start, end);
     return {
       success: true,
       data: history,
@@ -56,19 +39,12 @@ export class CommissionController {
     };
   }
 
-  /**
-   * Get commission summary for a sales rep
-   */
   @Get('summary/:salesRepId')
   async getCommissionSummary(
     @Param('salesRepId') salesRepId: string,
     @Query('period') period: string = 'current_month',
-  ) {
-    const summary = await this.commissionService.getCommissionSummary(
-      +salesRepId,
-      period,
-    );
-
+  ): Promise<{ success: boolean; data: any; message: string }> {
+    const summary = await this.commissionService.getCommissionSummary(+salesRepId, period);
     return {
       success: true,
       data: summary,
@@ -76,20 +52,16 @@ export class CommissionController {
     };
   }
 
-  /**
-   * Update commission status
-   */
   @Put('status/:commissionId')
   async updateCommissionStatus(
     @Param('commissionId') commissionId: string,
     @Body() body: { status: string; notes?: string },
-  ) {
+  ): Promise<{ success: boolean; data: DailyCommission; message: string }> {
     const updatedCommission = await this.commissionService.updateCommissionStatus(
       +commissionId,
       body.status,
       body.notes,
     );
-
     return {
       success: true,
       data: updatedCommission,
@@ -97,47 +69,49 @@ export class CommissionController {
     };
   }
 
-  /**
-   * Get today's commission for a sales rep
-   */
   @Get('today/:salesRepId')
-  async getTodayCommission(@Param('salesRepId') salesRepId: string) {
+  async getTodayCommission(
+    @Param('salesRepId') salesRepId: string,
+  ): Promise<{ success: boolean; data: any; message: string }> {
     const today = new Date();
-    const result = await this.commissionService.calculateDailyCommission(
-      +salesRepId,
-      today,
-    );
-
+    const result = await this.commissionService.calculateDailyCommission(+salesRepId, today);
     return {
       success: true,
       data: result,
-      message: 'Today\'s commission calculated successfully',
+      message: "Today's commission calculated successfully",
     };
-  }
+    }
 
-  /**
-   * Get commission breakdown for a specific date range
-   */
   @Get('breakdown/:salesRepId')
   async getCommissionBreakdown(
     @Param('salesRepId') salesRepId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
-  ) {
+  ): Promise<{
+    success: boolean;
+    data: {
+      dateRange: { startDate: string; endDate: string };
+      summary: {
+        totalCommission: number;
+        totalSales: number;
+        totalDays: number;
+        daysWithCommission: number;
+        averageDailySales: number;
+        averageDailyCommission: number;
+        commissionRate: number;
+      };
+      dailyBreakdown: any[];
+    };
+    message: string;
+  }> {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
-    const history = await this.commissionService.getCommissionHistory(
-      +salesRepId,
-      start,
-      end,
-    );
+    const history = await this.commissionService.getCommissionHistory(+salesRepId, start, end);
 
-    // Calculate breakdown statistics
     const totalCommission = history.reduce((sum, commission) => sum + commission.commissionAmount, 0);
     const totalSales = history.reduce((sum, commission) => sum + commission.dailySalesAmount, 0);
     const totalDays = history.length;
-    const daysWithCommission = history.filter(commission => commission.commissionAmount > 0).length;
+    const daysWithCommission = history.filter((commission) => commission.commissionAmount > 0).length;
 
     const breakdown = {
       dateRange: {
@@ -163,3 +137,5 @@ export class CommissionController {
     };
   }
 }
+
+

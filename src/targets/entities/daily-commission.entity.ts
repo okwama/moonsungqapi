@@ -48,3 +48,4 @@ export class DailyCommission {
   @JoinColumn({ name: 'sales_rep_id' })
   salesRep: SalesRep;
 }
+

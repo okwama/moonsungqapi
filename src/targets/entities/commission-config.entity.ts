@@ -35,3 +35,4 @@ export class CommissionConfig {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
+

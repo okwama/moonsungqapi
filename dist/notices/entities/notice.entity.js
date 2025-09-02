@@ -19,25 +19,25 @@ __decorate([
     __metadata("design:type", Number)
 ], Notice.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 191 }),
+    (0, typeorm_1.Column)({ length: 255 }),
     __metadata("design:type", String)
 ], Notice.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 191 }),
+    (0, typeorm_1.Column)({ type: 'text' }),
     __metadata("design:type", String)
 ], Notice.prototype, "content", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'countryId', type: 'int', nullable: true }),
+    (0, typeorm_1.Column)({ name: 'country_id', type: 'int', nullable: true }),
     __metadata("design:type", Number)
 ], Notice.prototype, "countryId", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt', type: 'datetime', precision: 3 }),
+    (0, typeorm_1.Column)({ name: 'status', type: 'tinyint', nullable: true, default: 0 }),
+    __metadata("design:type", Number)
+], Notice.prototype, "status", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ name: 'created_at', type: 'timestamp' }),
     __metadata("design:type", Date)
 ], Notice.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt', type: 'datetime', precision: 3 }),
-    __metadata("design:type", Date)
-], Notice.prototype, "updatedAt", void 0);
 exports.Notice = Notice = __decorate([
     (0, typeorm_1.Entity)('NoticeBoard')
 ], Notice);

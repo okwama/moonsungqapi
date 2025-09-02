@@ -1,28 +1,22 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('NoticeBoard')
 export class Notice {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 191 })
+  @Column({ length: 255 })
   title: string;
 
-  @Column({ length: 191 })
+  @Column({ type: 'text' })
   content: string;
 
-  @Column({ name: 'countryId', type: 'int', nullable: true })
-  countryId: number;
+  @Column({ name: 'country_id', type: 'int', nullable: true })
+  countryId: number | null;
 
-  @CreateDateColumn({ name: 'createdAt', type: 'datetime', precision: 3 })
+  @Column({ name: 'status', type: 'tinyint', nullable: true, default: 0 })
+  status?: number;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updatedAt', type: 'datetime', precision: 3 })
-  updatedAt: Date;
 } 

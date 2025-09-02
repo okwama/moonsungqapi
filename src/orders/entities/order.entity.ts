@@ -62,6 +62,12 @@ export class Order {
   @Column({ name: 'my_status', type: 'tinyint' })
   myStatus: number;
 
+  @Column({ name: 'received_into_stock', type: 'tinyint', default: 0 })
+  receivedIntoStock: boolean;
+
+  @Column({ name: 'received_at', type: 'timestamp', nullable: true })
+  receivedAt: Date;
+
   @ManyToOne(() => Users, { nullable: true })
   @JoinColumn({ name: 'created_by' })
   user: Users;

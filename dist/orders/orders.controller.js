@@ -85,6 +85,14 @@ let OrdersController = class OrdersController {
     remove(id) {
         return this.ordersService.remove(+id);
     }
+    async markReceived(id, req) {
+        const userId = req.user?.id;
+        const order = await this.ordersService.markReceived(+id, userId);
+        return {
+            success: true,
+            data: order,
+        };
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -127,6 +135,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Patch)(':id/receive-stock'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "markReceived", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

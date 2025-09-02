@@ -1,4 +1,5 @@
 import { CommissionService } from './commission.service';
+import { DailyCommission } from './entities/daily-commission.entity';
 export declare class CommissionController {
     private readonly commissionService;
     constructor(commissionService: CommissionService);
@@ -22,7 +23,7 @@ export declare class CommissionController {
         notes?: string;
     }): Promise<{
         success: boolean;
-        data: import("./entities/daily-commission.entity").DailyCommission;
+        data: DailyCommission;
         message: string;
     }>;
     getTodayCommission(salesRepId: string): Promise<{
@@ -38,8 +39,8 @@ export declare class CommissionController {
                 endDate: string;
             };
             summary: {
-                totalCommission: any;
-                totalSales: any;
+                totalCommission: number;
+                totalSales: number;
                 totalDays: number;
                 daysWithCommission: number;
                 averageDailySales: number;

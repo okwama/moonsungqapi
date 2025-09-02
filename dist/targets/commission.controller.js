@@ -14,8 +14,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommissionController = void 0;
 const common_1 = require("@nestjs/common");
-const commission_service_1 = require("./commission.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const commission_service_1 = require("./commission.service");
 let CommissionController = class CommissionController {
     constructor(commissionService) {
         this.commissionService = commissionService;
@@ -62,7 +62,7 @@ let CommissionController = class CommissionController {
         return {
             success: true,
             data: result,
-            message: 'Today\'s commission calculated successfully',
+            message: "Today's commission calculated successfully",
         };
     }
     async getCommissionBreakdown(salesRepId, startDate, endDate) {
@@ -72,7 +72,7 @@ let CommissionController = class CommissionController {
         const totalCommission = history.reduce((sum, commission) => sum + commission.commissionAmount, 0);
         const totalSales = history.reduce((sum, commission) => sum + commission.dailySalesAmount, 0);
         const totalDays = history.length;
-        const daysWithCommission = history.filter(commission => commission.commissionAmount > 0).length;
+        const daysWithCommission = history.filter((commission) => commission.commissionAmount > 0).length;
         const breakdown = {
             dateRange: {
                 startDate: startDate,

@@ -105,4 +105,14 @@ export class OrdersController {
   remove(@Param('id') id: string) {
     return this.ordersService.remove(+id);
   }
+
+  @Patch(':id/receive-stock')
+  async markReceived(@Param('id') id: string, @Request() req) {
+    const userId = req.user?.id;
+    const order = await this.ordersService.markReceived(+id, userId);
+    return {
+      success: true,
+      data: order,
+    };
+  }
 } 

@@ -292,4 +292,18 @@ export class OrdersService {
   async remove(id: number): Promise<void> {
     await this.orderRepository.delete(id);
   }
+
+  async markReceived(id: number, userId?: number): Promise<Order | null> {
+    const order = await this.findOne(id, userId);
+    if (!order) {
+      throw new Error('Order not found or access denied');
+    }
+
+    await this.orderRepository.update(id, {
+      receivedIntoStock: true as any,
+      receivedAt: new Date(),
+    } as any);
+
+    return this.findOne(id, userId);
+  }
 } 

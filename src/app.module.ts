@@ -6,6 +6,9 @@ import { PassportModule } from '@nestjs/passport';
 import { ScheduleModule } from '@nestjs/schedule';
 import { getDatabaseConfig } from './config/database.config';
 import { DatabaseHealthService } from './config/database-health.service';
+import { DatabaseConnectionService } from './config/database-connection.service';
+import { HealthController } from './config/health.controller';
+import { PerformanceMonitorService } from './config/performance-monitor.service';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -26,6 +29,7 @@ import { ExcelImportModule } from './excel-import/excel-import.module';
 import { ClockInOutModule } from './clock-in-out/clock-in-out.module';
 import { ReportsModule } from './reports/reports.module';
 import { RoutesModule } from './routes/routes.module';
+import { PricingModule } from './pricing/pricing.module';
 import { VersionModule } from './version/version.module';
 import { PaymentsModule } from './payments/payments.module';
 import { OutletQuantityModule } from './outlet-quantity/outlet-quantity.module';
@@ -92,7 +96,9 @@ import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
     AssetRequestsModule,
     OutletQuantityTransactionsModule,
     AutoClockoutModule,
+    PricingModule,
   ],
-  providers: [DatabaseHealthService],
+  providers: [DatabaseHealthService, DatabaseConnectionService, PerformanceMonitorService],
+  controllers: [HealthController],
 })
 export class AppModule {} 

@@ -170,34 +170,22 @@ let UpliftSalesService = class UpliftSalesService {
             const saleEntity = Array.isArray(savedSale) ? savedSale[0] : savedSale;
             console.log('✅ Uplift sale created with ID:', saleEntity.id);
             if (items && items.length > 0) {
-                console.log('📦 Starting to create ${items.length} uplift sale items and deduct stock...');
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    try {
-                        const itemTotal = (item.unitPrice || 0) * (item.quantity || 0);
-                        console.log(`📦 Processing item ${i + 1}/${items.length}:`, {
-                            productId: item.productId,
-                            quantity: item.quantity,
-                            unitPrice: item.unitPrice,
-                            calculatedTotal: itemTotal,
-                        });
-                        const upliftSaleItem = this.upliftSaleItemRepository.create({
-                            upliftSaleId: saleEntity.id,
-                            productId: item.productId,
-                            quantity: item.quantity,
-                            unitPrice: item.unitPrice,
-                            total: itemTotal,
-                        });
-                        await queryRunner.manager.save(uplift_sale_item_entity_1.UpliftSaleItem, upliftSaleItem);
-                        console.log(`✅ Uplift sale item ${i + 1} saved`);
-                        await this.deductStock(queryRunner, saleData.clientId, item.productId, item.quantity, saleData.userId);
-                        console.log(`📉 Stock deducted for product ${item.productId}`);
-                    }
-                    catch (itemError) {
-                        console.error(`❌ Error processing item ${i + 1}:`, itemError);
-                        throw new Error(`Failed to process item: ${itemError.message}`);
-                    }
-                }
+                console.log(`📦 Starting to create ${items.length} uplift sale items and deduct stock...`);
+                const upliftSaleItems = items.map(item => {
+                    const itemTotal = (item.unitPrice || 0) * (item.quantity || 0);
+                    return this.upliftSaleItemRepository.create({
+                        upliftSaleId: saleEntity.id,
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        unitPrice: item.unitPrice,
+                        total: itemTotal,
+                    });
+                });
+                await queryRunner.manager.save(uplift_sale_item_entity_1.UpliftSaleItem, upliftSaleItems);
+                console.log(`✅ All ${items.length} uplift sale items saved in batch`);
+                const stockDeductions = items.map(item => this.deductStock(queryRunner, saleData.clientId, item.productId, item.quantity, saleData.userId));
+                await Promise.all(stockDeductions);
+                console.log(`📉 Stock deducted for all ${items.length} products in batch`);
                 console.log('✅ All uplift sale items created and stock deducted successfully');
             }
             else {

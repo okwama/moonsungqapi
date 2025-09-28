@@ -41,14 +41,20 @@ export class AutoClockoutService {
         String(eightPMToday.getMinutes()).padStart(2, '0') + ':' + 
         String(eightPMToday.getSeconds()).padStart(2, '0') + '.000';
 
-      // Find all active sessions for today
-      const todayStart = nairobiTime.getFullYear() + '-' + 
-        String(nairobiTime.getMonth() + 1).padStart(2, '0') + '-' + 
-        String(nairobiTime.getDate()).padStart(2, '0') + ' 00:00:00.000';
+      // OPTIMIZATION: Use date range instead of DATE() function for better index usage
+      const startOfDay = new Date(nairobiTime);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(nairobiTime);
+      endOfDay.setHours(23, 59, 59, 999);
 
+      // Convert dates to strings for comparison with sessionStart (which is stored as string)
+      const startOfDayStr = startOfDay.toISOString().slice(0, 19).replace('T', ' ');
+      const endOfDayStr = endOfDay.toISOString().slice(0, 19).replace('T', ' ');
+      
       const activeSessions = await this.loginHistoryRepository
         .createQueryBuilder('session')
-        .where('DATE(session.sessionStart) = DATE(:today)', { today: todayStart })
+        .where('session.sessionStart >= :startOfDay', { startOfDay: startOfDayStr })
+        .andWhere('session.sessionStart <= :endOfDay', { endOfDay: endOfDayStr })
         .andWhere('session.status = :status', { status: 1 }) // Active sessions only
         .getMany();
 
@@ -57,26 +63,47 @@ export class AutoClockoutService {
       let clockedOutCount = 0;
       let errorCount = 0;
 
-      for (const session of activeSessions) {
+      // OPTIMIZATION: Batch update all sessions at once instead of N+1 queries
+      if (activeSessions.length > 0) {
         try {
-          // Calculate duration from session start to 8 PM
-          const startTime = new Date(session.sessionStart);
-          const endTime = new Date(eightPMTimeString);
-          const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60));
-
-          // Update session to clock out at 8 PM
-          await this.loginHistoryRepository.update(session.id, {
-            status: 2, // Ended
-            sessionEnd: eightPMTimeString, // Record as 8 PM
-            duration: durationMinutes,
+          // Calculate durations for all sessions
+          const sessionUpdates = activeSessions.map(session => {
+            const startTime = new Date(session.sessionStart);
+            const endTime = new Date(eightPMTimeString);
+            const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60));
+            
+            return {
+              id: session.id,
+              userId: session.userId,
+              duration: durationMinutes
+            };
           });
 
-          this.logger.log(`✅ Auto clocked out user ${session.userId} at 8 PM (duration: ${durationMinutes} minutes)`);
-          clockedOutCount++;
+          // OPTIMIZATION: Single batch update instead of individual updates
+          const sessionIds = sessionUpdates.map(s => s.id);
+          await this.loginHistoryRepository
+            .createQueryBuilder()
+            .update(LoginHistory)
+            .set({ 
+              status: 2, // Ended
+              sessionEnd: eightPMTimeString, // Record as 8 PM
+            })
+            .where('id IN (:...ids)', { ids: sessionIds })
+            .execute();
+
+          // Update durations individually (since they're different for each session)
+          for (const update of sessionUpdates) {
+            await this.loginHistoryRepository.update(update.id, {
+              duration: update.duration,
+            });
+            
+            this.logger.log(`✅ Auto clocked out user ${update.userId} at 8 PM (duration: ${update.duration} minutes)`);
+            clockedOutCount++;
+          }
 
         } catch (error) {
-          this.logger.error(`❌ Failed to auto clockout user ${session.userId}: ${error.message}`);
-          errorCount++;
+          this.logger.error(`❌ Failed to batch auto clockout: ${error.message}`);
+          errorCount = activeSessions.length;
         }
       }
 
@@ -100,14 +127,21 @@ export class AutoClockoutService {
    */
   async getAutoClockoutStats() {
     try {
+      // OPTIMIZATION: Use date range instead of DATE() function
       const today = new Date();
-      const todayStart = today.getFullYear() + '-' + 
-        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-        String(today.getDate()).padStart(2, '0') + ' 00:00:00.000';
+      const startOfDay = new Date(today);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(today);
+      endOfDay.setHours(23, 59, 59, 999);
 
+      // Convert dates to strings for comparison with sessionStart (which is stored as string)
+      const startOfDayStr = startOfDay.toISOString().slice(0, 19).replace('T', ' ');
+      const endOfDayStr = endOfDay.toISOString().slice(0, 19).replace('T', ' ');
+      
       const activeSessions = await this.loginHistoryRepository
         .createQueryBuilder('session')
-        .where('DATE(session.sessionStart) = DATE(:today)', { today: todayStart })
+        .where('session.sessionStart >= :startOfDay', { startOfDay: startOfDayStr })
+        .andWhere('session.sessionStart <= :endOfDay', { endOfDay: endOfDayStr })
         .andWhere('session.status = :status', { status: 1 })
         .getCount();
 

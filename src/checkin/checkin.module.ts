@@ -9,4 +9,5 @@ import { CheckinService } from './checkin.service';
   providers: [CheckinService],
   exports: [CheckinService],
 })
+
 export class CheckinModule {} 

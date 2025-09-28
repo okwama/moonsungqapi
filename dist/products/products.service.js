@@ -20,13 +20,15 @@ const product_entity_1 = require("./entities/product.entity");
 const store_entity_1 = require("../entities/store.entity");
 const store_inventory_entity_1 = require("../entities/store-inventory.entity");
 const clients_entity_1 = require("../entities/clients.entity");
+const products_cache_service_1 = require("./products-cache.service");
 let ProductsService = class ProductsService {
-    constructor(productRepository, storeRepository, storeInventoryRepository, clientRepository, dataSource) {
+    constructor(productRepository, storeRepository, storeInventoryRepository, clientRepository, dataSource, cacheService) {
         this.productRepository = productRepository;
         this.storeRepository = storeRepository;
         this.storeInventoryRepository = storeInventoryRepository;
         this.clientRepository = clientRepository;
         this.dataSource = dataSource;
+        this.cacheService = cacheService;
     }
     async findAll(clientId) {
         const maxRetries = 3;
@@ -327,6 +329,7 @@ exports.ProductsService = ProductsService = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.DataSource])
+        typeorm_2.DataSource,
+        products_cache_service_1.ProductsCacheService])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

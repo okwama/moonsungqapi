@@ -12,5 +12,5 @@ export declare class VersionController {
         iosUrl: string;
         lastChecked: string;
     }>;
-    createVersion(versionData: any): Promise<import("../entities/version.entity").Version>;
+    createVersion(versionData: any): Promise<import("../entities").Version>;
 }

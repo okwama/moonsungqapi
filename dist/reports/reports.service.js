@@ -61,9 +61,7 @@ let ReportsService = class ReportsService {
                     console.log('📋 ===== PRODUCT AVAILABILITY REPORT CREATION =====');
                     if (Array.isArray(details)) {
                         console.log('📋 Processing multiple products:', details.length);
-                        const savedProductReports = [];
-                        for (let i = 0; i < details.length; i++) {
-                            const productDetail = details[i];
+                        const productReportsToCreate = details.map((productDetail, i) => {
                             console.log(`📋 Processing product ${i + 1}:`, JSON.stringify(productDetail, null, 2));
                             const { reportId: productReportId, ...productDetailsWithoutReportId } = productDetail;
                             const { reportId: mainProductReportId, ...mainDataWithoutReportId } = mainData || {};
@@ -73,17 +71,10 @@ let ReportsService = class ReportsService {
                                 userId: userId || salesRepId
                             };
                             console.log(`📋 Creating product report ${i + 1} with data:`, JSON.stringify(productDataToSave, null, 2));
-                            const productReport = this.productReportRepository.create(productDataToSave);
-                            console.log(`📋 Product report ${i + 1} entity created:`, JSON.stringify(productReport, null, 2));
-                            const savedProductReport = await this.productReportRepository.save(productReport);
-                            console.log(`✅ Product report ${i + 1} saved successfully!`);
-                            console.log(`✅ Product report ${i + 1} ID:`, savedProductReport.id);
-                            console.log(`✅ Product name:`, savedProductReport.productName);
-                            console.log(`✅ Product quantity:`, savedProductReport.quantity);
-                            console.log(`✅ Product comment:`, savedProductReport.comment);
-                            console.log(`✅ Product report ${i + 1} created at:`, savedProductReport.createdAt);
-                            savedProductReports.push(savedProductReport);
-                        }
+                            return this.productReportRepository.create(productDataToSave);
+                        });
+                        const savedProductReports = await this.productReportRepository.save(productReportsToCreate);
+                        console.log(`✅ All ${details.length} product reports saved in batch!`);
                         console.log('📋 ===== MULTIPLE PRODUCT REPORTS CREATION COMPLETE =====');
                         console.log(`✅ Total products saved: ${savedProductReports.length}`);
                         return savedProductReports[0];

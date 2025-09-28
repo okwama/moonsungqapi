@@ -2,7 +2,7 @@ import { LeaveService } from './leave.service';
 export declare class LeaveController {
     private readonly leaveService;
     constructor(leaveService: LeaveService);
-    getLeaveTypes(): Promise<import("../entities/leave-type.entity").LeaveType[]>;
+    getLeaveTypes(): Promise<import("../entities").LeaveType[]>;
     getLeaveBalance(req: any): Promise<any>;
     findAll(query: any, req: any): Promise<import("../entities").Leave[]>;
     findOne(id: string): Promise<import("../entities").Leave>;

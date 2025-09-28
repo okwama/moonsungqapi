@@ -25,6 +25,5 @@ export { Route } from './route.entity';
 export { StoreInventory } from './store-inventory.entity';
 export { Store } from './store.entity';
 export { ClientStock } from './client-stock.entity';
-export { Token } from './token.entity';
 export { AssetRequest } from './asset-request.entity';
 export { AssetRequestItem } from './asset-request-item.entity';

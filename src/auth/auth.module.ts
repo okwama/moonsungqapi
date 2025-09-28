@@ -8,7 +8,6 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { SalesRep } from '../entities/sales-rep.entity';
-import { Token } from '../entities/token.entity';
 import { UsersModule } from '../users/users.module';
 import { RolesModule } from '../roles/roles.module';
 
@@ -16,7 +15,7 @@ import { RolesModule } from '../roles/roles.module';
   imports: [
     UsersModule,
     RolesModule,
-    TypeOrmModule.forFeature([SalesRep, Token]),
+    TypeOrmModule.forFeature([SalesRep]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

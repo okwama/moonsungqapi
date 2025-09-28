@@ -15,6 +15,9 @@ const passport_1 = require("@nestjs/passport");
 const schedule_1 = require("@nestjs/schedule");
 const database_config_1 = require("./config/database.config");
 const database_health_service_1 = require("./config/database-health.service");
+const database_connection_service_1 = require("./config/database-connection.service");
+const health_controller_1 = require("./config/health.controller");
+const performance_monitor_service_1 = require("./config/performance-monitor.service");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const profile_module_1 = require("./profile/profile.module");
@@ -34,6 +37,7 @@ const excel_import_module_1 = require("./excel-import/excel-import.module");
 const clock_in_out_module_1 = require("./clock-in-out/clock-in-out.module");
 const reports_module_1 = require("./reports/reports.module");
 const routes_module_1 = require("./routes/routes.module");
+const pricing_module_1 = require("./pricing/pricing.module");
 const version_module_1 = require("./version/version.module");
 const payments_module_1 = require("./payments/payments.module");
 const outlet_quantity_module_1 = require("./outlet-quantity/outlet-quantity.module");
@@ -102,8 +106,10 @@ exports.AppModule = AppModule = __decorate([
             asset_requests_module_1.AssetRequestsModule,
             outlet_quantity_transactions_module_1.OutletQuantityTransactionsModule,
             auto_clockout_module_1.AutoClockoutModule,
+            pricing_module_1.PricingModule,
         ],
-        providers: [database_health_service_1.DatabaseHealthService],
+        providers: [database_health_service_1.DatabaseHealthService, database_connection_service_1.DatabaseConnectionService, performance_monitor_service_1.PerformanceMonitorService],
+        controllers: [health_controller_1.HealthController],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

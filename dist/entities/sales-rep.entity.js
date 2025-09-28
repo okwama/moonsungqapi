@@ -139,6 +139,8 @@ exports.SalesRep = SalesRep = __decorate([
     (0, typeorm_1.Index)('idx_status_role', ['status', 'role']),
     (0, typeorm_1.Index)('idx_location', ['countryId', 'region_id', 'route_id']),
     (0, typeorm_1.Index)('idx_manager', ['managerId']),
-    (0, typeorm_1.Index)('SalesRep_countryId_fkey', ['countryId'])
+    (0, typeorm_1.Index)('SalesRep_countryId_fkey', ['countryId']),
+    (0, typeorm_1.Index)('idx_phone_status', ['phoneNumber', 'status']),
+    (0, typeorm_1.Index)('idx_phone_unique', ['phoneNumber'], { unique: true })
 ], SalesRep);
 //# sourceMappingURL=sales-rep.entity.js.map

@@ -10,6 +10,8 @@ import { Role } from './role.entity';
 @Index('idx_location', ['countryId', 'region_id', 'route_id'])
 @Index('idx_manager', ['managerId'])
 @Index('SalesRep_countryId_fkey', ['countryId'])
+@Index('idx_phone_status', ['phoneNumber', 'status']) // Optimized for login queries
+@Index('idx_phone_unique', ['phoneNumber'], { unique: true }) // Ensure phone uniqueness
 export class SalesRep {
   @PrimaryGeneratedColumn()
   id: number;

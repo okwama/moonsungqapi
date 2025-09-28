@@ -9,7 +9,7 @@ export declare class CloudinaryService {
         name: string;
         format: string;
         size: number;
-        resource_type: "auto" | "image" | "video" | "raw";
+        resource_type: "raw" | "image" | "auto" | "video";
     }>;
     deleteFromCloudinary(publicId: string, resourceType?: string): Promise<any>;
     uploadFile(file: Express.Multer.File): Promise<{

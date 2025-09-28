@@ -160,7 +160,7 @@ let JourneyPlansService = class JourneyPlansService {
             if (result && result.length > 0) {
                 const rawData = result[0];
                 const total = result[1]?.[0]?.total || 0;
-                const data = await Promise.all(rawData.map(async (row) => {
+                const data = rawData.map((row) => {
                     const journeyPlan = {};
                     const client = {};
                     const user = {};
@@ -179,10 +179,10 @@ let JourneyPlansService = class JourneyPlansService {
                     });
                     return {
                         ...journeyPlan,
-                        client: await this.ensureClientCoordinates(client),
+                        client,
                         user,
                     };
-                }));
+                });
                 console.log('✅ Stored procedure executed successfully');
                 console.log('📊 Total found:', total);
                 console.log('📊 Data length:', data.length);

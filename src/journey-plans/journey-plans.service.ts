@@ -216,7 +216,7 @@ export class JourneyPlansService {
         const total = result[1]?.[0]?.total || 0; // Second result set contains count
 
         // Transform flat fields back to nested objects
-        const data = await Promise.all(rawData.map(async (row: any) => {
+        const data = rawData.map((row: any) => {
           const journeyPlan: any = {};
           const client: any = {};
           const user: any = {};
@@ -236,10 +236,10 @@ export class JourneyPlansService {
 
           return {
             ...journeyPlan,
-            client: await this.ensureClientCoordinates(client),
+            client, // Remove async call to prevent N+1
             user,
           };
-        }));
+        });
 
         console.log('✅ Stored procedure executed successfully');
         console.log('📊 Total found:', total);

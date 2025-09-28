@@ -4,7 +4,30 @@ exports.default = handler;
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
+const compression = require("compression");
 let app;
+process.on('SIGTERM', async () => {
+    console.log('🛑 SIGTERM received, shutting down gracefully...');
+    if (app) {
+        await app.close();
+    }
+    process.exit(0);
+});
+process.on('SIGINT', async () => {
+    console.log('🛑 SIGINT received, shutting down gracefully...');
+    if (app) {
+        await app.close();
+    }
+    process.exit(0);
+});
+process.on('uncaughtException', (error) => {
+    console.error('💥 Uncaught Exception:', error);
+    process.exit(1);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+});
 async function bootstrap() {
     try {
         if (!app) {
@@ -14,6 +37,16 @@ async function bootstrap() {
                 origin: true,
                 credentials: true,
             });
+            app.use(compression({
+                level: 6,
+                threshold: 1024,
+                filter: (req, res) => {
+                    if (req.headers['x-no-compression']) {
+                        return false;
+                    }
+                    return compression.filter(req, res);
+                }
+            }));
             app.useGlobalPipes(new common_1.ValidationPipe({
                 transform: true,
                 whitelist: true,

@@ -1,8 +1,36 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import * as compression from 'compression';
 
 let app: any;
+
+// Graceful shutdown handling
+process.on('SIGTERM', async () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  if (app) {
+    await app.close();
+  }
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('🛑 SIGINT received, shutting down gracefully...');
+  if (app) {
+    await app.close();
+  }
+  process.exit(0);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('💥 Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
 
 async function bootstrap() {
   try {
@@ -15,6 +43,18 @@ async function bootstrap() {
         origin: true,
         credentials: true,
       });
+      
+      // Add compression middleware for better performance
+      app.use(compression({
+        level: 6, // Compression level (1-9, 6 is good balance)
+        threshold: 1024, // Only compress responses > 1KB
+        filter: (req, res) => {
+          if (req.headers['x-no-compression']) {
+            return false;
+          }
+          return compression.filter(req, res);
+        }
+      }));
       
       app.useGlobalPipes(new ValidationPipe({
         transform: true,

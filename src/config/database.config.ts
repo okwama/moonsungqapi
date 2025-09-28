@@ -45,20 +45,34 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
         FeedbackReport, ProductReport, VisibilityReport, SalesClientPayment, ClientStock, Role,
       ],
       synchronize: false,
-      logging: configService.get<boolean>('DB_LOGGING', false),
       charset: 'utf8mb4',
       ssl: configService.get<boolean>('DB_SSL', false),
       extra: {
-        connectionLimit: 20,
+        connectionLimit: 10, // Reduced from 20 to prevent pool exhaustion
+        acquireTimeout: 60000, // Time to wait for connection from pool
+        timeout: 60000, // Query timeout
+        reconnect: true, // Auto-reconnect on connection loss
         charset: 'utf8mb4',
         multipleStatements: true,
         dateStrings: true,
+        // Connection pool management
+        idleTimeout: 300000, // 5 minutes - close idle connections
+        maxIdle: 5, // Maximum idle connections
+        minIdle: 2, // Minimum idle connections to maintain
+        // Connection validation
+        validateConnection: true,
+        // Keep-alive settings
+        keepAliveInitialDelay: 0,
+        enableKeepAlive: true,
       },
-      retryAttempts: 5,
-      retryDelay: 2000,
+      retryAttempts: 10, // Increased retry attempts
+      retryDelay: 3000, // Increased delay between retries
       connectTimeout: 60000,
       keepConnectionAlive: true,
       autoLoadEntities: true,
+      // Additional connection management
+      maxQueryExecutionTime: 30000, // 30 seconds max query time
+      logging: configService.get<boolean>('DB_LOGGING', false) ? ['error', 'warn', 'info', 'log'] : false,
     };
   }
 
@@ -77,19 +91,33 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
       FeedbackReport, ProductReport, VisibilityReport, SalesClientPayment, ClientStock, Role,
     ],
     synchronize: false,
-    logging: configService.get<boolean>('DB_LOGGING', false),
     charset: 'utf8mb4',
     ssl: configService.get<boolean>('DB_SSL', false),
     extra: {
-      connectionLimit: 20,
+      connectionLimit: 10, // Reduced from 20 to prevent pool exhaustion
+      acquireTimeout: 60000, // Time to wait for connection from pool
+      timeout: 60000, // Query timeout
+      reconnect: true, // Auto-reconnect on connection loss
       charset: 'utf8mb4',
       multipleStatements: true,
       dateStrings: true,
+      // Connection pool management
+      idleTimeout: 300000, // 5 minutes - close idle connections
+      maxIdle: 5, // Maximum idle connections
+      minIdle: 2, // Minimum idle connections to maintain
+      // Connection validation
+      validateConnection: true,
+      // Keep-alive settings
+      keepAliveInitialDelay: 0,
+      enableKeepAlive: true,
     },
-    retryAttempts: 5,
-    retryDelay: 2000,
+    retryAttempts: 10, // Increased retry attempts
+    retryDelay: 3000, // Increased delay between retries
     connectTimeout: 60000,
     keepConnectionAlive: true,
     autoLoadEntities: true,
+    // Additional connection management
+    maxQueryExecutionTime: 30000, // 30 seconds max query time
+    logging: configService.get<boolean>('DB_LOGGING', false) ? ['error', 'warn', 'info', 'log'] : false,
   };
 }; 

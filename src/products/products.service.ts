@@ -5,6 +5,7 @@ import { Product } from './entities/product.entity';
 import { Store } from '../entities/store.entity';
 import { StoreInventory } from '../entities/store-inventory.entity';
 import { Clients } from '../entities/clients.entity';
+import { ProductsCacheService } from './products-cache.service';
 
 @Injectable()
 export class ProductsService {
@@ -18,6 +19,7 @@ export class ProductsService {
     @InjectRepository(Clients)
     private clientRepository: Repository<Clients>,
     private dataSource: DataSource,
+    private cacheService: ProductsCacheService,
   ) {}
 
   async findAll(clientId?: number): Promise<Product[]> {

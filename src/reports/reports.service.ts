@@ -66,11 +66,8 @@ export class ReportsService {
           if (Array.isArray(details)) {
             console.log('📋 Processing multiple products:', details.length);
             
-            // Create separate ProductReport records for each product
-            const savedProductReports = [];
-            
-            for (let i = 0; i < details.length; i++) {
-              const productDetail = details[i];
+            // OPTIMIZATION: Batch create all ProductReport records
+            const productReportsToCreate = details.map((productDetail, i) => {
               console.log(`📋 Processing product ${i + 1}:`, JSON.stringify(productDetail, null, 2));
               
               // Extract reportId from product detail and exclude it
@@ -87,19 +84,12 @@ export class ReportsService {
               };
 
               console.log(`📋 Creating product report ${i + 1} with data:`, JSON.stringify(productDataToSave, null, 2));
-              const productReport = this.productReportRepository.create(productDataToSave);
-              console.log(`📋 Product report ${i + 1} entity created:`, JSON.stringify(productReport, null, 2));
-              const savedProductReport = await this.productReportRepository.save(productReport);
-              
-              console.log(`✅ Product report ${i + 1} saved successfully!`);
-              console.log(`✅ Product report ${i + 1} ID:`, (savedProductReport as any).id);
-              console.log(`✅ Product name:`, (savedProductReport as any).productName);
-              console.log(`✅ Product quantity:`, (savedProductReport as any).quantity);
-              console.log(`✅ Product comment:`, (savedProductReport as any).comment);
-              console.log(`✅ Product report ${i + 1} created at:`, (savedProductReport as any).createdAt);
-              
-              savedProductReports.push(savedProductReport);
-            }
+              return this.productReportRepository.create(productDataToSave);
+            });
+            
+            // Batch save all product reports at once
+            const savedProductReports = await this.productReportRepository.save(productReportsToCreate as any);
+            console.log(`✅ All ${details.length} product reports saved in batch!`);
             
             console.log('📋 ===== MULTIPLE PRODUCT REPORTS CREATION COMPLETE =====');
             console.log(`✅ Total products saved: ${savedProductReports.length}`);

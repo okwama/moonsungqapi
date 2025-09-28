@@ -28,40 +28,9 @@ export declare class AuthController {
     refreshToken(refreshTokenDto: RefreshTokenDto): Promise<{
         success: boolean;
         accessToken: string;
-        refreshToken: string;
         expiresIn: number;
-        user: {
-            id: number;
-            name: string;
-            email: string;
-            phone: string;
-            role: string;
-            roleId: number;
-            countryId: number;
-            regionId: number;
-            routeId: number;
-            status: number;
-            photoUrl: string;
-        };
     }>;
     getProfile(req: any): any;
-    getValidTokens(req: any): Promise<{
-        success: boolean;
-        accessTokens: {
-            token: string;
-            expiresAt: Date;
-            createdAt: Date;
-        }[];
-        refreshTokens: {
-            token: string;
-            expiresAt: Date;
-            createdAt: Date;
-        }[];
-        totalTokens: number;
-        validAccessTokens: number;
-        validRefreshTokens: number;
-        tokensGenerated: boolean;
-    }>;
     logout(req: any): Promise<{
         success: boolean;
         message: string;

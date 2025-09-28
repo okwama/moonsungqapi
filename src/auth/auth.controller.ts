@@ -12,28 +12,16 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
-  @HttpCode(HttpStatus.OK) // Explicitly return 200 status code
+  @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
-    this.logger.log('🔐 Login attempt received');
-    this.logger.log(`📱 Phone Number: ${loginDto.phoneNumber}`);
-    this.logger.log(`🔑 Password: ${loginDto.password ? '[PROVIDED]' : '[MISSING]'}`);
-    this.logger.log(`📦 Full payload: ${JSON.stringify(loginDto, null, 2)}`);
-    
     try {
       const user = await this.authService.validateUser(loginDto.phoneNumber, loginDto.password);
       if (!user) {
-        this.logger.warn(`❌ Login failed for phone: ${loginDto.phoneNumber} - Invalid credentials`);
         throw new UnauthorizedException('Invalid credentials');
       }
       
-      this.logger.log(`✅ Login successful for user: ${user.name} (ID: ${user.id})`);
-      const result = await this.authService.login(user);
-      this.logger.log(`🎫 JWT token generated for user: ${user.name}`);
-      
-      // Return 200 status code instead of 201
-      return result;
+      return await this.authService.login(user);
     } catch (error) {
-      this.logger.error(`💥 Login error for phone: ${loginDto.phoneNumber}`, error.stack);
       throw error;
     }
   }
@@ -62,22 +50,7 @@ export class AuthController {
     return req.user;
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('valid-tokens')
-  @HttpCode(HttpStatus.OK)
-  async getValidTokens(@Request() req) {
-    this.logger.log(`🔍 Valid tokens request for user: ${req.user?.name || 'Unknown'}`);
-    
-    try {
-      const result = await this.authService.getValidTokens(req.user.id);
-      this.logger.log(`✅ Valid tokens retrieved for user: ${req.user?.name}`);
-      
-      return result;
-    } catch (error) {
-      this.logger.error(`💥 Failed to get valid tokens for user: ${req.user?.name}`, error.stack);
-      throw error;
-    }
-  }
+  // Removed getValidTokens endpoint since we're not storing tokens in database anymore
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')

@@ -222,46 +222,37 @@ export class UpliftSalesService {
       
       // Create uplift sale items and deduct stock
       if (items && items.length > 0) {
-        console.log('📦 Starting to create ${items.length} uplift sale items and deduct stock...');
+        console.log(`📦 Starting to create ${items.length} uplift sale items and deduct stock...`);
         
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-          try {
-            const itemTotal = (item.unitPrice || 0) * (item.quantity || 0);
-            console.log(`📦 Processing item ${i + 1}/${items.length}:`, {
-              productId: item.productId,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              calculatedTotal: itemTotal,
-            });
-            
-            // Create uplift sale item
-            const upliftSaleItem = this.upliftSaleItemRepository.create({
-              upliftSaleId: saleEntity.id,
-              productId: item.productId,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              total: itemTotal,
-            });
-            
-            await queryRunner.manager.save(UpliftSaleItem, upliftSaleItem);
-            console.log(`✅ Uplift sale item ${i + 1} saved`);
-            
-            // Deduct stock from client stock
-            await this.deductStock(
-              queryRunner,
-              saleData.clientId,
-              item.productId,
-              item.quantity,
-              saleData.userId
-            );
-            console.log(`📉 Stock deducted for product ${item.productId}`);
-            
-          } catch (itemError) {
-            console.error(`❌ Error processing item ${i + 1}:`, itemError);
-            throw new Error(`Failed to process item: ${itemError.message}`);
-          }
-        }
+        // OPTIMIZATION: Batch create all items first
+        const upliftSaleItems = items.map(item => {
+          const itemTotal = (item.unitPrice || 0) * (item.quantity || 0);
+          return this.upliftSaleItemRepository.create({
+            upliftSaleId: saleEntity.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            total: itemTotal,
+          });
+        });
+        
+        // Batch save all items at once
+        await queryRunner.manager.save(UpliftSaleItem, upliftSaleItems);
+        console.log(`✅ All ${items.length} uplift sale items saved in batch`);
+        
+        // OPTIMIZATION: Batch deduct stock for all items
+        const stockDeductions = items.map(item => 
+          this.deductStock(
+            queryRunner,
+            saleData.clientId,
+            item.productId,
+            item.quantity,
+            saleData.userId
+          )
+        );
+        
+        await Promise.all(stockDeductions);
+        console.log(`📉 Stock deducted for all ${items.length} products in batch`);
         
         console.log('✅ All uplift sale items created and stock deducted successfully');
       } else {

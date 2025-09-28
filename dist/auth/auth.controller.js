@@ -25,23 +25,14 @@ let AuthController = AuthController_1 = class AuthController {
         this.logger = new common_1.Logger(AuthController_1.name);
     }
     async login(loginDto) {
-        this.logger.log('🔐 Login attempt received');
-        this.logger.log(`📱 Phone Number: ${loginDto.phoneNumber}`);
-        this.logger.log(`🔑 Password: ${loginDto.password ? '[PROVIDED]' : '[MISSING]'}`);
-        this.logger.log(`📦 Full payload: ${JSON.stringify(loginDto, null, 2)}`);
         try {
             const user = await this.authService.validateUser(loginDto.phoneNumber, loginDto.password);
             if (!user) {
-                this.logger.warn(`❌ Login failed for phone: ${loginDto.phoneNumber} - Invalid credentials`);
                 throw new common_1.UnauthorizedException('Invalid credentials');
             }
-            this.logger.log(`✅ Login successful for user: ${user.name} (ID: ${user.id})`);
-            const result = await this.authService.login(user);
-            this.logger.log(`🎫 JWT token generated for user: ${user.name}`);
-            return result;
+            return await this.authService.login(user);
         }
         catch (error) {
-            this.logger.error(`💥 Login error for phone: ${loginDto.phoneNumber}`, error.stack);
             throw error;
         }
     }
@@ -61,18 +52,6 @@ let AuthController = AuthController_1 = class AuthController {
     getProfile(req) {
         this.logger.log(`👤 Profile request for user: ${req.user?.name || 'Unknown'}`);
         return req.user;
-    }
-    async getValidTokens(req) {
-        this.logger.log(`🔍 Valid tokens request for user: ${req.user?.name || 'Unknown'}`);
-        try {
-            const result = await this.authService.getValidTokens(req.user.id);
-            this.logger.log(`✅ Valid tokens retrieved for user: ${req.user?.name}`);
-            return result;
-        }
-        catch (error) {
-            this.logger.error(`💥 Failed to get valid tokens for user: ${req.user?.name}`, error.stack);
-            throw error;
-        }
     }
     async logout(req) {
         this.logger.log(`🚪 Logout request received for user: ${req.user?.name || 'Unknown'}`);
@@ -112,15 +91,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getProfile", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Get)('valid-tokens'),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    __param(0, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "getValidTokens", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('logout'),

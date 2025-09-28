@@ -6,6 +6,8 @@ export declare class ClockInOutService {
     private loginHistoryRepository;
     private dataSource;
     private readonly logger;
+    private userStatusCache;
+    private readonly CACHE_TTL;
     constructor(loginHistoryRepository: Repository<LoginHistory>, dataSource: DataSource);
     clockIn(clockInDto: ClockInDto): Promise<{
         success: boolean;
@@ -33,6 +35,7 @@ export declare class ClockInOutService {
         sessions: any[];
     }>;
     private getClockSessionsFallback;
+    private clearUserCache;
     private formatDateTime;
     private formatDuration;
 }

@@ -28,7 +28,9 @@ let DatabaseHealthService = DatabaseHealthService_1 = class DatabaseHealthServic
         this.lastSuccessfulCheck = null;
     }
     async onModuleInit() {
-        this.startHealthCheck();
+        if (!process.env.VERCEL) {
+            this.startHealthCheck();
+        }
     }
     startHealthCheck() {
         this.healthCheckInterval = setInterval(async () => {

@@ -37,16 +37,18 @@ async function bootstrap() {
                 origin: true,
                 credentials: true,
             });
-            app.use(compression({
-                level: 6,
-                threshold: 1024,
-                filter: (req, res) => {
-                    if (req.headers['x-no-compression']) {
-                        return false;
+            if (!process.env.VERCEL) {
+                app.use(compression({
+                    level: 6,
+                    threshold: 1024,
+                    filter: (req, res) => {
+                        if (req.headers['x-no-compression']) {
+                            return false;
+                        }
+                        return compression.filter(req, res);
                     }
-                    return compression.filter(req, res);
-                }
-            }));
+                }));
+            }
             app.useGlobalPipes(new common_1.ValidationPipe({
                 transform: true,
                 whitelist: true,
@@ -64,6 +66,7 @@ async function bootstrap() {
 }
 async function handler(req, res) {
     try {
+        process.env.VERCEL = 'true';
         const app = await bootstrap();
         const expressApp = app.getHttpAdapter().getInstance();
         return expressApp(req, res);

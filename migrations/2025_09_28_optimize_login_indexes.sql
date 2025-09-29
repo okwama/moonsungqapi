@@ -19,3 +19,4 @@ CREATE INDEX IF NOT EXISTS idx_role_id ON SalesRep (roleId);
 
 -- Drop the old token table if it exists (since we're not using it anymore)
 DROP TABLE IF EXISTS Token;
+

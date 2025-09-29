@@ -44,17 +44,19 @@ async function bootstrap() {
         credentials: true,
       });
       
-      // Add compression middleware for better performance
-      app.use(compression({
-        level: 6, // Compression level (1-9, 6 is good balance)
-        threshold: 1024, // Only compress responses > 1KB
-        filter: (req, res) => {
-          if (req.headers['x-no-compression']) {
-            return false;
+      // Add compression middleware for better performance (only for non-serverless)
+      if (!process.env.VERCEL) {
+        app.use(compression({
+          level: 6, // Compression level (1-9, 6 is good balance)
+          threshold: 1024, // Only compress responses > 1KB
+          filter: (req, res) => {
+            if (req.headers['x-no-compression']) {
+              return false;
+            }
+            return compression.filter(req, res);
           }
-          return compression.filter(req, res);
-        }
-      }));
+        }));
+      }
       
       app.useGlobalPipes(new ValidationPipe({
         transform: true,
@@ -79,6 +81,9 @@ async function bootstrap() {
 // For Vercel serverless
 export default async function handler(req: any, res: any) {
   try {
+    // Set serverless environment flag
+    process.env.VERCEL = 'true';
+    
     const app = await bootstrap();
     const expressApp = app.getHttpAdapter().getInstance();
     return expressApp(req, res);

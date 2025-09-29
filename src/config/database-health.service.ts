@@ -18,7 +18,10 @@ export class DatabaseHealthService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    this.startHealthCheck();
+    // Only start health checks in non-serverless environments
+    if (!process.env.VERCEL) {
+      this.startHealthCheck();
+    }
   }
 
   private startHealthCheck() {

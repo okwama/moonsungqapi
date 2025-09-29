@@ -25,6 +25,12 @@ export class DatabaseConnectionService {
       try {
         this.logger.debug(`Executing query (attempt ${attempt}/${maxRetries}): ${query.substring(0, 100)}...`);
         
+        // Check if connection is established, especially for serverless
+        if (!this.dataSource.isInitialized) {
+          this.logger.warn('Database not initialized, attempting to initialize...');
+          await this.dataSource.initialize();
+        }
+        
         const result = await this.dataSource.query(query, parameters);
         return result;
       } catch (error) {

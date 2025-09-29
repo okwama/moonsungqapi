@@ -136,3 +136,4 @@ ANALYZE TABLE JourneyPlan;
 ANALYZE TABLE store_inventory;
 ANALYZE TABLE UpliftSale;
 ANALYZE TABLE UpliftSaleItem;
+

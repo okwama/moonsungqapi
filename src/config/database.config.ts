@@ -28,6 +28,52 @@ import { Role } from '../entities/role.entity';
 export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOptions => {
   const useLocalDb = configService.get<string>('USE_LOCAL_DB', 'false') === 'true';
   const isProduction = configService.get<string>('NODE_ENV', 'development') === 'production';
+  const isServerless = !!process.env.VERCEL;
+
+  // Serverless-specific configuration
+  if (isServerless) {
+    console.log('☁️ Serverless environment - using optimized MySQL configuration');
+    return {
+      type: 'mysql',
+      host: configService.get<string>('DB_HOST'),
+      port: configService.get<number>('DB_PORT', 3306),
+      username: configService.get<string>('DB_USERNAME'),
+      password: configService.get<string>('DB_PASSWORD'),
+      database: configService.get<string>('DB_DATABASE'),
+      entities: [
+        SalesRep, Clients, Product, JourneyPlan, LoginHistory, UpliftSale, UpliftSaleItem,
+        Task, Leave, Store, StoreInventory, Category, CategoryPriceOption, Order, OrderItem, Users, Notice, LeaveType,
+        FeedbackReport, ProductReport, VisibilityReport, SalesClientPayment, ClientStock, Role,
+      ],
+      synchronize: false,
+      charset: 'utf8mb4',
+      ssl: configService.get<boolean>('DB_SSL', false),
+      extra: {
+        // Serverless-optimized connection pool
+        connectionLimit: 1, // Single connection for serverless
+        acquireTimeout: 10000, // Faster timeout for serverless
+        timeout: 30000, // Shorter query timeout
+        reconnect: true,
+        charset: 'utf8mb4',
+        multipleStatements: true,
+        dateStrings: true,
+        // No connection pooling in serverless
+        idleTimeout: 0,
+        maxIdle: 0,
+        minIdle: 0,
+        // Disable keep-alive for serverless
+        keepAliveInitialDelay: 0,
+        enableKeepAlive: false,
+      },
+      retryAttempts: 3, // Fewer retries for serverless
+      retryDelay: 1000, // Faster retry
+      connectTimeout: 10000, // Faster connection timeout
+      keepConnectionAlive: false, // Don't keep connections alive in serverless
+      autoLoadEntities: true,
+      maxQueryExecutionTime: 15000, // Shorter max query time
+      logging: false, // Disable logging in serverless for performance
+    };
+  }
 
   // Force MySQL in production
   if (isProduction) {

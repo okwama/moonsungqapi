@@ -27,6 +27,10 @@ let DatabaseConnectionService = DatabaseConnectionService_1 = class DatabaseConn
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 this.logger.debug(`Executing query (attempt ${attempt}/${maxRetries}): ${query.substring(0, 100)}...`);
+                if (!this.dataSource.isInitialized) {
+                    this.logger.warn('Database not initialized, attempting to initialize...');
+                    await this.dataSource.initialize();
+                }
                 const result = await this.dataSource.query(query, parameters);
                 return result;
             }

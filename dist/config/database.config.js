@@ -87,19 +87,32 @@ const getDatabaseConfig = (configService) => {
             charset: 'utf8mb4',
             ssl: configService.get('DB_SSL', false),
             extra: {
-                connectionLimit: 10,
-                acquireTimeout: 60000,
-                timeout: 60000,
+                connectionLimit: 15,
+                acquireTimeout: 30000,
+                timeout: 45000,
                 reconnect: true,
                 charset: 'utf8mb4',
                 multipleStatements: true,
                 dateStrings: true,
-                idleTimeout: 300000,
-                maxIdle: 5,
-                minIdle: 2,
+                idleTimeout: 180000,
+                maxIdle: 8,
+                minIdle: 3,
                 validateConnection: true,
                 keepAliveInitialDelay: 0,
                 enableKeepAlive: true,
+                supportBigNumbers: true,
+                bigNumberStrings: true,
+                compress: true,
+                queryFormat: function (query, values) {
+                    if (!values)
+                        return query;
+                    return query.replace(/\:(\w+)/g, function (txt, key) {
+                        if (values.hasOwnProperty(key)) {
+                            return this.escape(values[key]);
+                        }
+                        return txt;
+                    }.bind(this));
+                },
             },
             retryAttempts: 10,
             retryDelay: 3000,

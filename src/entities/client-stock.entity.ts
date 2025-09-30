@@ -1,9 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Clients } from './clients.entity';
 import { Product } from '../products/entities/product.entity';
 import { SalesRep } from './sales-rep.entity';
 
 @Entity('ClientStock')
+@Index('idx_clientstock_client_product', ['clientId', 'productId'])
+@Index('idx_clientstock_product', ['productId'])
 export class ClientStock {
   @PrimaryGeneratedColumn()
   id: number;

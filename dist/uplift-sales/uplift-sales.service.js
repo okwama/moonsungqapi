@@ -112,38 +112,142 @@ let UpliftSalesService = class UpliftSalesService {
         };
     }
     async deductStock(queryRunner, clientId, productId, quantity, salesrepId) {
-        const stockRecord = await queryRunner.manager.findOne(client_stock_entity_1.ClientStock, {
-            where: { clientId, productId }
-        });
-        if (!stockRecord) {
-            throw new Error(`Stock record not found for client ${clientId}, product ${productId}`);
+        console.log(`📉 Deducting stock: clientId=${clientId}, productId=${productId}, quantity=${quantity}`);
+        try {
+            const stockRecord = await Promise.race([
+                queryRunner.manager.findOne(client_stock_entity_1.ClientStock, {
+                    where: { clientId, productId },
+                    lock: { mode: 'pessimistic_write' }
+                }),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Stock lookup timeout')), 10000))
+            ]);
+            if (!stockRecord) {
+                throw new Error(`Stock record not found for client ${clientId}, product ${productId}`);
+            }
+            if (stockRecord.quantity < quantity) {
+                throw new Error(`Insufficient stock: available ${stockRecord.quantity}, requested ${quantity}`);
+            }
+            const previousStock = stockRecord.quantity;
+            stockRecord.quantity -= quantity;
+            stockRecord.salesrepId = salesrepId;
+            await Promise.race([
+                queryRunner.manager.save(client_stock_entity_1.ClientStock, stockRecord),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Stock save timeout')), 10000))
+            ]);
+            console.log(`✅ Stock deducted successfully: ${previousStock} -> ${stockRecord.quantity}`);
+            this.logSaleTransactionAsync(clientId, productId, quantity, previousStock, stockRecord.quantity, 0, salesrepId, 'Sale made').catch(error => {
+                console.error('⚠️ Failed to log transaction (non-blocking):', error.message);
+            });
         }
-        if (stockRecord.quantity < quantity) {
-            throw new Error(`Insufficient stock: available ${stockRecord.quantity}, requested ${quantity}`);
+        catch (error) {
+            console.error(`❌ Error deducting stock for client ${clientId}, product ${productId}:`, error);
+            throw error;
         }
-        const previousStock = stockRecord.quantity;
-        stockRecord.quantity -= quantity;
-        stockRecord.salesrepId = salesrepId;
-        await queryRunner.manager.save(client_stock_entity_1.ClientStock, stockRecord);
-        await this.outletQuantityTransactionsService.logSaleTransaction(clientId, productId, quantity, previousStock, stockRecord.quantity, 0, salesrepId, 'Sale made');
+    }
+    async logSaleTransactionAsync(clientId, productId, quantity, previousBalance, newBalance, referenceId, userId, notes) {
+        try {
+            console.log(`📝 Logging transaction async for client ${clientId}, product ${productId}`);
+            const logQueryRunner = this.dataSource.createQueryRunner();
+            await logQueryRunner.connect();
+            try {
+                await logQueryRunner.startTransaction();
+                await Promise.race([
+                    this.outletQuantityTransactionsService.logSaleTransaction(clientId, productId, quantity, previousBalance, newBalance, referenceId, userId, notes),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction logging timeout')), 5000))
+                ]);
+                await logQueryRunner.commitTransaction();
+                console.log(`✅ Transaction logged successfully for client ${clientId}, product ${productId}`);
+            }
+            catch (error) {
+                await logQueryRunner.rollbackTransaction();
+                throw error;
+            }
+            finally {
+                await logQueryRunner.release();
+            }
+        }
+        catch (error) {
+            console.error(`❌ Failed to log transaction for client ${clientId}, product ${productId}:`, error.message);
+        }
     }
     async restoreStock(queryRunner, clientId, productId, quantity, salesrepId) {
-        const stockRecord = await queryRunner.manager.findOne(client_stock_entity_1.ClientStock, {
-            where: { clientId, productId }
-        });
-        if (!stockRecord) {
-            throw new Error(`Stock record not found for client ${clientId}, product ${productId}`);
+        console.log(`📈 Restoring stock: clientId=${clientId}, productId=${productId}, quantity=${quantity}`);
+        try {
+            const stockRecord = await Promise.race([
+                queryRunner.manager.findOne(client_stock_entity_1.ClientStock, {
+                    where: { clientId, productId },
+                    lock: { mode: 'pessimistic_write' }
+                }),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Stock lookup timeout')), 10000))
+            ]);
+            if (!stockRecord) {
+                throw new Error(`Stock record not found for client ${clientId}, product ${productId}`);
+            }
+            const previousStock = stockRecord.quantity;
+            stockRecord.quantity += quantity;
+            stockRecord.salesrepId = salesrepId;
+            await Promise.race([
+                queryRunner.manager.save(client_stock_entity_1.ClientStock, stockRecord),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Stock save timeout')), 10000))
+            ]);
+            console.log(`✅ Stock restored successfully: ${previousStock} -> ${stockRecord.quantity}`);
+            this.logVoidTransactionAsync(clientId, productId, quantity, previousStock, stockRecord.quantity, 0, salesrepId, 'Sale voided').catch(error => {
+                console.error('⚠️ Failed to log void transaction (non-blocking):', error.message);
+            });
         }
-        const previousStock = stockRecord.quantity;
-        stockRecord.quantity += quantity;
-        stockRecord.salesrepId = salesrepId;
-        await queryRunner.manager.save(client_stock_entity_1.ClientStock, stockRecord);
-        await this.outletQuantityTransactionsService.logVoidTransaction(clientId, productId, quantity, previousStock, stockRecord.quantity, 0, salesrepId, 'Sale voided');
+        catch (error) {
+            console.error(`❌ Error restoring stock for client ${clientId}, product ${productId}:`, error);
+            throw error;
+        }
+    }
+    async logVoidTransactionAsync(clientId, productId, quantity, previousBalance, newBalance, referenceId, userId, notes) {
+        try {
+            console.log(`📝 Logging void transaction async for client ${clientId}, product ${productId}`);
+            const logQueryRunner = this.dataSource.createQueryRunner();
+            await logQueryRunner.connect();
+            try {
+                await logQueryRunner.startTransaction();
+                await Promise.race([
+                    this.outletQuantityTransactionsService.logVoidTransaction(clientId, productId, quantity, previousBalance, newBalance, referenceId, userId, notes),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Void transaction logging timeout')), 5000))
+                ]);
+                await logQueryRunner.commitTransaction();
+                console.log(`✅ Void transaction logged successfully for client ${clientId}, product ${productId}`);
+            }
+            catch (error) {
+                await logQueryRunner.rollbackTransaction();
+                throw error;
+            }
+            finally {
+                await logQueryRunner.release();
+            }
+        }
+        catch (error) {
+            console.error(`❌ Failed to log void transaction for client ${clientId}, product ${productId}:`, error.message);
+        }
     }
     async create(createUpliftSaleDto) {
+        console.log('🚀 Starting uplift sale creation with timeout protection...');
         const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
+        try {
+            const result = await Promise.race([
+                this.performCreateOperation(queryRunner, createUpliftSaleDto),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Uplift sale creation timeout after 2 minutes')), 120000))
+            ]);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ Error in uplift sale creation:', error);
+            await queryRunner.rollbackTransaction();
+            throw new Error(`Failed to create uplift sale: ${error.message}`);
+        }
+        finally {
+            await queryRunner.release();
+        }
+    }
+    async performCreateOperation(queryRunner, createUpliftSaleDto) {
         try {
             console.log('🔄 Creating Uplift Sale with data:', JSON.stringify(createUpliftSaleDto, null, 2));
             const { items, ...saleData } = createUpliftSaleDto;
@@ -183,9 +287,25 @@ let UpliftSalesService = class UpliftSalesService {
                 });
                 await queryRunner.manager.save(uplift_sale_item_entity_1.UpliftSaleItem, upliftSaleItems);
                 console.log(`✅ All ${items.length} uplift sale items saved in batch`);
-                const stockDeductions = items.map(item => this.deductStock(queryRunner, saleData.clientId, item.productId, item.quantity, saleData.userId));
-                await Promise.all(stockDeductions);
-                console.log(`📉 Stock deducted for all ${items.length} products in batch`);
+                console.log(`📉 Starting batch stock deduction for ${items.length} products...`);
+                const stockDeductions = items.map(async (item, index) => {
+                    try {
+                        console.log(`📉 Processing item ${index + 1}/${items.length}: productId=${item.productId}, quantity=${item.quantity}`);
+                        await this.deductStock(queryRunner, saleData.clientId, item.productId, item.quantity, saleData.userId);
+                        console.log(`✅ Item ${index + 1} processed successfully`);
+                    }
+                    catch (error) {
+                        console.error(`❌ Failed to process item ${index + 1} (productId=${item.productId}):`, error.message);
+                        throw error;
+                    }
+                });
+                const results = await Promise.allSettled(stockDeductions);
+                const failures = results.filter(result => result.status === 'rejected');
+                if (failures.length > 0) {
+                    const errorMessages = failures.map(failure => failure.status === 'rejected' ? failure.reason.message : 'Unknown error');
+                    throw new Error(`Stock deduction failed for ${failures.length} items: ${errorMessages.join(', ')}`);
+                }
+                console.log(`📉 Stock deducted successfully for all ${items.length} products`);
                 console.log('✅ All uplift sale items created and stock deducted successfully');
             }
             else {
@@ -196,12 +316,9 @@ let UpliftSalesService = class UpliftSalesService {
             return this.findOne(saleEntity.id);
         }
         catch (error) {
-            console.error('❌ Error creating uplift sale:', error);
+            console.error('❌ Error in performCreateOperation:', error);
             await queryRunner.rollbackTransaction();
-            throw new Error(`Failed to create uplift sale: ${error.message}`);
-        }
-        finally {
-            await queryRunner.release();
+            throw error;
         }
     }
     async update(id, updateUpliftSaleDto) {

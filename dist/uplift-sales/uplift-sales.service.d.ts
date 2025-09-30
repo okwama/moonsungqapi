@@ -17,8 +17,11 @@ export declare class UpliftSalesService {
         errors: string[];
     }>;
     deductStock(queryRunner: any, clientId: number, productId: number, quantity: number, salesrepId: number): Promise<void>;
+    private logSaleTransactionAsync;
     restoreStock(queryRunner: any, clientId: number, productId: number, quantity: number, salesrepId: number): Promise<void>;
-    create(createUpliftSaleDto: any): Promise<UpliftSale>;
+    private logVoidTransactionAsync;
+    create(createUpliftSaleDto: any): Promise<unknown>;
+    private performCreateOperation;
     update(id: number, updateUpliftSaleDto: any): Promise<UpliftSale>;
     voidSale(id: number, reason: string): Promise<UpliftSale>;
     remove(id: number): Promise<{

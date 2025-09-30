@@ -12,21 +12,49 @@ export class ProductsController {
   ) {}
 
   @Get()
-  async findAll(@Query('clientId') clientId?: string) {
+  async findAll(
+    @Query('clientId') clientId?: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '50',
+    @Query('category') category?: string,
+    @Query('search') search?: string
+  ) {
     try {
-      console.log('📦 Products API: GET /products called');
+      console.log('📦 Products API: GET /products called with pagination');
       const parsedClientId = clientId ? parseInt(clientId) : undefined;
+      const pageNum = Math.max(1, parseInt(page, 10));
+      const limitNum = Math.min(100, Math.max(10, parseInt(limit, 10))); // Limit between 10-100
       
-      if (parsedClientId) {
-        console.log(`💰 Products API: Applying discount for client ${parsedClientId}`);
-        console.log(`💰 API Call: GET /products?clientId=${parsedClientId}`);
-      } else {
-        console.log(`💰 Products API: No client discount requested`);
-      }
+      console.log(`📦 Products API: Page=${pageNum}, Limit=${limitNum}, ClientId=${parsedClientId}`);
       
-      const products = await this.productsService.findAll(parsedClientId);
-      console.log(`📦 Products API: Returning ${products.length} products`);
-      return products;
+      const startTime = Date.now();
+      const result = await this.productsService.findAllPaginated({
+        clientId: parsedClientId,
+        page: pageNum,
+        limit: limitNum,
+        category: category,
+        search: search
+      });
+      const processingTime = Date.now() - startTime;
+      
+      console.log(`📦 Products API: Returning ${result.data.length} products (page ${pageNum}/${result.pagination.totalPages}) in ${processingTime}ms`);
+      
+      // Return optimized response format with pagination
+      return {
+        success: true,
+        data: result.data,
+        pagination: result.pagination,
+        meta: {
+          processingTime: `${processingTime}ms`,
+          cached: true,
+          timestamp: new Date().toISOString(),
+          clientId: parsedClientId,
+          filters: {
+            category,
+            search
+          }
+        }
+      };
     } catch (error) {
       console.error('❌ Products API Error:', error);
       throw error;

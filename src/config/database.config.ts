@@ -94,22 +94,37 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
       charset: 'utf8mb4',
       ssl: configService.get<boolean>('DB_SSL', false),
       extra: {
-        connectionLimit: 10, // Reduced from 20 to prevent pool exhaustion
-        acquireTimeout: 60000, // Time to wait for connection from pool
-        timeout: 60000, // Query timeout
+        // OPTIMIZED: Enhanced connection pool for better performance
+        connectionLimit: 15, // Optimized pool size
+        acquireTimeout: 30000, // Faster timeout for better responsiveness
+        timeout: 45000, // Balanced query timeout
         reconnect: true, // Auto-reconnect on connection loss
         charset: 'utf8mb4',
         multipleStatements: true,
         dateStrings: true,
-        // Connection pool management
-        idleTimeout: 300000, // 5 minutes - close idle connections
-        maxIdle: 5, // Maximum idle connections
-        minIdle: 2, // Minimum idle connections to maintain
-        // Connection validation
+        // OPTIMIZED: Connection pool management
+        idleTimeout: 180000, // 3 minutes - faster idle cleanup
+        maxIdle: 8, // More idle connections for better performance
+        minIdle: 3, // More minimum connections
+        // OPTIMIZED: Connection validation
         validateConnection: true,
-        // Keep-alive settings
+        // OPTIMIZED: Keep-alive settings
         keepAliveInitialDelay: 0,
         enableKeepAlive: true,
+        // OPTIMIZED: Additional performance settings
+        supportBigNumbers: true,
+        bigNumberStrings: true,
+        compress: true, // Enable compression for better network performance
+        // OPTIMIZED: Query optimization
+        queryFormat: function (query, values) {
+          if (!values) return query;
+          return query.replace(/\:(\w+)/g, function (txt, key) {
+            if (values.hasOwnProperty(key)) {
+              return this.escape(values[key]);
+            }
+            return txt;
+          }.bind(this));
+        },
       },
       retryAttempts: 10, // Increased retry attempts
       retryDelay: 3000, // Increased delay between retries

@@ -23,20 +23,38 @@ let ProductsController = class ProductsController {
         this.productsService = productsService;
         this.dataSource = dataSource;
     }
-    async findAll(clientId) {
+    async findAll(clientId, page = '1', limit = '50', category, search) {
         try {
-            console.log('📦 Products API: GET /products called');
+            console.log('📦 Products API: GET /products called with pagination');
             const parsedClientId = clientId ? parseInt(clientId) : undefined;
-            if (parsedClientId) {
-                console.log(`💰 Products API: Applying discount for client ${parsedClientId}`);
-                console.log(`💰 API Call: GET /products?clientId=${parsedClientId}`);
-            }
-            else {
-                console.log(`💰 Products API: No client discount requested`);
-            }
-            const products = await this.productsService.findAll(parsedClientId);
-            console.log(`📦 Products API: Returning ${products.length} products`);
-            return products;
+            const pageNum = Math.max(1, parseInt(page, 10));
+            const limitNum = Math.min(100, Math.max(10, parseInt(limit, 10)));
+            console.log(`📦 Products API: Page=${pageNum}, Limit=${limitNum}, ClientId=${parsedClientId}`);
+            const startTime = Date.now();
+            const result = await this.productsService.findAllPaginated({
+                clientId: parsedClientId,
+                page: pageNum,
+                limit: limitNum,
+                category: category,
+                search: search
+            });
+            const processingTime = Date.now() - startTime;
+            console.log(`📦 Products API: Returning ${result.data.length} products (page ${pageNum}/${result.pagination.totalPages}) in ${processingTime}ms`);
+            return {
+                success: true,
+                data: result.data,
+                pagination: result.pagination,
+                meta: {
+                    processingTime: `${processingTime}ms`,
+                    cached: true,
+                    timestamp: new Date().toISOString(),
+                    clientId: parsedClientId,
+                    filters: {
+                        category,
+                        search
+                    }
+                }
+            };
         }
         catch (error) {
             console.error('❌ Products API Error:', error);
@@ -78,8 +96,12 @@ exports.ProductsController = ProductsController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('clientId')),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('category')),
+    __param(4, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "findAll", null);
 __decorate([

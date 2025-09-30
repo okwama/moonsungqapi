@@ -22,57 +22,201 @@ export class ProductsService {
     private cacheService: ProductsCacheService,
   ) {}
 
-  async findAll(clientId?: number): Promise<Product[]> {
-    const maxRetries = 3;
-    let lastError: any;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log(`🔍 Fetching all active products with inventory and price options... (attempt ${attempt}/${maxRetries})`);
-        console.log(`🔍 Client ID parameter: ${clientId}`);
-        
-        // OPTIMIZATION: Single query with all data
-        const products = await this.productRepository
-          .createQueryBuilder('product')
-          .leftJoinAndSelect('product.storeInventory', 'storeInventory')
-          .leftJoinAndSelect('storeInventory.store', 'store')
-          .leftJoinAndSelect('product.categoryEntity', 'category')
-          .leftJoinAndSelect('category.categoryPriceOptions', 'categoryPriceOptions')
-          .where('product.isActive = :isActive', { isActive: true })
-          .orderBy('product.productName', 'ASC')
-          .getMany();
-
-        console.log(`📦 Found ${products.length} products, now calculating stock in batch...`);
-
-        // OPTIMIZATION: Batch stock calculation instead of sequential
-        await this.addStockInformationBatch(products);
-
-        console.log(`✅ Found ${products.length} active products with inventory and price options data`);
-        
-        // Apply client discount if clientId is provided
-        if (clientId) {
-          console.log(`💰 About to apply discount for client ${clientId}`);
-          const discountedProducts = await this.applyClientDiscount(products, clientId);
-          console.log(`💰 Applied discount for client ${clientId} - returned ${discountedProducts.length} products`);
-          return discountedProducts;
-        } else {
-          console.log(`💰 No client ID provided - returning products without discount`);
-        }
-        
-        return products;
-      } catch (error) {
-        lastError = error;
-        console.error(`❌ Error fetching products (attempt ${attempt}/${maxRetries}):`, error);
-
-        if (attempt < maxRetries) {
-          console.log(`⏳ Retrying in ${attempt * 1000}ms...`);
-          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-        }
+  async findAllPaginated(options: {
+    clientId?: number;
+    page: number;
+    limit: number;
+    category?: string;
+    search?: string;
+  }): Promise<{
+    data: Product[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }> {
+    const { clientId, page, limit, category, search } = options;
+    const startTime = Date.now();
+    const cacheKey = `products_${clientId || 'all'}_${page}_${limit}_${category || 'all'}_${search || 'all'}`;
+    
+    try {
+      // OPTIMIZATION: Check cache first
+      const cachedResult = await this.cacheService.get(cacheKey) as any;
+      if (cachedResult) {
+        console.log(`⚡ Cache hit for paginated products - returning cached data`);
+        return cachedResult;
       }
-    }
 
-    console.error('❌ Failed to fetch products after all retries');
-    throw lastError;
+      console.log(`🔍 Fetching paginated products from database (page ${page}, limit ${limit})...`);
+      
+      // Build query with filters
+      let query = this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.categoryEntity', 'category')
+        .leftJoinAndSelect('category.categoryPriceOptions', 'categoryPriceOptions')
+        .select([
+          'product.id',
+          'product.productCode',
+          'product.productName',
+          'product.description',
+          'product.categoryId',
+          'product.unitOfMeasure',
+          'product.costPrice',
+          'product.sellingPrice',
+          'product.taxType',
+          'product.reorderLevel',
+          'product.currentStock',
+          'product.isActive',
+          'product.imageUrl',
+          'product.createdAt',
+          'product.updatedAt',
+          'category.id',
+          'category.name',
+          'categoryPriceOptions.id',
+          'categoryPriceOptions.label',
+          'categoryPriceOptions.value',
+          'categoryPriceOptions.valueTzs',
+          'categoryPriceOptions.valueNgn'
+        ])
+        .where('product.isActive = :isActive', { isActive: true });
+
+      // Add category filter
+      if (category) {
+        query = query.andWhere('category.name = :categoryName', { categoryName: category });
+      }
+
+      // Add search filter
+      if (search) {
+        query = query.andWhere(
+          '(product.productName LIKE :search OR product.productCode LIKE :search OR product.description LIKE :search)',
+          { search: `%${search}%` }
+        );
+      }
+
+      // Get total count
+      const total = await query.getCount();
+
+      // Apply pagination
+      const offset = (page - 1) * limit;
+      const products = await query
+        .orderBy('product.productName', 'ASC')
+        .skip(offset)
+        .take(limit)
+        .getMany();
+
+      console.log(`📦 Found ${products.length} products (${total} total), calculating stock...`);
+
+      // OPTIMIZATION: Ultra-fast stock calculation
+      await this.addStockInformationOptimized(products);
+
+      // Apply client discount if specified
+      let finalProducts = products;
+      if (clientId) {
+        finalProducts = await this.applyClientDiscountOptimized(products, clientId);
+      }
+
+      const totalPages = Math.ceil(total / limit);
+      const result = {
+        data: finalProducts,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages,
+        },
+      };
+
+      // Cache the result for 2 minutes (shorter for paginated results)
+      await this.cacheService.set(cacheKey, result, 120);
+
+      console.log(`✅ Paginated products processed in ${Date.now() - startTime}ms`);
+      return result;
+    } catch (error) {
+      console.error('❌ Error fetching paginated products:', error);
+      throw error;
+    }
+  }
+
+  async findAll(clientId?: number): Promise<Product[]> {
+    const startTime = Date.now();
+    const cacheKey = `products_${clientId || 'all'}`;
+    
+    try {
+      // OPTIMIZATION: Check cache first
+      const cachedProducts = await this.cacheService.get(cacheKey) as Product[] | null;
+      if (cachedProducts) {
+        console.log(`⚡ Cache hit for products (clientId: ${clientId}) - returning cached data`);
+        return cachedProducts;
+      }
+
+      console.log(`🔍 Fetching products from database (clientId: ${clientId})...`);
+      
+      // OPTIMIZATION: Simplified query with only essential data
+      const products = await this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.categoryEntity', 'category')
+        .leftJoinAndSelect('category.categoryPriceOptions', 'categoryPriceOptions')
+        .select([
+          'product.id',
+          'product.productCode',
+          'product.productName',
+          'product.description',
+          'product.categoryId',
+          'product.unitOfMeasure',
+          'product.costPrice',
+          'product.sellingPrice',
+          'product.taxType',
+          'product.reorderLevel',
+          'product.currentStock',
+          'product.isActive',
+          'product.imageUrl',
+          'product.createdAt',
+          'product.updatedAt',
+          'category.id',
+          'category.name',
+          'categoryPriceOptions.id',
+          'categoryPriceOptions.label',
+          'categoryPriceOptions.value',
+          'categoryPriceOptions.valueTzs',
+          'categoryPriceOptions.valueNgn'
+        ])
+        .where('product.isActive = :isActive', { isActive: true })
+        .orderBy('product.productName', 'ASC')
+        .getMany();
+
+      console.log(`📦 Found ${products.length} products, calculating stock...`);
+
+      // OPTIMIZATION: Ultra-fast stock calculation
+      await this.addStockInformationOptimized(products);
+
+      console.log(`✅ Products processed in ${Date.now() - startTime}ms`);
+      
+      // Apply client discount if needed
+      let finalProducts = products;
+      if (clientId) {
+        console.log(`💰 Applying discount for client ${clientId}...`);
+        finalProducts = await this.applyClientDiscountOptimized(products, clientId);
+      }
+      
+      // OPTIMIZATION: Cache the results for 5 minutes
+      await this.cacheService.set(cacheKey, finalProducts, 300); // 5 minutes cache
+      
+      return finalProducts;
+      
+    } catch (error) {
+      console.error('❌ Error fetching products:', error);
+      
+      // OPTIMIZATION: Fallback to cached data if available
+      const fallbackProducts = await this.cacheService.get('products_all') as Product[] | null;
+      if (fallbackProducts) {
+        console.log('🔄 Using fallback cached products');
+        return fallbackProducts;
+      }
+      
+      throw error;
+    }
   }
 
   async findProductsByCountry(userCountryId: number, clientId?: number): Promise<Product[]> {
@@ -118,6 +262,70 @@ export class ProductsService {
       // Fallback: Return all products if country filtering fails
       console.log('🔄 Falling back to all products due to error');
       return this.findAll();
+    }
+  }
+
+  /**
+   * ULTRA-FAST: Optimized stock calculation with single query
+   */
+  private async addStockInformationOptimized(products: Product[]): Promise<void> {
+    if (products.length === 0) return;
+
+    const startTime = Date.now();
+    
+    try {
+      const productIds = products.map(p => p.id);
+      
+      // OPTIMIZATION: Single raw query for maximum performance
+      const stockData = await this.dataSource.query(`
+        SELECT 
+          si.product_id as productId,
+          MAX(si.quantity) as maxQuantity,
+          si.store_id as storeId,
+          s.store_name as storeName
+        FROM store_inventory si
+        INNER JOIN stores s ON s.id = si.store_id
+        WHERE si.product_id IN (${productIds.map(() => '?').join(',')})
+          AND s.is_active = 1
+          AND si.quantity > 0
+        GROUP BY si.product_id
+      `, productIds);
+
+      console.log(`📊 Stock query returned ${stockData.length} records in ${Date.now() - startTime}ms`);
+
+      // Create lookup map for O(1) access
+      const stockMap = new Map();
+      stockData.forEach(stock => {
+        stockMap.set(stock.productId, {
+          availableStock: parseInt(stock.maxQuantity) || 0,
+          isOutOfStock: false,
+          stockSource: `store_${stock.storeId}`
+        });
+      });
+
+      // Apply stock info to products
+      products.forEach(product => {
+        const stockInfo = stockMap.get(product.id) || {
+          availableStock: 0,
+          isOutOfStock: true,
+          stockSource: 'no_stock'
+        };
+        
+        product['availableStock'] = stockInfo.availableStock;
+        product['isOutOfStock'] = stockInfo.isOutOfStock;
+        product['stockSource'] = stockInfo.stockSource;
+      });
+
+      console.log(`⚡ Optimized stock calculation completed in ${Date.now() - startTime}ms`);
+      
+    } catch (error) {
+      console.error('❌ Error in optimized stock calculation:', error);
+      // Fallback to simple stock assignment
+      products.forEach(product => {
+        product['availableStock'] = 0;
+        product['isOutOfStock'] = true;
+        product['stockSource'] = 'error';
+      });
     }
   }
 
@@ -206,6 +414,43 @@ export class ProductsService {
     console.log(`💰 Discount calculation: Original: ${originalPrice}, Discount: ${discountPercentage}%, Discount Amount: ${discount.toFixed(2)}, Final Price: ${discountedPrice.toFixed(2)}`);
     
     return discountedPrice;
+  }
+
+  /**
+   * ULTRA-FAST: Optimized client discount application
+   */
+  private async applyClientDiscountOptimized(products: Product[], clientId: number): Promise<Product[]> {
+    const startTime = Date.now();
+    
+    try {
+      // OPTIMIZATION: Single query for client discount
+      const client = await this.clientRepository.findOne({
+        where: { id: clientId },
+        select: ['id', 'name', 'discountPercentage']
+      });
+
+      if (!client || !client.discountPercentage || client.discountPercentage <= 0) {
+        console.log(`💰 No discount for client ${clientId} - returning original prices`);
+        return products;
+      }
+
+      console.log(`💰 Applying ${client.discountPercentage}% discount to ${products.length} products...`);
+
+      // OPTIMIZATION: In-place discount calculation
+      products.forEach(product => {
+        if (product.sellingPrice && product.sellingPrice > 0) {
+          const discountAmount = product.sellingPrice * (client.discountPercentage / 100);
+          product.sellingPrice = Math.max(0, product.sellingPrice - discountAmount);
+        }
+      });
+
+      console.log(`⚡ Discount applied in ${Date.now() - startTime}ms`);
+      return products;
+      
+    } catch (error) {
+      console.error('❌ Error applying optimized discount:', error);
+      return products; // Return original products if discount fails
+    }
   }
 
   /**

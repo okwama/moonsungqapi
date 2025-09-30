@@ -4,7 +4,7 @@ export declare class UpliftSalesController {
     constructor(upliftSalesService: UpliftSalesService);
     findAll(query: any, req: any): Promise<import("../entities").UpliftSale[]>;
     findOne(id: string): Promise<import("../entities").UpliftSale>;
-    create(createUpliftSaleDto: any): Promise<import("../entities").UpliftSale>;
+    create(createUpliftSaleDto: any): Promise<unknown>;
     update(id: string, updateUpliftSaleDto: any): Promise<import("../entities").UpliftSale>;
     remove(id: string): Promise<{
         message: string;

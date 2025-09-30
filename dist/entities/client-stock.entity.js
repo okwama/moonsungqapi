@@ -53,6 +53,8 @@ __decorate([
     __metadata("design:type", sales_rep_entity_1.SalesRep)
 ], ClientStock.prototype, "salesRep", void 0);
 exports.ClientStock = ClientStock = __decorate([
-    (0, typeorm_1.Entity)('ClientStock')
+    (0, typeorm_1.Entity)('ClientStock'),
+    (0, typeorm_1.Index)('idx_clientstock_client_product', ['clientId', 'productId']),
+    (0, typeorm_1.Index)('idx_clientstock_product', ['productId'])
 ], ClientStock);
 //# sourceMappingURL=client-stock.entity.js.map

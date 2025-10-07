@@ -239,11 +239,23 @@ export class ProductsService {
       // OPTIMIZATION: Batch stock calculation
       await this.addStockInformationBatch(allProducts);
 
-      // Filter products based on availability
-      const processedProducts = allProducts.filter(product => {
+      // DEBUG: Check stock calculation results
+      console.log(`🔍 DEBUG: Checking stock calculation results...`);
+      const productsWithStock = allProducts.filter(product => {
         const availableStock = product['availableStock'] || 0;
         return availableStock > 0;
       });
+      
+      console.log(`📊 DEBUG: ${productsWithStock.length} products have stock, ${allProducts.length - productsWithStock.length} products are out of stock`);
+      
+      // Show first few products with their stock info
+      allProducts.slice(0, 5).forEach(product => {
+        console.log(`🔍 DEBUG Product ${product.id} (${product.productName}): Stock=${product['availableStock'] || 0}, Source=${product['stockSource'] || 'none'}`);
+      });
+      
+      // TEMPORARY: Show all products for now
+      const processedProducts = allProducts;
+      console.log(`⚠️ TEMPORARY: Showing all products regardless of stock (${processedProducts.length} products)`);
 
       console.log(`✅ Found ${processedProducts.length} products available in country ${userCountryId}`);
       
@@ -292,6 +304,13 @@ export class ProductsService {
       `, productIds);
 
       console.log(`📊 Stock query returned ${stockData.length} records in ${Date.now() - startTime}ms`);
+      
+      // DEBUG: Log sample stock data
+      if (stockData.length > 0) {
+        console.log(`🔍 DEBUG Sample stock data:`, stockData.slice(0, 3));
+      } else {
+        console.log(`⚠️ DEBUG No stock data found for products:`, productIds.slice(0, 5));
+      }
 
       // Create lookup map for O(1) access
       const stockMap = new Map();
@@ -314,6 +333,11 @@ export class ProductsService {
         product['availableStock'] = stockInfo.availableStock;
         product['isOutOfStock'] = stockInfo.isOutOfStock;
         product['stockSource'] = stockInfo.stockSource;
+        
+        // DEBUG: Log stock info for first few products
+        if (product.id <= 5) {
+          console.log(`🔍 DEBUG Product ${product.id} (${product.productName}): Stock=${stockInfo.availableStock}, Source=${stockInfo.stockSource}`);
+        }
       });
 
       console.log(`⚡ Optimized stock calculation completed in ${Date.now() - startTime}ms`);

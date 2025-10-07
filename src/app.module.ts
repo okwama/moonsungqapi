@@ -29,7 +29,6 @@ import { ExcelImportModule } from './excel-import/excel-import.module';
 import { ClockInOutModule } from './clock-in-out/clock-in-out.module';
 import { ReportsModule } from './reports/reports.module';
 import { RoutesModule } from './routes/routes.module';
-import { PricingModule } from './pricing/pricing.module';
 import { VersionModule } from './version/version.module';
 import { PaymentsModule } from './payments/payments.module';
 import { OutletQuantityModule } from './outlet-quantity/outlet-quantity.module';
@@ -96,7 +95,6 @@ import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
     AssetRequestsModule,
     OutletQuantityTransactionsModule,
     AutoClockoutModule,
-    PricingModule,
   ],
   providers: [DatabaseHealthService, DatabaseConnectionService, PerformanceMonitorService],
   controllers: [HealthController],

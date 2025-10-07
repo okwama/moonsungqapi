@@ -184,10 +184,17 @@ let ProductsService = class ProductsService {
                 .getMany();
             console.log(`📦 Found ${allProducts.length} total active products, calculating stock in batch...`);
             await this.addStockInformationBatch(allProducts);
-            const processedProducts = allProducts.filter(product => {
+            console.log(`🔍 DEBUG: Checking stock calculation results...`);
+            const productsWithStock = allProducts.filter(product => {
                 const availableStock = product['availableStock'] || 0;
                 return availableStock > 0;
             });
+            console.log(`📊 DEBUG: ${productsWithStock.length} products have stock, ${allProducts.length - productsWithStock.length} products are out of stock`);
+            allProducts.slice(0, 5).forEach(product => {
+                console.log(`🔍 DEBUG Product ${product.id} (${product.productName}): Stock=${product['availableStock'] || 0}, Source=${product['stockSource'] || 'none'}`);
+            });
+            const processedProducts = allProducts;
+            console.log(`⚠️ TEMPORARY: Showing all products regardless of stock (${processedProducts.length} products)`);
             console.log(`✅ Found ${processedProducts.length} products available in country ${userCountryId}`);
             if (clientId) {
                 const discountedProducts = await this.applyClientDiscount(processedProducts, clientId);
@@ -222,6 +229,12 @@ let ProductsService = class ProductsService {
         GROUP BY si.product_id
       `, productIds);
             console.log(`📊 Stock query returned ${stockData.length} records in ${Date.now() - startTime}ms`);
+            if (stockData.length > 0) {
+                console.log(`🔍 DEBUG Sample stock data:`, stockData.slice(0, 3));
+            }
+            else {
+                console.log(`⚠️ DEBUG No stock data found for products:`, productIds.slice(0, 5));
+            }
             const stockMap = new Map();
             stockData.forEach(stock => {
                 stockMap.set(stock.productId, {
@@ -239,6 +252,9 @@ let ProductsService = class ProductsService {
                 product['availableStock'] = stockInfo.availableStock;
                 product['isOutOfStock'] = stockInfo.isOutOfStock;
                 product['stockSource'] = stockInfo.stockSource;
+                if (product.id <= 5) {
+                    console.log(`🔍 DEBUG Product ${product.id} (${product.productName}): Stock=${stockInfo.availableStock}, Source=${stockInfo.stockSource}`);
+                }
             });
             console.log(`⚡ Optimized stock calculation completed in ${Date.now() - startTime}ms`);
         }

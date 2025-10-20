@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -11,12 +12,17 @@ import { SalesRep } from '../entities/sales-rep.entity';
 import { UsersModule } from '../users/users.module';
 import { RolesModule } from '../roles/roles.module';
 
+// ✅ FIX: Added rate limiting to prevent brute force attacks
 @Module({
   imports: [
     UsersModule,
     RolesModule,
     TypeOrmModule.forFeature([SalesRep]),
     PassportModule,
+    ThrottlerModule.forRoot([{
+      ttl: 900000, // 15 minutes in milliseconds
+      limit: 5, // 5 login attempts per 15 minutes
+    }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

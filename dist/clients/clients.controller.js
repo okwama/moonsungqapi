@@ -26,11 +26,13 @@ let ClientsController = class ClientsController {
         const userCountryId = req.user.countryId;
         return this.clientsService.create(createClientDto, userCountryId);
     }
-    async findAll(req) {
+    async findAll(req, page, limit) {
         const userCountryId = req.user.countryId;
         const userRole = req.user.role;
         const userId = req.user.id;
-        return this.clientsService.findAll(userCountryId, userRole, userId);
+        const pageNum = page ? Math.max(1, parseInt(page)) : 1;
+        const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit))) : 50;
+        return this.clientsService.findAll(userCountryId, userRole, userId, pageNum, limitNum);
     }
     async findAllBasic(req) {
         const userCountryId = req.user.countryId;
@@ -107,8 +109,10 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], ClientsController.prototype, "findAll", null);
 __decorate([

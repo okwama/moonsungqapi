@@ -32,8 +32,8 @@ let ClientsService = class ClientsService {
         const client = this.clientRepository.create(clientData);
         return this.clientRepository.save(client);
     }
-    async findAll(userCountryId, userRole, userId) {
-        console.log(`🔍 ClientsService.findAll - Looking for clients with countryId: ${userCountryId}, role: ${userRole}, userId: ${userId}`);
+    async findAll(userCountryId, userRole, userId, page = 1, limit = 50) {
+        console.log(`🔍 ClientsService.findAll - Looking for clients with countryId: ${userCountryId}, role: ${userRole}, userId: ${userId}, page: ${page}, limit: ${limit}`);
         const baseConditions = {
             status: 1,
             countryId: userCountryId,
@@ -44,7 +44,7 @@ let ClientsService = class ClientsService {
             const assignedClientIds = assignedOutlets.map(outlet => outlet.id);
             if (assignedClientIds.length === 0) {
                 console.log(`❌ No assigned clients found for SALES_REP ${userId}`);
-                return [];
+                return { data: [], total: 0, page, totalPages: 0 };
             }
             baseConditions.id = (0, typeorm_2.In)(assignedClientIds);
             console.log(`✅ SALES_REP ${userId} has ${assignedClientIds.length} assigned clients`);
@@ -64,7 +64,7 @@ let ClientsService = class ClientsService {
         else {
             console.log(`⚠️ Unknown role: ${userRole} - showing all clients`);
         }
-        const clients = await this.clientRepository.find({
+        const [clients, total] = await this.clientRepository.findAndCount({
             where: baseConditions,
             select: [
                 'id',
@@ -76,9 +76,12 @@ let ClientsService = class ClientsService {
                 'countryId'
             ],
             order: { name: 'ASC' },
+            skip: (page - 1) * limit,
+            take: limit,
         });
-        console.log(`✅ Found ${clients.length} clients for user (role: ${userRole}, userId: ${userId})`);
-        return clients;
+        const totalPages = Math.ceil(total / limit);
+        console.log(`✅ Found ${clients.length}/${total} clients for user (role: ${userRole}, userId: ${userId}, page: ${page}/${totalPages})`);
+        return { data: clients, total, page, totalPages };
     }
     async findAllForAdmin(userCountryId) {
         console.log(`🔍 ClientsService.findAllForAdmin - Looking for all clients with countryId: ${userCountryId}`);

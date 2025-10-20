@@ -1,8 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { SalesRep } from './sales-rep.entity';
 import { Clients } from './clients.entity';
+import { JourneyPlan } from '../journey-plans/entities/journey-plan.entity';
 
 @Entity('FeedbackReport')
+@Index('idx_feedback_report_journey_plan', ['journeyPlanId'])
+@Index('idx_feedback_report_user_journey', ['userId', 'journeyPlanId'])
 export class FeedbackReport {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,6 +22,10 @@ export class FeedbackReport {
   @Column({ name: 'userId' })
   userId: number;
 
+  // ✅ FIX: Added journeyPlanId to link reports to journey plans
+  @Column({ name: 'journeyPlanId', nullable: true })
+  journeyPlanId: number;
+
   @ManyToOne(() => SalesRep)
   @JoinColumn({ name: 'userId' })
   user: SalesRep;
@@ -26,4 +33,9 @@ export class FeedbackReport {
   @ManyToOne(() => Clients)
   @JoinColumn({ name: 'clientId' })
   client: Clients;
+
+  // ✅ FIX: Added relationship to JourneyPlan
+  @ManyToOne(() => JourneyPlan, { nullable: true })
+  @JoinColumn({ name: 'journeyPlanId' })
+  journeyPlan: JourneyPlan;
 } 

@@ -13,6 +13,8 @@ const typeorm_1 = require("@nestjs/typeorm");
 const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
 const schedule_1 = require("@nestjs/schedule");
+const throttler_1 = require("@nestjs/throttler");
+const core_1 = require("@nestjs/core");
 const database_config_1 = require("./config/database.config");
 const database_health_service_1 = require("./config/database-health.service");
 const database_connection_service_1 = require("./config/database-connection.service");
@@ -59,6 +61,10 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
                 envFilePath: ['.env.local', '.env'],
             }),
+            throttler_1.ThrottlerModule.forRoot([{
+                    ttl: 60000,
+                    limit: 100,
+                }]),
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: (configService) => (0, database_config_1.getDatabaseConfig)(configService),
@@ -106,7 +112,15 @@ exports.AppModule = AppModule = __decorate([
             outlet_quantity_transactions_module_1.OutletQuantityTransactionsModule,
             auto_clockout_module_1.AutoClockoutModule,
         ],
-        providers: [database_health_service_1.DatabaseHealthService, database_connection_service_1.DatabaseConnectionService, performance_monitor_service_1.PerformanceMonitorService],
+        providers: [
+            database_health_service_1.DatabaseHealthService,
+            database_connection_service_1.DatabaseConnectionService,
+            performance_monitor_service_1.PerformanceMonitorService,
+            {
+                provide: core_1.APP_GUARD,
+                useClass: throttler_1.ThrottlerGuard,
+            },
+        ],
         controllers: [health_controller_1.HealthController],
     })
 ], AppModule);

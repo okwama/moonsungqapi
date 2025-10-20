@@ -5,8 +5,18 @@ export declare class ClientsController {
     private readonly clientsService;
     constructor(clientsService: ClientsService);
     create(createClientDto: CreateClientDto, req: any): Promise<import("../entities").Clients>;
-    findAll(req: any): Promise<import("../entities").Clients[]>;
-    findAllBasic(req: any): Promise<import("../entities").Clients[]>;
+    findAll(req: any, page?: string, limit?: string): Promise<{
+        data: import("../entities").Clients[];
+        total: number;
+        page: number;
+        totalPages: number;
+    }>;
+    findAllBasic(req: any): Promise<{
+        data: import("../entities").Clients[];
+        total: number;
+        page: number;
+        totalPages: number;
+    }>;
     search(searchDto: SearchClientsDto, req: any): Promise<import("../entities").Clients[]>;
     searchBasic(searchDto: SearchClientsDto, req: any): Promise<import("../entities").Clients[]>;
     findOne(id: string, req: any): Promise<import("../entities").Clients>;

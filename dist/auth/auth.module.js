@@ -12,6 +12,7 @@ const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
 const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
+const throttler_1 = require("@nestjs/throttler");
 const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
@@ -29,6 +30,10 @@ exports.AuthModule = AuthModule = __decorate([
             roles_module_1.RolesModule,
             typeorm_1.TypeOrmModule.forFeature([sales_rep_entity_1.SalesRep]),
             passport_1.PassportModule,
+            throttler_1.ThrottlerModule.forRoot([{
+                    ttl: 900000,
+                    limit: 5,
+                }]),
             jwt_1.JwtModule.registerAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => ({

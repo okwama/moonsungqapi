@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { getDatabaseConfig } from './config/database.config';
 import { DatabaseHealthService } from './config/database-health.service';
 import { DatabaseConnectionService } from './config/database-connection.service';
@@ -43,12 +45,17 @@ import { OutletQuantityTransactionsModule } from './outlet-quantity-transactions
 import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
 
 
+// ✅ FIX: Added global rate limiting to protect all endpoints
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 1 minute
+      limit: 100, // 100 requests per minute (global default)
+    }]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => getDatabaseConfig(configService),
@@ -96,7 +103,16 @@ import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
     OutletQuantityTransactionsModule,
     AutoClockoutModule,
   ],
-  providers: [DatabaseHealthService, DatabaseConnectionService, PerformanceMonitorService],
+  providers: [
+    DatabaseHealthService, 
+    DatabaseConnectionService, 
+    PerformanceMonitorService,
+    // ✅ FIX: Apply rate limiting globally to all routes
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   controllers: [HealthController],
 })
 export class AppModule {} 

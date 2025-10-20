@@ -67,7 +67,8 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: user.phoneNumber,
+        phone: user.phoneNumber,  // Keep for backward compatibility
+        phoneNumber: user.phoneNumber,  // ✅ FIX: Add phoneNumber to match profile endpoint
         role: user.role?.name || 'USER',
         roleId: user.roleId,
         countryId: user.countryId,

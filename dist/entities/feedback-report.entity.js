@@ -13,6 +13,7 @@ exports.FeedbackReport = void 0;
 const typeorm_1 = require("typeorm");
 const sales_rep_entity_1 = require("./sales-rep.entity");
 const clients_entity_1 = require("./clients.entity");
+const journey_plan_entity_1 = require("../journey-plans/entities/journey-plan.entity");
 let FeedbackReport = class FeedbackReport {
 };
 exports.FeedbackReport = FeedbackReport;
@@ -37,6 +38,10 @@ __decorate([
     __metadata("design:type", Number)
 ], FeedbackReport.prototype, "userId", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'journeyPlanId', nullable: true }),
+    __metadata("design:type", Number)
+], FeedbackReport.prototype, "journeyPlanId", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => sales_rep_entity_1.SalesRep),
     (0, typeorm_1.JoinColumn)({ name: 'userId' }),
     __metadata("design:type", sales_rep_entity_1.SalesRep)
@@ -46,7 +51,14 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'clientId' }),
     __metadata("design:type", clients_entity_1.Clients)
 ], FeedbackReport.prototype, "client", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => journey_plan_entity_1.JourneyPlan, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'journeyPlanId' }),
+    __metadata("design:type", journey_plan_entity_1.JourneyPlan)
+], FeedbackReport.prototype, "journeyPlan", void 0);
 exports.FeedbackReport = FeedbackReport = __decorate([
-    (0, typeorm_1.Entity)('FeedbackReport')
+    (0, typeorm_1.Entity)('FeedbackReport'),
+    (0, typeorm_1.Index)('idx_feedback_report_journey_plan', ['journeyPlanId']),
+    (0, typeorm_1.Index)('idx_feedback_report_user_journey', ['userId', 'journeyPlanId'])
 ], FeedbackReport);
 //# sourceMappingURL=feedback-report.entity.js.map

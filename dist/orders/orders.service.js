@@ -134,12 +134,58 @@ let OrdersService = class OrdersService {
         console.log(`🔍 OrdersService.findAll - User: ${userId}, Role: ${userRole}`);
         if (userId) {
             console.log(`👤 Filtering orders for userId: ${userId} (role: ${userRole})`);
-            const orders = await this.orderRepository.find({
-                where: { salesrep: userId },
-                relations: ['user', 'client', 'orderItems', 'orderItems.product'],
-                order: { createdAt: 'DESC' }
-            });
-            console.log(`✅ User ${userId} has ${orders.length} orders`);
+            const orders = await this.orderRepository
+                .createQueryBuilder('order')
+                .select([
+                'order.id',
+                'order.soNumber',
+                'order.clientId',
+                'order.orderDate',
+                'order.expectedDeliveryDate',
+                'order.subtotal',
+                'order.taxAmount',
+                'order.totalAmount',
+                'order.netPrice',
+                'order.notes',
+                'order.status',
+                'order.myStatus',
+                'order.riderId',
+                'order.salesrep',
+                'order.createdBy',
+                'order.createdAt',
+                'order.updatedAt',
+                'order.receivedIntoStock',
+                'order.receivedAt',
+            ])
+                .leftJoin('order.user', 'user')
+                .addSelect(['user.id', 'user.name', 'user.email'])
+                .leftJoin('order.client', 'client')
+                .addSelect(['client.id', 'client.name', 'client.contact', 'client.region'])
+                .leftJoin('order.orderItems', 'orderItems')
+                .addSelect([
+                'orderItems.id',
+                'orderItems.salesOrderId',
+                'orderItems.productId',
+                'orderItems.quantity',
+                'orderItems.unitPrice',
+                'orderItems.taxAmount',
+                'orderItems.totalPrice',
+                'orderItems.netPrice',
+                'orderItems.taxType',
+                'orderItems.shippedQuantity',
+            ])
+                .leftJoin('orderItems.product', 'product')
+                .addSelect([
+                'product.id',
+                'product.productName',
+                'product.productCode',
+                'product.imageUrl',
+                'product.sellingPrice',
+            ])
+                .where('order.salesrep = :userId', { userId })
+                .orderBy('order.createdAt', 'DESC')
+                .getMany();
+            console.log(`✅ User ${userId} has ${orders.length} orders (optimized query)`);
             return orders;
         }
         else {
@@ -150,15 +196,62 @@ let OrdersService = class OrdersService {
     async findOne(id, userId, userRole) {
         console.log(`🔍 OrdersService.findOne - Order: ${id}, User: ${userId}, Role: ${userRole}`);
         if (userId) {
-            const order = await this.orderRepository.findOne({
-                where: { id, salesrep: userId },
-                relations: ['user', 'client', 'orderItems', 'orderItems.product'],
-            });
+            const order = await this.orderRepository
+                .createQueryBuilder('order')
+                .select([
+                'order.id',
+                'order.soNumber',
+                'order.clientId',
+                'order.orderDate',
+                'order.expectedDeliveryDate',
+                'order.subtotal',
+                'order.taxAmount',
+                'order.totalAmount',
+                'order.netPrice',
+                'order.notes',
+                'order.status',
+                'order.myStatus',
+                'order.riderId',
+                'order.salesrep',
+                'order.createdBy',
+                'order.createdAt',
+                'order.updatedAt',
+                'order.receivedIntoStock',
+                'order.receivedAt',
+            ])
+                .leftJoin('order.user', 'user')
+                .addSelect(['user.id', 'user.name', 'user.email'])
+                .leftJoin('order.client', 'client')
+                .addSelect(['client.id', 'client.name', 'client.contact', 'client.region', 'client.address'])
+                .leftJoin('order.orderItems', 'orderItems')
+                .addSelect([
+                'orderItems.id',
+                'orderItems.salesOrderId',
+                'orderItems.productId',
+                'orderItems.quantity',
+                'orderItems.unitPrice',
+                'orderItems.taxAmount',
+                'orderItems.totalPrice',
+                'orderItems.netPrice',
+                'orderItems.taxType',
+                'orderItems.shippedQuantity',
+            ])
+                .leftJoin('orderItems.product', 'product')
+                .addSelect([
+                'product.id',
+                'product.productName',
+                'product.productCode',
+                'product.imageUrl',
+                'product.sellingPrice',
+            ])
+                .where('order.id = :id', { id })
+                .andWhere('order.salesrep = :userId', { userId })
+                .getOne();
             if (!order) {
                 console.log(`❌ User ${userId} not authorized to access order ${id} or order not found`);
                 return null;
             }
-            console.log(`✅ User ${userId} authorized to access order ${id}`);
+            console.log(`✅ User ${userId} authorized to access order ${id} (optimized query)`);
             return order;
         }
         else {

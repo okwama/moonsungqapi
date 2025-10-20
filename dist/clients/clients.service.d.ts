@@ -8,7 +8,12 @@ export declare class ClientsService {
     private clientAssignmentService;
     constructor(clientRepository: Repository<Clients>, clientAssignmentService: ClientAssignmentService);
     create(createClientDto: CreateClientDto, userCountryId: number): Promise<Clients>;
-    findAll(userCountryId: number, userRole?: string, userId?: number): Promise<Clients[]>;
+    findAll(userCountryId: number, userRole?: string, userId?: number, page?: number, limit?: number): Promise<{
+        data: Clients[];
+        total: number;
+        page: number;
+        totalPages: number;
+    }>;
     findAllForAdmin(userCountryId: number): Promise<Clients[]>;
     findOne(id: number, userCountryId: number, userRole?: string, userId?: number): Promise<Clients | null>;
     findOneBasic(id: number, userCountryId: number, userRole?: string, userId?: number): Promise<Clients | null>;

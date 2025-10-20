@@ -16,11 +16,20 @@ export class ClientsController {
   }
 
   @Get()
-  async findAll(@Request() req) {
+  async findAll(
+    @Request() req,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string
+  ) {
     const userCountryId = req.user.countryId;
     const userRole = req.user.role;
     const userId = req.user.id;
-    return this.clientsService.findAll(userCountryId, userRole, userId);
+    
+    // ✅ FIX: Parse pagination parameters
+    const pageNum = page ? Math.max(1, parseInt(page)) : 1;
+    const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit))) : 50;
+    
+    return this.clientsService.findAll(userCountryId, userRole, userId, pageNum, limitNum);
   }
 
   @Get('basic')

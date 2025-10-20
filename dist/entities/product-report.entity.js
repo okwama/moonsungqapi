@@ -13,6 +13,7 @@ exports.ProductReport = void 0;
 const typeorm_1 = require("typeorm");
 const sales_rep_entity_1 = require("./sales-rep.entity");
 const clients_entity_1 = require("./clients.entity");
+const journey_plan_entity_1 = require("../journey-plans/entities/journey-plan.entity");
 let ProductReport = class ProductReport {
 };
 exports.ProductReport = ProductReport;
@@ -49,6 +50,10 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductReport.prototype, "productId", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'journeyPlanId', nullable: true }),
+    __metadata("design:type", Number)
+], ProductReport.prototype, "journeyPlanId", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => sales_rep_entity_1.SalesRep),
     (0, typeorm_1.JoinColumn)({ name: 'userId' }),
     __metadata("design:type", sales_rep_entity_1.SalesRep)
@@ -58,7 +63,14 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'clientId' }),
     __metadata("design:type", clients_entity_1.Clients)
 ], ProductReport.prototype, "client", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => journey_plan_entity_1.JourneyPlan, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'journeyPlanId' }),
+    __metadata("design:type", journey_plan_entity_1.JourneyPlan)
+], ProductReport.prototype, "journeyPlan", void 0);
 exports.ProductReport = ProductReport = __decorate([
-    (0, typeorm_1.Entity)('ProductReport')
+    (0, typeorm_1.Entity)('ProductReport'),
+    (0, typeorm_1.Index)('idx_product_report_journey_plan', ['journeyPlanId']),
+    (0, typeorm_1.Index)('idx_product_report_user_journey', ['userId', 'journeyPlanId'])
 ], ProductReport);
 //# sourceMappingURL=product-report.entity.js.map

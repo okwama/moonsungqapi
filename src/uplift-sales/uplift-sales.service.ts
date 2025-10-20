@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, In } from 'typeorm';
 import { UpliftSale } from '../entities/uplift-sale.entity';
 import { UpliftSaleItem } from '../entities/uplift-sale-item.entity';
 import { ClientStock } from '../entities/client-stock.entity';
@@ -99,12 +99,28 @@ export class UpliftSalesService {
   }
 
   async validateStock(clientId: number, items: any[]) {
+    // ✅ FIX: Batch load all stock records to avoid N+1 query
+    // BEFORE: N queries (1 per item) - 50 items = 50 queries
+    // AFTER: 1 query with IN clause (98% reduction!)
+    const productIds = items.map(item => item.productId);
+    
+    // Single batch query for all stock records
+    const stockRecords = await this.clientStockRepository.find({
+      where: { 
+        clientId, 
+        productId: In(productIds) 
+      }
+    });
+    
+    // Create O(1) lookup map for efficient access
+    const stockMap = new Map(
+      stockRecords.map(record => [record.productId, record])
+    );
+    
     const errors: string[] = [];
     
     for (const item of items) {
-      const stockRecord = await this.clientStockRepository.findOne({
-        where: { clientId, productId: item.productId }
-      });
+      const stockRecord = stockMap.get(item.productId);
       
       if (!stockRecord) {
         errors.push(`Product ${item.productId} not available in client stock`);
@@ -112,6 +128,8 @@ export class UpliftSalesService {
         errors.push(`Insufficient stock for product ${item.productId}: available ${stockRecord.quantity}, requested ${item.quantity}`);
       }
     }
+    
+    console.log(`✅ Stock validation completed: ${items.length} items checked with 1 query (batch optimized)`);
     
     return {
       isValid: errors.length === 0,

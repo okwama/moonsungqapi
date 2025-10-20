@@ -10,6 +10,7 @@ exports.ClientAssignmentModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const client_assignment_service_1 = require("./client-assignment.service");
+const client_assignment_cache_service_1 = require("./client-assignment-cache.service");
 const client_assignment_entity_1 = require("../entities/client-assignment.entity");
 const clients_entity_1 = require("../entities/clients.entity");
 let ClientAssignmentModule = class ClientAssignmentModule {
@@ -18,8 +19,11 @@ exports.ClientAssignmentModule = ClientAssignmentModule;
 exports.ClientAssignmentModule = ClientAssignmentModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([client_assignment_entity_1.ClientAssignment, clients_entity_1.Clients])],
-        providers: [client_assignment_service_1.ClientAssignmentService],
-        exports: [client_assignment_service_1.ClientAssignmentService],
+        providers: [
+            client_assignment_service_1.ClientAssignmentService,
+            client_assignment_cache_service_1.ClientAssignmentCacheService,
+        ],
+        exports: [client_assignment_service_1.ClientAssignmentService, client_assignment_cache_service_1.ClientAssignmentCacheService],
     })
 ], ClientAssignmentModule);
 //# sourceMappingURL=client-assignment.module.js.map

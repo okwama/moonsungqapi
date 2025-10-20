@@ -19,10 +19,12 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const client_assignment_entity_1 = require("../entities/client-assignment.entity");
 const clients_entity_1 = require("../entities/clients.entity");
+const client_assignment_cache_service_1 = require("./client-assignment-cache.service");
 let ClientAssignmentService = ClientAssignmentService_1 = class ClientAssignmentService {
-    constructor(clientAssignmentRepository, clientsRepository) {
+    constructor(clientAssignmentRepository, clientsRepository, cacheService) {
         this.clientAssignmentRepository = clientAssignmentRepository;
         this.clientsRepository = clientsRepository;
+        this.cacheService = cacheService;
         this.logger = new common_1.Logger(ClientAssignmentService_1.name);
     }
     async assignOutletToSalesRep(outletId, salesRepId) {
@@ -41,6 +43,7 @@ let ClientAssignmentService = ClientAssignmentService_1 = class ClientAssignment
             });
             const savedAssignment = await this.clientAssignmentRepository.save(assignment);
             this.logger.log(`✅ Successfully assigned outlet ${outletId} to sales rep ${salesRepId}`);
+            this.cacheService.invalidate(`assignments:${salesRepId}:*`);
             return savedAssignment;
         }
         catch (error) {
@@ -50,41 +53,44 @@ let ClientAssignmentService = ClientAssignmentService_1 = class ClientAssignment
     }
     async getAssignedOutlets(salesRepId, userCountryId) {
         this.logger.log(`🔍 Getting assigned outlets for sales rep ${salesRepId}`);
-        try {
-            const assignments = await this.clientAssignmentRepository.find({
-                where: { salesRepId, status: 'active' },
-                relations: ['outlet'],
-            });
-            this.logger.log(`📊 Found ${assignments.length} active assignments for sales rep ${salesRepId}`);
-            const assignedOutlets = assignments
-                .map(assignment => assignment.outlet)
-                .filter(outlet => outlet.countryId === userCountryId)
-                .map(outlet => ({
-                id: outlet.id,
-                name: outlet.name,
-                balance: outlet.balance ?? 0,
-                address: outlet.address,
-                latitude: outlet.latitude,
-                longitude: outlet.longitude,
-                contact: outlet.contact,
-                email: outlet.email,
-                regionId: outlet.region_id,
-                region: outlet.region,
-                countryId: outlet.countryId,
-                status: outlet.status,
-                taxPin: outlet.tax_pin,
-                location: outlet.location,
-                clientType: outlet.client_type,
-                outletAccount: outlet.outlet_account,
-                createdAt: outlet.created_at,
-            }));
-            this.logger.log(`✅ Found ${assignedOutlets.length} assigned outlets for sales rep ${salesRepId} in country ${userCountryId}`);
-            return assignedOutlets;
-        }
-        catch (error) {
-            this.logger.error(`❌ Error getting assigned outlets:`, error);
-            throw error;
-        }
+        const cacheKey = `assignments:${salesRepId}:${userCountryId}`;
+        return this.cacheService.getOrSet(cacheKey, async () => {
+            try {
+                const assignments = await this.clientAssignmentRepository.find({
+                    where: { salesRepId, status: 'active' },
+                    relations: ['outlet'],
+                });
+                this.logger.log(`📊 Found ${assignments.length} active assignments for sales rep ${salesRepId}`);
+                const assignedOutlets = assignments
+                    .map(assignment => assignment.outlet)
+                    .filter(outlet => outlet.countryId === userCountryId)
+                    .map(outlet => ({
+                    id: outlet.id,
+                    name: outlet.name,
+                    balance: outlet.balance ?? 0,
+                    address: outlet.address,
+                    latitude: outlet.latitude,
+                    longitude: outlet.longitude,
+                    contact: outlet.contact,
+                    email: outlet.email,
+                    regionId: outlet.region_id,
+                    region: outlet.region,
+                    countryId: outlet.countryId,
+                    status: outlet.status,
+                    taxPin: outlet.tax_pin,
+                    location: outlet.location,
+                    clientType: outlet.client_type,
+                    outletAccount: outlet.outlet_account,
+                    createdAt: outlet.created_at,
+                }));
+                this.logger.log(`✅ Found ${assignedOutlets.length} assigned outlets for sales rep ${salesRepId} in country ${userCountryId} (cached for 5 min)`);
+                return assignedOutlets;
+            }
+            catch (error) {
+                this.logger.error(`❌ Error getting assigned outlets:`, error);
+                throw error;
+            }
+        });
     }
     async getOutletAssignment(outletId) {
         return this.clientAssignmentRepository.findOne({
@@ -94,6 +100,7 @@ let ClientAssignmentService = ClientAssignmentService_1 = class ClientAssignment
     }
     async deactivateAssignment(outletId) {
         await this.clientAssignmentRepository.update({ outletId, status: 'active' }, { status: 'inactive' });
+        this.cacheService.clearAll();
     }
     async getAssignmentHistory(outletId) {
         return this.clientAssignmentRepository.find({
@@ -115,6 +122,7 @@ exports.ClientAssignmentService = ClientAssignmentService = ClientAssignmentServ
     __param(0, (0, typeorm_1.InjectRepository)(client_assignment_entity_1.ClientAssignment)),
     __param(1, (0, typeorm_1.InjectRepository)(clients_entity_1.Clients)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        client_assignment_cache_service_1.ClientAssignmentCacheService])
 ], ClientAssignmentService);
 //# sourceMappingURL=client-assignment.service.js.map

@@ -5,6 +5,8 @@ const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
 const compression = require("compression");
+const helmet_1 = require("helmet");
+const http_exception_filter_1 = require("./filters/http-exception.filter");
 let app;
 process.on('SIGTERM', async () => {
     console.log('🛑 SIGTERM received, shutting down gracefully...');
@@ -33,9 +35,50 @@ async function bootstrap() {
         if (!app) {
             console.log('🚀 Starting NestJS application...');
             app = await core_1.NestFactory.create(app_module_1.AppModule);
+            app.use((0, helmet_1.default)({
+                contentSecurityPolicy: {
+                    directives: {
+                        defaultSrc: ["'self'"],
+                        styleSrc: ["'self'", "'unsafe-inline'"],
+                        scriptSrc: ["'self'"],
+                        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
+                        connectSrc: ["'self'", 'https://moonsungqapi.vercel.app'],
+                    },
+                },
+                hsts: {
+                    maxAge: 31536000,
+                    includeSubDomains: true,
+                    preload: true,
+                },
+                frameguard: { action: 'deny' },
+                noSniff: true,
+                xssFilter: true,
+            }));
+            const allowedOrigins = [
+                'https://glamourqueen.com',
+                'https://app.glamourqueen.com',
+                'https://moonsungqapi.vercel.app',
+            ];
+            if (process.env.NODE_ENV !== 'production') {
+                allowedOrigins.push('http://localhost:3000', 'http://localhost:8080', 'http://192.168.100.14:3000', 'http://10.0.2.2:3000');
+            }
             app.enableCors({
-                origin: true,
+                origin: (origin, callback) => {
+                    if (!origin)
+                        return callback(null, true);
+                    if (allowedOrigins.indexOf(origin) !== -1) {
+                        callback(null, true);
+                    }
+                    else {
+                        console.warn(`⚠️ CORS blocked origin: ${origin}`);
+                        callback(new Error('Not allowed by CORS'));
+                    }
+                },
                 credentials: true,
+                methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+                allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+                exposedHeaders: ['Authorization'],
+                maxAge: 3600,
             });
             if (!process.env.VERCEL) {
                 app.use(compression({
@@ -49,9 +92,14 @@ async function bootstrap() {
                     }
                 }));
             }
+            app.useGlobalFilters(new http_exception_filter_1.GlobalExceptionFilter());
             app.useGlobalPipes(new common_1.ValidationPipe({
                 transform: true,
                 whitelist: true,
+                forbidNonWhitelisted: true,
+                transformOptions: {
+                    enableImplicitConversion: true,
+                },
             }));
             app.setGlobalPrefix('api');
             await app.init();

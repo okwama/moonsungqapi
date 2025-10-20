@@ -68,6 +68,7 @@ let AuthService = AuthService_1 = class AuthService {
                 name: user.name,
                 email: user.email,
                 phone: user.phoneNumber,
+                phoneNumber: user.phoneNumber,
                 role: user.role?.name || 'USER',
                 roleId: user.roleId,
                 countryId: user.countryId,

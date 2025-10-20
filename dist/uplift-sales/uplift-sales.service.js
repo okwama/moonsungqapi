@@ -94,11 +94,17 @@ let UpliftSalesService = class UpliftSalesService {
         }
     }
     async validateStock(clientId, items) {
+        const productIds = items.map(item => item.productId);
+        const stockRecords = await this.clientStockRepository.find({
+            where: {
+                clientId,
+                productId: (0, typeorm_2.In)(productIds)
+            }
+        });
+        const stockMap = new Map(stockRecords.map(record => [record.productId, record]));
         const errors = [];
         for (const item of items) {
-            const stockRecord = await this.clientStockRepository.findOne({
-                where: { clientId, productId: item.productId }
-            });
+            const stockRecord = stockMap.get(item.productId);
             if (!stockRecord) {
                 errors.push(`Product ${item.productId} not available in client stock`);
             }
@@ -106,6 +112,7 @@ let UpliftSalesService = class UpliftSalesService {
                 errors.push(`Insufficient stock for product ${item.productId}: available ${stockRecord.quantity}, requested ${item.quantity}`);
             }
         }
+        console.log(`✅ Stock validation completed: ${items.length} items checked with 1 query (batch optimized)`);
         return {
             isValid: errors.length === 0,
             errors

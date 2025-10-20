@@ -1,4 +1,5 @@
 import { Controller, Post, Body, UseGuards, Get, Request, UnauthorizedException, Logger, HttpCode, HttpStatus } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 //  import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -11,8 +12,11 @@ export class AuthController {
 
   constructor(private authService: AuthService) {}
 
+  // ✅ FIX: Added rate limiting to prevent brute force attacks
+  // Limits: 5 login attempts per 15 minutes per IP
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   async login(@Body() loginDto: LoginDto) {
     try {
       const user = await this.authService.validateUser(loginDto.phoneNumber, loginDto.password);

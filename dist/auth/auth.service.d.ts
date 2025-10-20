@@ -22,6 +22,7 @@ export declare class AuthService {
             name: any;
             email: any;
             phone: any;
+            phoneNumber: any;
             role: any;
             roleId: any;
             countryId: any;

@@ -39,6 +39,9 @@ let ClockInOutController = class ClockInOutController {
         const userId = req.user?.id;
         return await this.clockInOutService.getClockSessionsWithProcedure(userId, startDate, endDate);
     }
+    async cleanupStaleSessions() {
+        return await this.clockInOutService.cleanupStaleSessions();
+    }
 };
 exports.ClockInOutController = ClockInOutController;
 __decorate([
@@ -82,6 +85,12 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], ClockInOutController.prototype, "getClockHistory", null);
+__decorate([
+    (0, common_1.Post)('cleanup-stale-sessions'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ClockInOutController.prototype, "cleanupStaleSessions", null);
 exports.ClockInOutController = ClockInOutController = __decorate([
     (0, common_1.Controller)('clock-in-out'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

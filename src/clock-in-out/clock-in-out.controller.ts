@@ -66,4 +66,12 @@ export class ClockInOutController {
       endDate,
     );
   }
+
+  /**
+   * Clean up stale sessions (admin/maintenance endpoint)
+   */
+  @Post('cleanup-stale-sessions')
+  async cleanupStaleSessions() {
+    return await this.clockInOutService.cleanupStaleSessions();
+  }
 } 

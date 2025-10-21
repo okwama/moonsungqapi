@@ -23,6 +23,10 @@ export declare class ClockInOutController {
         sessions: any[];
     }>;
     getClockHistory(req: any, startDate?: string, endDate?: string): Promise<{
-        sessions: any[];
+        sessions: any;
+    }>;
+    cleanupStaleSessions(): Promise<{
+        cleanedCount: number;
+        message: string;
     }>;
 }

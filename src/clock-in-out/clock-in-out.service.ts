@@ -4,13 +4,12 @@ import { Repository, DataSource } from 'typeorm';
 import { LoginHistory } from '../entities/login-history.entity';
 import { ClockInDto } from './dto/clock-in.dto';
 import { ClockOutDto } from './dto/clock-out.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ClockInOutService {
   private readonly logger = new Logger(ClockInOutService.name);
-  
-  // Cache for user status to avoid repeated database calls
-  private userStatusCache = new Map<number, { status: any, expiry: number }>();
+  private userStatusCache = new Map<number, { status: any; expiry: number }>();
   private readonly CACHE_TTL = 30 * 1000; // 30 seconds
 
   constructor(
@@ -19,375 +18,314 @@ export class ClockInOutService {
     private dataSource: DataSource,
   ) {}
 
-  /**
-   * Clock In - Start or resume daily session
-   */
-  async clockIn(clockInDto: ClockInDto): Promise<{ success: boolean; message: string; sessionId?: number }> {
+  // ————————————————————————————————————————————————
+  // Helper: Get Nairobi-aware today range as DB strings
+  // ————————————————————————————————————————————————
+  private todayRange(ref: Date = new Date()) {
+    const nairobi = new Date(ref.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
+    const start = new Date(nairobi);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(nairobi);
+    end.setHours(23, 59, 59, 999);
+
+    return {
+      startStr: start.toISOString().slice(0, 19).replace('T', ' '),
+      endStr: end.toISOString().slice(0, 19).replace('T', ' '),
+    };
+  }
+
+  // ————————————————————————————————————————————————
+  // Clock In — Resume or start active session only
+  // ————————————————————————————————————————————————
+  async clockIn(dto: ClockInDto): Promise<{ success: boolean; message: string; sessionId?: number }> {
     try {
-      const { userId, clientTime } = clockInDto;
+      const { userId, clientTime } = dto;
+      const now = new Date(clientTime);
+      const { startStr, endStr } = this.todayRange(now);
+      const sessionStartTime = now.toISOString().slice(0, 19).replace('T', ' ');
 
-      this.logger.log(`🟢 Clock In attempt for user ${userId} at ${clientTime}`);
+      this.logger.log(`Clock In attempt for user ${userId} at ${clientTime}`);
 
-      // OPTIMIZATION: Use proper date formatting and range queries
-      const actualTime = new Date(clientTime);
-      const startOfDay = new Date(actualTime);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(actualTime);
-      endOfDay.setHours(23, 59, 59, 999);
-      
-      // OPTIMIZATION: Use ISO string formatting (faster and more reliable)
-      const sessionStartTime = actualTime.toISOString().slice(0, 19).replace('T', ' ');
-
-      // OPTIMIZATION: Use date range instead of DATE() function for better index usage
-      // Convert dates to strings for comparison with sessionStart (which is stored as string)
-      const startOfDayStr = startOfDay.toISOString().slice(0, 19).replace('T', ' ');
-      const endOfDayStr = endOfDay.toISOString().slice(0, 19).replace('T', ' ');
-      
-      const todayRecord = await this.loginHistoryRepository
-        .createQueryBuilder('session')
-        .where('session.userId = :userId', { userId })
-        .andWhere('session.sessionStart >= :startOfDay', { startOfDay: startOfDayStr })
-        .andWhere('session.sessionStart <= :endOfDay', { endOfDay: endOfDayStr })
+      // Find ONLY active session for today
+      const activeSession = await this.loginHistoryRepository
+        .createQueryBuilder('s')
+        .where('s.userId = :userId', { userId })
+        .andWhere('s.sessionStart >= :start', { start: startStr })
+        .andWhere('s.sessionStart <= :end', { end: endStr })
+        .andWhere('s.status = 1')
+        .andWhere('s.sessionEnd IS NULL')
+        .orderBy('s.sessionStart', 'DESC')
         .getOne();
 
-      if (todayRecord) {
-        // Update existing record - resume session
-        await this.loginHistoryRepository.update(todayRecord.id, {
-          status: 1, // Active
-          sessionEnd: null, // Clear end time
-          duration: 0, // Reset duration
+      if (activeSession) {
+        await this.loginHistoryRepository.update(activeSession.id, {
+          status: 1,
+          sessionEnd: null,
+          duration: 0,
         });
-
-        this.logger.log(`✅ User ${userId} resumed session. Record ID: ${todayRecord.id}`);
-        
-        // OPTIMIZATION: Clear cache after clock in
         this.clearUserCache(userId);
+        this.logger.log(`User ${userId} resumed session. ID: ${activeSession.id}`);
+        return { success: true, message: 'Successfully resumed session', sessionId: activeSession.id };
+      }
 
-        return {
-          success: true,
-          message: 'Successfully resumed session',
-          sessionId: todayRecord.id,
-        };
-      } else {
-        // Create new record for today
+      // Create new session
       const newSession = this.loginHistoryRepository.create({
         userId,
-        status: 1, // Active
-          sessionStart: sessionStartTime, // Use actual clock-in time
-          sessionEnd: null,
+        sessionStart: sessionStartTime,
+        sessionEnd: null,
+        status: 1,
+        duration: 0,
         timezone: 'Africa/Nairobi',
-          duration: 0,
       });
 
-      const savedSession = await this.loginHistoryRepository.save(newSession);
-
-        this.logger.log(`✅ User ${userId} started new session. Record ID: ${savedSession.id}`);
-        
-        // OPTIMIZATION: Clear cache after clock in
-        this.clearUserCache(userId);
-
-      return {
-        success: true,
-          message: 'Successfully started new session',
-        sessionId: savedSession.id,
-      };
-      }
+      const saved = await this.loginHistoryRepository.save(newSession);
+      this.clearUserCache(userId);
+      this.logger.log(`User ${userId} started new session. ID: ${saved.id}`);
+      return { success: true, message: 'Successfully started new session', sessionId: saved.id };
     } catch (error) {
-      this.logger.error(`❌ Clock In failed for user ${clockInDto.userId}: ${error.message}`);
-      return {
-        success: false,
-        message: 'Failed to clock in. Please try again.',
-      };
+      this.logger.error(`Clock In failed for user ${dto.userId}: ${error.message}`);
+      return { success: false, message: 'Failed to clock in. Please try again.' };
     }
   }
 
-  /**
-   * Clock Out - End current session (but keep record for potential resume)
-   */
-  async clockOut(clockOutDto: ClockOutDto): Promise<{ success: boolean; message: string; duration?: number }> {
+  // ————————————————————————————————————————————————
+  // Clock Out — End only the active session
+  // ————————————————————————————————————————————————
+  async clockOut(dto: ClockOutDto): Promise<{ success: boolean; message: string; duration?: number }> {
     try {
-      const { userId, clientTime } = clockOutDto;
+      const { userId, clientTime } = dto;
+      const now = new Date(clientTime);
+      const { startStr, endStr } = this.todayRange(now);
+      const sessionEndTime = now.toISOString().slice(0, 19).replace('T', ' ');
 
-      this.logger.log(`🔴 Clock Out attempt for user ${userId} at ${clientTime}`);
+      this.logger.log(`Clock Out attempt for user ${userId} at ${clientTime}`);
 
-      // OPTIMIZATION: Use proper date formatting and range queries
-      const actualTime = new Date(clientTime);
-      const startOfDay = new Date(actualTime);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(actualTime);
-      endOfDay.setHours(23, 59, 59, 999);
-      
-      // OPTIMIZATION: Use ISO string formatting (faster and more reliable)
-      const sessionEndTime = actualTime.toISOString().slice(0, 19).replace('T', ' ');
-
-      // OPTIMIZATION: Use date range instead of DATE() function for better index usage
-      // Convert dates to strings for comparison with sessionStart (which is stored as string)
-      const startOfDayStr = startOfDay.toISOString().slice(0, 19).replace('T', ' ');
-      const endOfDayStr = endOfDay.toISOString().slice(0, 19).replace('T', ' ');
-      
-      const todayRecord = await this.loginHistoryRepository
-        .createQueryBuilder('session')
-        .where('session.userId = :userId', { userId })
-        .andWhere('session.sessionStart >= :startOfDay', { startOfDay: startOfDayStr })
-        .andWhere('session.sessionStart <= :endOfDay', { endOfDay: endOfDayStr })
+      const activeSession = await this.loginHistoryRepository
+        .createQueryBuilder('s')
+        .where('s.userId = :userId', { userId })
+        .andWhere('s.sessionStart >= :start', { start: startStr })
+        .andWhere('s.sessionStart <= :end', { end: endStr })
+        .andWhere('s.status = 1')
+        .andWhere('s.sessionEnd IS NULL')
         .getOne();
 
-      if (!todayRecord) {
-        this.logger.warn(`⚠️ User ${userId} has no session record for today`);
-        return {
-          success: false,
-          message: 'No active session found for today.',
-        };
+      if (!activeSession) {
+        this.logger.warn(`User ${userId} has no active session today`);
+        return { success: false, message: 'No active session found for today.' };
       }
 
-      if (todayRecord.status === 2 && todayRecord.sessionEnd) {
-        this.logger.warn(`⚠️ User ${userId} session already ended for today`);
-        return {
-          success: false,
-          message: 'Session already ended for today.',
-        };
-      }
+      const durationMinutes = Math.floor(
+        (now.getTime() - new Date(activeSession.sessionStart).getTime()) / (1000 * 60)
+      );
 
-      // Calculate total duration for the day
-      const startTime = new Date(todayRecord.sessionStart);
-      const endTime = new Date(clientTime);
-      const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60));
-
-      // Update record - end session but keep it for potential resume
-      await this.loginHistoryRepository.update(todayRecord.id, {
-        status: 2, // Ended
-        sessionEnd: sessionEndTime, // Use formatted time
+      await this.loginHistoryRepository.update(activeSession.id, {
+        status: 2,
+        sessionEnd: sessionEndTime,
         duration: durationMinutes,
       });
 
-      this.logger.log(`✅ User ${userId} ended session. Total duration: ${durationMinutes} minutes`);
-      
-      // OPTIMIZATION: Clear cache after clock out
       this.clearUserCache(userId);
-
-      return {
-        success: true,
-        message: 'Successfully ended session',
-        duration: durationMinutes,
-      };
+      this.logger.log(`User ${userId} ended session. Duration: ${durationMinutes} min`);
+      return { success: true, message: 'Successfully ended session', duration: durationMinutes };
     } catch (error) {
-      this.logger.error(`❌ Clock Out failed for user ${clockOutDto.userId}: ${error.message}`);
-      return {
-        success: false,
-        message: 'Failed to clock out. Please try again.',
-      };
+      this.logger.error(`Clock Out failed for user ${dto.userId}: ${error.message}`);
+      return { success: false, message: 'Failed to clock out. Please try again.' };
     }
   }
 
-  /**
-   * Get current session status for today
-   */
-  async getCurrentStatus(userId: number, clientTime?: string): Promise<{ isClockedIn: boolean; sessionStart?: string; duration?: number; sessionId?: number }> {
+  // ————————————————————————————————————————————————
+  // Get Current Status — Only active session
+  // ————————————————————————————————————————————————
+  async getCurrentStatus(userId: number, clientTime?: string): Promise<{
+    isClockedIn: boolean;
+    sessionStart?: string;
+    duration?: number;
+    sessionId?: number;
+  }> {
     try {
-      // OPTIMIZATION: Check cache first to avoid database calls
       const cached = this.userStatusCache.get(userId);
       if (cached && cached.expiry > Date.now()) {
-        this.logger.log(`✅ Cache hit for user ${userId} status`);
+        this.logger.log(`Cache hit for user ${userId} status`);
         return cached.status;
       }
 
-      // Use client time if provided, otherwise use current time as fallback
-      const referenceTime = clientTime ? new Date(clientTime) : new Date();
-      
-      // OPTIMIZATION: Use date range instead of DATE() function
-      const startOfDay = new Date(referenceTime);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(referenceTime);
-      endOfDay.setHours(23, 59, 59, 999);
+      const ref = clientTime ? new Date(clientTime) : new Date();
+      const { startStr, endStr } = this.todayRange(ref);
 
-      this.logger.log(`🔍 Checking status for user ${userId} (client time: ${clientTime || 'not provided'})`);
-
-      const todayRecord = await this.loginHistoryRepository
-        .createQueryBuilder('session')
-        .where('session.userId = :userId', { userId })
-        .andWhere('session.sessionStart >= :startOfDay', { startOfDay })
-        .andWhere('session.sessionStart <= :endOfDay', { endOfDay })
+      const activeSession = await this.loginHistoryRepository
+        .createQueryBuilder('s')
+        .where('s.userId = :userId', { userId })
+        .andWhere('s.sessionStart >= :start', { start: startStr })
+        .andWhere('s.sessionStart <= :end', { end: endStr })
+        .andWhere('s.status = 1')
+        .andWhere('s.sessionEnd IS NULL')
+        .orderBy('s.sessionStart', 'DESC')
         .getOne();
 
-      if (!todayRecord) {
-        this.logger.log(`❌ No record found for user ${userId}`);
-        const result = { isClockedIn: false };
-        
-        // OPTIMIZATION: Cache the result
-        this.userStatusCache.set(userId, {
-          status: result,
-          expiry: Date.now() + this.CACHE_TTL
-        });
-        
-        return result;
-      }
+      const result = activeSession
+        ? {
+            isClockedIn: true,
+            sessionStart: activeSession.sessionStart,
+            duration: activeSession.duration,
+            sessionId: activeSession.id,
+          }
+        : { isClockedIn: false };
 
-      this.logger.log(`✅ Found record for user ${userId}: status=${todayRecord.status}, sessionStart=${todayRecord.sessionStart}`);
-
-      const result = {
-        isClockedIn: todayRecord.status === 1,
-        sessionStart: todayRecord.sessionStart,
-        duration: todayRecord.duration,
-        sessionId: todayRecord.id,
-      };
-
-      // OPTIMIZATION: Cache the result
-      this.userStatusCache.set(userId, {
-        status: result,
-        expiry: Date.now() + this.CACHE_TTL
-      });
-
+      this.userStatusCache.set(userId, { status: result, expiry: Date.now() + this.CACHE_TTL });
       return result;
     } catch (error) {
-      this.logger.error(`❌ Error getting current status for user ${userId}: ${error.message}`);
+      this.logger.error(`Error getting status for user ${userId}: ${error.message}`);
       return { isClockedIn: false };
     }
   }
 
-  /**
-   * Get today's session record
-   */
+  // ————————————————————————————————————————————————
+  // Get Today’s Sessions — All today, with isActive flag
+  // ————————————————————————————————————————————————
   async getTodaySessions(userId: number, clientTime?: string): Promise<{ sessions: any[] }> {
     try {
-      // Use client time if provided, otherwise use current time as fallback
-      const referenceTime = clientTime ? new Date(clientTime) : new Date();
-      
-      // OPTIMIZATION: Use date range instead of DATE() function
-      const startOfDay = new Date(referenceTime);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(referenceTime);
-      endOfDay.setHours(23, 59, 59, 999);
+      const ref = clientTime ? new Date(clientTime) : new Date();
+      const { startStr, endStr } = this.todayRange(ref);
 
-      this.logger.log(`🔍 Getting today's sessions for user ${userId} (client time: ${clientTime || 'not provided'})`);
-
-      const todayRecord = await this.loginHistoryRepository
-        .createQueryBuilder('session')
-        .where('session.userId = :userId', { userId })
-        .andWhere('session.sessionStart >= :startOfDay', { startOfDay })
-        .andWhere('session.sessionStart <= :endOfDay', { endOfDay })
-        .getOne();
-
-      if (!todayRecord) {
-        return { sessions: [] };
-      }
+      const records = await this.loginHistoryRepository
+        .createQueryBuilder('s')
+        .where('s.userId = :userId', { userId })
+        .andWhere('s.sessionStart >= :start', { start: startStr })
+        .andWhere('s.sessionStart <= :end', { end: endStr })
+        .orderBy('s.sessionStart', 'DESC')
+        .getMany();
 
       return {
-        sessions: [{
-          id: todayRecord.id,
-          userId: todayRecord.userId,
-          sessionStart: todayRecord.sessionStart,
-          sessionEnd: todayRecord.sessionEnd,
-          duration: todayRecord.duration,
-          status: todayRecord.status,
-          timezone: todayRecord.timezone,
-        }],
-      };
-    } catch (error) {
-      this.logger.error(`❌ Error getting today's sessions for user ${userId}: ${error.message}`);
-      return { sessions: [] };
-    }
-  }
-
-  /**
-   * Get session history for a date range
-   */
-  async getClockHistory(userId: number, startDate?: string, endDate?: string): Promise<{ sessions: any[] }> {
-    try {
-      let query = this.loginHistoryRepository
-        .createQueryBuilder('session')
-        .where('session.userId = :userId', { userId })
-        .orderBy('session.sessionStart', 'DESC');
-
-      if (startDate) {
-        query = query.andWhere('session.sessionStart >= :startDate', { startDate });
-      }
-
-      if (endDate) {
-        query = query.andWhere('session.sessionStart <= :endDate', { endDate });
-      }
-
-      const sessions = await query.getMany();
-
-      return {
-        sessions: sessions.map(session => ({
-        id: session.id,
-          userId: session.userId,
-        sessionStart: session.sessionStart,
-        sessionEnd: session.sessionEnd,
-        duration: session.duration,
-        status: session.status,
-        timezone: session.timezone,
+        sessions: records.map(r => ({
+          id: r.id,
+          userId: r.userId,
+          sessionStart: r.sessionStart,
+          sessionEnd: r.sessionEnd,
+          duration: r.duration,
+          status: r.status,
+          timezone: r.timezone,
+          isActive: r.status === 1 && !r.sessionEnd,
         })),
       };
     } catch (error) {
-      this.logger.error(`❌ Error getting clock history for user ${userId}: ${error.message}`);
+      this.logger.error(`Error getting today sessions for user ${userId}: ${error.message}`);
       return { sessions: [] };
     }
   }
 
-  /**
-   * Get clock sessions using stored procedure (fallback)
-   */
-  async getClockSessionsWithProcedure(
-    userId: number, 
-    startDate?: string, 
-    endDate?: string,
-    limit: number = 50
-  ): Promise<{ sessions: any[] }> {
-    try {
-      const result = await this.dataSource.query(
-        'CALL GetClockSessions(?, ?, ?, ?)',
-        [userId, startDate || null, endDate || null, limit]
-      );
+  // ————————————————————————————————————————————————
+  // Auto Cleanup — Runs daily at midnight (Nairobi)
+  // ————————————————————————————————————————————————
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: 'Africa/Nairobi' })
+  async autoCleanupStaleSessions() {
+    this.logger.log('Running scheduled stale session cleanup...');
+    await this.cleanupStaleSessions();
+  }
 
+  // ————————————————————————————————————————————————
+  // Manual Cleanup — Close old open sessions
+  // ————————————————————————————————————————————————
+  async cleanupStaleSessions(): Promise<{ cleanedCount: number; message: string }> {
+    try {
+      this.logger.log('Starting stale session cleanup...');
+      const now = new Date();
+      const nairobiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
+      const yesterday = new Date(nairobiTime);
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
+      const yesterdayStr = yesterday.toISOString().slice(0, 19).replace('T', ' ');
+
+      const stale = await this.loginHistoryRepository
+        .createQueryBuilder('s')
+        .where('s.status = 1')
+        .andWhere('s.sessionStart < :yesterday', { yesterday: yesterdayStr })
+        .andWhere('s.sessionEnd IS NULL')
+        .getMany();
+
+      if (stale.length === 0) {
+        this.logger.log('No stale sessions found');
+        return { cleanedCount: 0, message: 'No stale sessions found' };
+      }
+
+      let cleaned = 0;
+      for (const s of stale) {
+        const start = new Date(s.sessionStart);
+        const end = new Date(start);
+        end.setHours(23, 59, 59, 999); // End of session day
+        const endStr = end.toISOString().slice(0, 19).replace('T', ' ');
+        const mins = Math.floor((end.getTime() - start.getTime()) / 60000);
+
+        await this.loginHistoryRepository.update(s.id, {
+          status: 2,
+          sessionEnd: endStr,
+          duration: mins,
+        });
+        cleaned++;
+        this.clearUserCache(s.userId);
+      }
+
+      this.logger.log(`Cleaned ${cleaned} stale sessions`);
+      return { cleanedCount: cleaned, message: `Cleaned ${cleaned} stale sessions` };
+    } catch (error) {
+      this.logger.error(`Cleanup failed: ${error.message}`);
+      return { cleanedCount: 0, message: `Cleanup failed: ${error.message}` };
+    }
+  }
+
+  // ————————————————————————————————————————————————
+  // History & Fallbacks (unchanged)
+  // ————————————————————————————————————————————————
+  async getClockHistory(userId: number, startDate?: string, endDate?: string): Promise<{ sessions: any[] }> {
+    try {
+      let query = this.loginHistoryRepository
+        .createQueryBuilder('s')
+        .where('s.userId = :userId', { userId })
+        .orderBy('s.sessionStart', 'DESC');
+
+      if (startDate) query = query.andWhere('s.sessionStart >= :startDate', { startDate });
+      if (endDate) query = query.andWhere('s.sessionStart <= :endDate', { endDate });
+
+      const sessions = await query.getMany();
+      return {
+        sessions: sessions.map(s => ({
+          id: s.id,
+          userId: s.userId,
+          sessionStart: s.sessionStart,
+          sessionEnd: s.sessionEnd,
+          duration: s.duration,
+          status: s.status,
+          timezone: s.timezone,
+        })),
+      };
+    } catch (error) {
+      this.logger.error(`History error: ${error.message}`);
+      return { sessions: [] };
+    }
+  }
+
+  async getClockSessionsWithProcedure(userId: number, startDate?: string, endDate?: string, limit = 50) {
+    try {
+      const result = await this.dataSource.query('CALL GetClockSessions(?, ?, ?, ?)', [
+        userId,
+        startDate || null,
+        endDate || null,
+        limit,
+      ]);
       return { sessions: result[0] || [] };
     } catch (error) {
-      this.logger.warn(`⚠️ Stored procedure failed, using fallback: ${error.message}`);
+      this.logger.warn(`Stored proc failed: ${error.message}`);
       return this.getClockHistory(userId, startDate, endDate);
     }
   }
 
-  /**
-   * Fallback method for getting clock sessions
-   */
-  private async getClockSessionsFallback(
-    userId: number, 
-    startDate?: string, 
-    endDate?: string
-  ): Promise<{ sessions: any[] }> {
-    return this.getClockHistory(userId, startDate, endDate);
-  }
-
-  /**
-   * OPTIMIZATION: Clear cache when user clocks in/out
-   */
   private clearUserCache(userId: number): void {
     this.userStatusCache.delete(userId);
   }
 
-  /**
-   * Format datetime string
-   */
-  private formatDateTime(dateTimeStr: string): string {
-    if (!dateTimeStr) return '';
-    
-    try {
-      const date = new Date(dateTimeStr);
-      return date.toISOString().slice(0, 19).replace('T', ' ');
-    } catch (error) {
-      return dateTimeStr;
-    }
-  }
-
-  /**
-   * Format duration in hours and minutes
-   */
   private formatDuration(minutes: number): string {
     if (!minutes || minutes <= 0) return '0h 0m';
-    
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    
-      return `${hours}h ${remainingMinutes}m`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${h}h ${m}m`;
   }
-} 
+}

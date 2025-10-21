@@ -9,12 +9,13 @@ export declare class ClockInOutService {
     private userStatusCache;
     private readonly CACHE_TTL;
     constructor(loginHistoryRepository: Repository<LoginHistory>, dataSource: DataSource);
-    clockIn(clockInDto: ClockInDto): Promise<{
+    private todayRange;
+    clockIn(dto: ClockInDto): Promise<{
         success: boolean;
         message: string;
         sessionId?: number;
     }>;
-    clockOut(clockOutDto: ClockOutDto): Promise<{
+    clockOut(dto: ClockOutDto): Promise<{
         success: boolean;
         message: string;
         duration?: number;
@@ -28,14 +29,17 @@ export declare class ClockInOutService {
     getTodaySessions(userId: number, clientTime?: string): Promise<{
         sessions: any[];
     }>;
+    autoCleanupStaleSessions(): Promise<void>;
+    cleanupStaleSessions(): Promise<{
+        cleanedCount: number;
+        message: string;
+    }>;
     getClockHistory(userId: number, startDate?: string, endDate?: string): Promise<{
         sessions: any[];
     }>;
     getClockSessionsWithProcedure(userId: number, startDate?: string, endDate?: string, limit?: number): Promise<{
-        sessions: any[];
+        sessions: any;
     }>;
-    private getClockSessionsFallback;
     private clearUserCache;
-    private formatDateTime;
     private formatDuration;
 }

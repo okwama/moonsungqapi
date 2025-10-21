@@ -157,7 +157,7 @@ let OrdersService = class OrdersService {
                 'order.receivedIntoStock',
                 'order.receivedAt',
             ])
-                .leftJoin('order.user', 'user')
+                .leftJoin('SalesRep', 'user', 'user.id = order.created_by')
                 .addSelect(['user.id', 'user.name', 'user.email'])
                 .leftJoin('order.client', 'client')
                 .addSelect(['client.id', 'client.name', 'client.contact', 'client.region'])
@@ -219,7 +219,7 @@ let OrdersService = class OrdersService {
                 'order.receivedIntoStock',
                 'order.receivedAt',
             ])
-                .leftJoin('order.user', 'user')
+                .leftJoin('SalesRep', 'user', 'user.id = order.created_by')
                 .addSelect(['user.id', 'user.name', 'user.email'])
                 .leftJoin('order.client', 'client')
                 .addSelect(['client.id', 'client.name', 'client.contact', 'client.region', 'client.address'])

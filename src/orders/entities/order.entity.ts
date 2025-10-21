@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Clients } from '../../entities/clients.entity';
 import { OrderItem } from './order-item.entity';
-import { Users } from '../../users/entities/users.entity';
+import { SalesRep } from '../../entities/sales-rep.entity';
 
 @Entity('sales_orders')
 export class Order {
@@ -68,9 +68,9 @@ export class Order {
   @Column({ name: 'received_at', type: 'timestamp', nullable: true })
   receivedAt: Date;
 
-  @ManyToOne(() => Users, { nullable: true })
+  @ManyToOne(() => SalesRep, { nullable: true })
   @JoinColumn({ name: 'created_by' })
-  user: Users;
+  user: SalesRep;
 
   @ManyToOne(() => Clients)
   @JoinColumn({ name: 'client_id' })

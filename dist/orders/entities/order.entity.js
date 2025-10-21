@@ -13,7 +13,7 @@ exports.Order = void 0;
 const typeorm_1 = require("typeorm");
 const clients_entity_1 = require("../../entities/clients.entity");
 const order_item_entity_1 = require("./order-item.entity");
-const users_entity_1 = require("../../users/entities/users.entity");
+const sales_rep_entity_1 = require("../../entities/sales-rep.entity");
 let Order = class Order {
 };
 exports.Order = Order;
@@ -90,9 +90,9 @@ __decorate([
     __metadata("design:type", Date)
 ], Order.prototype, "receivedAt", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => users_entity_1.Users, { nullable: true }),
+    (0, typeorm_1.ManyToOne)(() => sales_rep_entity_1.SalesRep, { nullable: true }),
     (0, typeorm_1.JoinColumn)({ name: 'created_by' }),
-    __metadata("design:type", users_entity_1.Users)
+    __metadata("design:type", sales_rep_entity_1.SalesRep)
 ], Order.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => clients_entity_1.Clients),

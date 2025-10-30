@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Get, Request, UnauthorizedException, Logger, HttpCode, HttpStatus } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 //  import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -12,11 +12,9 @@ export class AuthController {
 
   constructor(private authService: AuthService) {}
 
-  // ✅ FIX: Added rate limiting to prevent brute force attacks
-  // Limits: 5 login attempts per 15 minutes per IP
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 5, ttl: 900000 } })
+  @SkipThrottle() // Whitelist - small sales team, no sensitive data
   async login(@Body() loginDto: LoginDto) {
     try {
       const user = await this.authService.validateUser(loginDto.phoneNumber, loginDto.password);
@@ -32,6 +30,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @SkipThrottle() // Whitelist - needed for seamless token refresh
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     this.logger.log('🔄 Token refresh request received');
     this.logger.log(`📦 Refresh token: ${refreshTokenDto.refreshToken ? '[PROVIDED]' : '[MISSING]'}`);
@@ -49,6 +48,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
+  @SkipThrottle() // Whitelist - read-only profile data
   getProfile(@Request() req) {
     this.logger.log(`👤 Profile request for user: ${req.user?.name || 'Unknown'}`);
     return req.user;

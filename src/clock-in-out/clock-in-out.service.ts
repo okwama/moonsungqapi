@@ -38,6 +38,10 @@ export class ClockInOutService {
   // Clock In — Resume or start active session only
   // ————————————————————————————————————————————————
   async clockIn(dto: ClockInDto): Promise<{ success: boolean; message: string; sessionId?: number }> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
       const { userId, clientTime } = dto;
       const now = new Date(clientTime);
@@ -46,9 +50,10 @@ export class ClockInOutService {
 
       this.logger.log(`Clock In attempt for user ${userId} at ${clientTime}`);
 
-      // Find ONLY active session for today
-      const activeSession = await this.loginHistoryRepository
-        .createQueryBuilder('s')
+      // Find ONLY active session for today WITH LOCK to prevent race conditions
+      const activeSession = await queryRunner.manager
+        .createQueryBuilder(LoginHistory, 's')
+        .setLock('pessimistic_write') // Lock the row to prevent concurrent modifications
         .where('s.userId = :userId', { userId })
         .andWhere('s.sessionStart >= :start', { start: startStr })
         .andWhere('s.sessionStart <= :end', { end: endStr })
@@ -58,18 +63,19 @@ export class ClockInOutService {
         .getOne();
 
       if (activeSession) {
-        await this.loginHistoryRepository.update(activeSession.id, {
+        await queryRunner.manager.update(LoginHistory, activeSession.id, {
           status: 1,
           sessionEnd: null,
           duration: 0,
         });
+        await queryRunner.commitTransaction();
         this.clearUserCache(userId);
         this.logger.log(`User ${userId} resumed session. ID: ${activeSession.id}`);
         return { success: true, message: 'Successfully resumed session', sessionId: activeSession.id };
       }
 
       // Create new session
-      const newSession = this.loginHistoryRepository.create({
+      const newSession = queryRunner.manager.create(LoginHistory, {
         userId,
         sessionStart: sessionStartTime,
         sessionEnd: null,
@@ -78,13 +84,17 @@ export class ClockInOutService {
         timezone: 'Africa/Nairobi',
       });
 
-      const saved = await this.loginHistoryRepository.save(newSession);
+      const saved = await queryRunner.manager.save(newSession);
+      await queryRunner.commitTransaction();
       this.clearUserCache(userId);
       this.logger.log(`User ${userId} started new session. ID: ${saved.id}`);
       return { success: true, message: 'Successfully started new session', sessionId: saved.id };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(`Clock In failed for user ${dto.userId}: ${error.message}`);
       return { success: false, message: 'Failed to clock in. Please try again.' };
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -92,6 +102,10 @@ export class ClockInOutService {
   // Clock Out — End only the active session
   // ————————————————————————————————————————————————
   async clockOut(dto: ClockOutDto): Promise<{ success: boolean; message: string; duration?: number }> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
       const { userId, clientTime } = dto;
       const now = new Date(clientTime);
@@ -100,8 +114,9 @@ export class ClockInOutService {
 
       this.logger.log(`Clock Out attempt for user ${userId} at ${clientTime}`);
 
-      const activeSession = await this.loginHistoryRepository
-        .createQueryBuilder('s')
+      const activeSession = await queryRunner.manager
+        .createQueryBuilder(LoginHistory, 's')
+        .setLock('pessimistic_write') // Lock to prevent race conditions
         .where('s.userId = :userId', { userId })
         .andWhere('s.sessionStart >= :start', { start: startStr })
         .andWhere('s.sessionStart <= :end', { end: endStr })
@@ -110,6 +125,7 @@ export class ClockInOutService {
         .getOne();
 
       if (!activeSession) {
+        await queryRunner.rollbackTransaction();
         this.logger.warn(`User ${userId} has no active session today`);
         return { success: false, message: 'No active session found for today.' };
       }
@@ -118,18 +134,22 @@ export class ClockInOutService {
         (now.getTime() - new Date(activeSession.sessionStart).getTime()) / (1000 * 60)
       );
 
-      await this.loginHistoryRepository.update(activeSession.id, {
+      await queryRunner.manager.update(LoginHistory, activeSession.id, {
         status: 2,
         sessionEnd: sessionEndTime,
         duration: durationMinutes,
       });
 
+      await queryRunner.commitTransaction();
       this.clearUserCache(userId);
       this.logger.log(`User ${userId} ended session. Duration: ${durationMinutes} min`);
       return { success: true, message: 'Successfully ended session', duration: durationMinutes };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(`Clock Out failed for user ${dto.userId}: ${error.message}`);
       return { success: false, message: 'Failed to clock out. Please try again.' };
+    } finally {
+      await queryRunner.release();
     }
   }
 

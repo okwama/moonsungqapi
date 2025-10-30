@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus, Query, UseGuards, Request } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ClockInOutService } from './clock-in-out.service';
 import { ClockInDto, ClockOutDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -30,6 +31,7 @@ export class ClockInOutController {
    * Get current clock status
    */
   @Get('status')
+  @SkipThrottle() // Whitelist - called frequently for UI updates
   async getCurrentStatus(
     @Request() req,
     @Query('clientTime') clientTime?: string

@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClockInOutController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const clock_in_out_service_1 = require("./clock-in-out.service");
 const dto_1 = require("./dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
@@ -62,6 +63,7 @@ __decorate([
 ], ClockInOutController.prototype, "clockOut", null);
 __decorate([
     (0, common_1.Get)('status'),
+    (0, throttler_1.SkipThrottle)(),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Query)('clientTime')),
     __metadata("design:type", Function),

@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpliftSalesService } from './uplift-sales.service';
 
@@ -8,6 +9,7 @@ export class UpliftSalesController {
   constructor(private readonly upliftSalesService: UpliftSalesService) {}
 
   @Get()
+  @SkipThrottle() // Whitelist - read-only, frequently accessed for sales history
   async findAll(@Query() query: any, @Request() req: any) {
     // Optional query parameters:
     // - userId: filter by specific user ID (if not provided, uses authenticated user)
@@ -18,6 +20,7 @@ export class UpliftSalesController {
   }
 
   @Get(':id')
+  @SkipThrottle() // Whitelist - read-only, single record fetch
   async findOne(@Param('id') id: string) {
     return this.upliftSalesService.findOne(+id);
   }

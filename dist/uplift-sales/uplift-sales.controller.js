@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpliftSalesController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const uplift_sales_service_1 = require("./uplift-sales.service");
 let UpliftSalesController = class UpliftSalesController {
@@ -46,6 +47,7 @@ let UpliftSalesController = class UpliftSalesController {
 exports.UpliftSalesController = UpliftSalesController;
 __decorate([
     (0, common_1.Get)(),
+    (0, throttler_1.SkipThrottle)(),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -54,6 +56,7 @@ __decorate([
 ], UpliftSalesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, throttler_1.SkipThrottle)(),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

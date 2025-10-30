@@ -54,7 +54,7 @@ import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
     }),
     ThrottlerModule.forRoot([{
       ttl: 60000, // 1 minute
-      limit: 100, // 100 requests per minute (global default)
+      limit: 300, // 300 requests per minute (increased for mobile app usage)
     }]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

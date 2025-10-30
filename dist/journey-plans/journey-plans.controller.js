@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JourneyPlansController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const journey_plans_service_1 = require("./journey-plans.service");
 const create_journey_plan_dto_1 = require("./dto/create-journey-plan.dto");
 const update_journey_plan_dto_1 = require("./dto/update-journey-plan.dto");
@@ -77,6 +78,7 @@ __decorate([
 ], JourneyPlansController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, throttler_1.SkipThrottle)(),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Query)('page')),
     __param(2, (0, common_1.Query)('limit')),

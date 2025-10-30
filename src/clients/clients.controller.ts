@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { SearchClientsDto } from './dto/search-clients.dto';
@@ -16,6 +17,7 @@ export class ClientsController {
   }
 
   @Get()
+  @SkipThrottle() // Whitelist - frequently called, now cached client-side
   async findAll(
     @Request() req,
     @Query('page') page?: string,

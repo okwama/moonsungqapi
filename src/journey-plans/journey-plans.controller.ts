@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { JourneyPlansService } from './journey-plans.service';
 import { CreateJourneyPlanDto } from './dto/create-journey-plan.dto';
 import { UpdateJourneyPlanDto } from './dto/update-journey-plan.dto';
@@ -19,6 +20,7 @@ export class JourneyPlansController {
   }
 
   @Get()
+  @SkipThrottle() // Whitelist - most frequently called endpoint
   findAll(
     @Req() req: Request,
     @Query('page') page: string = '1',

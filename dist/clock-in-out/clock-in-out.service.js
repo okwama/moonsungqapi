@@ -25,7 +25,7 @@ let ClockInOutService = ClockInOutService_1 = class ClockInOutService {
         this.dataSource = dataSource;
         this.logger = new common_1.Logger(ClockInOutService_1.name);
         this.userStatusCache = new Map();
-        this.CACHE_TTL = 30 * 1000;
+        this.CACHE_TTL = 5 * 1000;
     }
     todayRange(ref = new Date()) {
         const nairobi = new Date(ref.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
@@ -119,7 +119,8 @@ let ClockInOutService = ClockInOutService_1 = class ClockInOutService {
     async getCurrentStatus(userId, clientTime) {
         try {
             const cached = this.userStatusCache.get(userId);
-            if (cached && cached.expiry > Date.now()) {
+            const bypassCache = !!clientTime;
+            if (!bypassCache && cached && cached.expiry > Date.now()) {
                 this.logger.log(`Cache hit for user ${userId} status`);
                 return cached.status;
             }

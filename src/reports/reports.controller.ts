@@ -1,9 +1,8 @@
-import { Controller, Post, Get, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
-@UseGuards(JwtAuthGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
@@ -12,6 +11,16 @@ export class ReportsController {
     try {
       console.log('📋 Reports Controller: Received report submission');
       console.log('📋 Report data:', reportData);
+      
+      // Validate userId is provided (fallback mechanism if token is invalid)
+      const userId = reportData.userId || reportData.salesRepId;
+      if (!userId) {
+        throw new BadRequestException('userId or salesRepId is required');
+      }
+      
+      // Ensure userId is set in reportData
+      reportData.userId = userId;
+      reportData.salesRepId = userId; // Keep both for compatibility
       
       const result = await this.reportsService.submitReport(reportData);
       
@@ -44,6 +53,7 @@ export class ReportsController {
   }
 
   @Get('journey-plan/:journeyPlanId')
+  @UseGuards(JwtAuthGuard) // Keep JWT for GET endpoints
   async getReportsByJourneyPlan(@Param('journeyPlanId') journeyPlanId: number) {
     try {
       const reports = await this.reportsService.getReportsByJourneyPlan(journeyPlanId);
@@ -60,6 +70,7 @@ export class ReportsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard) // Keep JWT for GET endpoints
   async getAllReports() {
     try {
       const reports = await this.reportsService.findAll();

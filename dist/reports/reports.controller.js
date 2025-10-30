@@ -24,6 +24,12 @@ let ReportsController = class ReportsController {
         try {
             console.log('📋 Reports Controller: Received report submission');
             console.log('📋 Report data:', reportData);
+            const userId = reportData.userId || reportData.salesRepId;
+            if (!userId) {
+                throw new common_1.BadRequestException('userId or salesRepId is required');
+            }
+            reportData.userId = userId;
+            reportData.salesRepId = userId;
             const result = await this.reportsService.submitReport(reportData);
             const response = {
                 success: true,
@@ -91,6 +97,7 @@ __decorate([
 ], ReportsController.prototype, "submitReport", null);
 __decorate([
     (0, common_1.Get)('journey-plan/:journeyPlanId'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('journeyPlanId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
@@ -98,13 +105,13 @@ __decorate([
 ], ReportsController.prototype, "getReportsByJourneyPlan", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ReportsController.prototype, "getAllReports", null);
 exports.ReportsController = ReportsController = __decorate([
     (0, common_1.Controller)('reports'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [reports_service_1.ReportsService])
 ], ReportsController);
 //# sourceMappingURL=reports.controller.js.map

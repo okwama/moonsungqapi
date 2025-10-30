@@ -22,10 +22,11 @@ let SampleRequestsController = class SampleRequestsController {
     }
     async create(createDto, req) {
         console.log('[SampleRequest] Creating sample request:', createDto);
-        console.log('[SampleRequest] User from request:', req.user);
-        if (createDto.userId !== req.user.id) {
-            createDto.userId = req.user.id;
+        const userId = req.user?.id || createDto.userId;
+        if (!userId) {
+            throw new common_1.BadRequestException('userId is required');
         }
+        createDto.userId = userId;
         const result = await this.sampleRequestsService.create(createDto);
         console.log('[SampleRequest] Created sample request:', result);
         return result;
@@ -66,6 +67,7 @@ __decorate([
 ], SampleRequestsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Query)('clientId')),
     __param(1, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
@@ -74,6 +76,7 @@ __decorate([
 ], SampleRequestsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)('my-requests'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -81,6 +84,7 @@ __decorate([
 ], SampleRequestsController.prototype, "findMyRequests", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -88,6 +92,7 @@ __decorate([
 ], SampleRequestsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
@@ -97,6 +102,7 @@ __decorate([
 ], SampleRequestsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -104,7 +110,6 @@ __decorate([
 ], SampleRequestsController.prototype, "remove", null);
 exports.SampleRequestsController = SampleRequestsController = __decorate([
     (0, common_1.Controller)('sample-requests'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [sample_requests_service_1.SampleRequestsService])
 ], SampleRequestsController);
 //# sourceMappingURL=sample-requests.controller.js.map

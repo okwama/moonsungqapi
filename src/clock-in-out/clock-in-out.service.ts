@@ -10,7 +10,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 export class ClockInOutService {
   private readonly logger = new Logger(ClockInOutService.name);
   private userStatusCache = new Map<number, { status: any; expiry: number }>();
-  private readonly CACHE_TTL = 30 * 1000; // 30 seconds
+  private readonly CACHE_TTL = 5 * 1000; // 5 seconds
 
   constructor(
     @InjectRepository(LoginHistory)
@@ -144,7 +144,8 @@ export class ClockInOutService {
   }> {
     try {
       const cached = this.userStatusCache.get(userId);
-      if (cached && cached.expiry > Date.now()) {
+      const bypassCache = !!clientTime; // if client sends time, fetch fresh
+      if (!bypassCache && cached && cached.expiry > Date.now()) {
         this.logger.log(`Cache hit for user ${userId} status`);
         return cached.status;
       }

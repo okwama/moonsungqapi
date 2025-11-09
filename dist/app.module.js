@@ -62,8 +62,8 @@ exports.AppModule = AppModule = __decorate([
                 envFilePath: ['.env.local', '.env'],
             }),
             throttler_1.ThrottlerModule.forRoot([{
-                    ttl: 60000,
-                    limit: 300,
+                    ttl: 1000,
+                    limit: 1000,
                 }]),
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],

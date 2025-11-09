@@ -12,4 +12,7 @@ export declare class UpliftSalesController {
     voidSale(id: string, body: {
         reason: string;
     }): Promise<import("../entities").UpliftSale>;
+    updateStatus(id: string, body: {
+        status: number;
+    }): Promise<import("../entities").UpliftSale>;
 }

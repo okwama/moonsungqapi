@@ -53,8 +53,8 @@ import { AutoClockoutModule } from './auto-clockout/auto-clockout.module';
       envFilePath: ['.env.local', '.env'],
     }),
     ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minute
-      limit: 300, // 300 requests per minute (increased for mobile app usage)
+      ttl: 1000, // 1 second window
+      limit: 1000, // 1000 requests per second
     }]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

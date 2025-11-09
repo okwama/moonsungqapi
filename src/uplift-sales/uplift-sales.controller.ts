@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpliftSalesService } from './uplift-sales.service';
@@ -47,5 +47,13 @@ export class UpliftSalesController {
     console.log(`📥 Received void sale request for ID ${id}:`);
     console.log('📊 Void reason:', body.reason);
     return this.upliftSalesService.voidSale(+id, body.reason);
+  }
+
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() body: { status: number },
+  ) {
+    return this.upliftSalesService.update(+id, { status: body.status, updatedAt: new Date() });
   }
 } 

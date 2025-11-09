@@ -43,6 +43,9 @@ let UpliftSalesController = class UpliftSalesController {
         console.log('📊 Void reason:', body.reason);
         return this.upliftSalesService.voidSale(+id, body.reason);
     }
+    async updateStatus(id, body) {
+        return this.upliftSalesService.update(+id, { status: body.status, updatedAt: new Date() });
+    }
 };
 exports.UpliftSalesController = UpliftSalesController;
 __decorate([
@@ -92,6 +95,14 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UpliftSalesController.prototype, "voidSale", null);
+__decorate([
+    (0, common_1.Patch)(':id/status'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UpliftSalesController.prototype, "updateStatus", null);
 exports.UpliftSalesController = UpliftSalesController = __decorate([
     (0, common_1.Controller)('uplift-sales'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
